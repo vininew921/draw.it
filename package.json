@@ -1,0 +1,24 @@
+{
+  "name": "drawit",
+  "version": "1.0.0",
+  "description": "Draw.it",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/vininew921/draw.it.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/vininew921/draw.it/issues"
+  },
+  "homepage": "https://github.com/vininew921/draw.it#readme",
+  "devDependencies": {
+    "express": "^4.17.1",
+    "http": "0.0.1-security",
+    "socket.io": "^4.2.0"
+  }
+}
