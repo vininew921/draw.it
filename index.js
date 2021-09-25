@@ -20,9 +20,8 @@ app.use(connectLivereload());
 
 app.use(express.static(publicDirectory));
 
-
 app.get('/', (req, res) =>{
-  res.sendFile(__dirname + '/index.html');
+  res.sendFile(publicDirectory + "/pages/home.html");
 });
 
 function onConnection(socket) {

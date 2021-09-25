@@ -1,0 +1,41 @@
+body{
+    background-color: #01BEFE;
+}
+
+*{
+    font-family: cursive;
+}
+
+#header{
+    text-align: center;
+    margin: auto;
+    width: 50%;
+    font-size: xx-large;
+}
+
+.options{
+    display: flex;
+    justify-content: center;
+}
+
+.roomOptions{
+    margin-top: 10vh;
+    max-width: 400px;
+    text-align: center;
+}
+
+.roomBtn{
+    background-color: #FFDD00;
+    width: 300px;
+    font-size: 36px;
+    box-sizing: border-box;
+    margin: 1rem;
+    padding: 1rem;
+    border: 3px solid #000;
+    border-radius: 5px;
+}
+
+.roomBtn:hover{
+    background-color: #FF7D00;
+    cursor: pointer;
+}
