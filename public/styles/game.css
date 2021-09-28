@@ -1,0 +1,29 @@
+body {
+  background-color: #01befe;
+}
+
+* {
+  font-family: cursive;
+}
+
+#header {
+  text-align: center;
+  margin: auto;
+  width: 50%;
+  font-size: xx-large;
+}
+
+#box-game {
+  width: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+#content-box {
+  display: flex;
+  background-color: white;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+}
