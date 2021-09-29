@@ -4,7 +4,8 @@
   "description": "Draw.it",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "start": "node index.js",
+    "watch": "nodemon --ext js"
   },
   "repository": {
     "type": "git",
@@ -17,6 +18,11 @@
   },
   "homepage": "https://github.com/vininew921/draw.it#readme",
   "devDependencies": {
+    "connect-livereload": "^0.6.1",
+    "livereload": "^0.9.3",
+    "nodemon": "^2.0.13"
+  },
+  "dependencies": {
     "express": "^4.17.1",
     "http": "0.0.1-security",
     "socket.io": "^4.2.0"
