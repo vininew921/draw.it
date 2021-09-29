@@ -13,7 +13,7 @@ sendBtn.onclick = function () {
 };
 
 let timerInterval;
-let cont = 10; // 120s = 2min
+let cont = 120; // 120s = 2min
 const initTimer = () => {
   timerInterval = setInterval(() => {
     cont--;
