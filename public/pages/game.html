@@ -13,13 +13,22 @@
     </div>
     <div id="box-game">
       <div id="content-box">
-        <canvas width="250" height="250" id="canvasDraw"> </canvas>
+        <div id="box-canvas"></div>
         <div id="footer">
-          <input type="text" name="word" id="wordIpt" placeholder="Texto" />
+          <label for="wordIpt">Advinhe:</label>
+          <input type="text" name="word" id="wordIpt" />
           <button id="sendBtn">Enviar</button>
+          <span id="timer">2:00</span>
+          <img
+            src="../img/game/clock.svg"
+            id="img-clock"
+            data-animate="clock"
+          />
         </div>
       </div>
     </div>
+    <audio src="../song/despertador.mp3" id="clockAudio" preload="auto"></audio>
+    <script src="/socket.io/socket.io.js"></script>
     <script src="../js/game.js"></script>
   </body>
 </html>
