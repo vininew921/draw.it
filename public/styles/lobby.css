@@ -1,0 +1,14 @@
+body{
+    background-color: #01BEFE;
+}
+
+*{
+    font-family: cursive;
+}
+
+#header{
+    text-align: center;
+    margin: auto;
+    width: 50%;
+    font-size: xx-large;
+}
