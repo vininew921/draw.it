@@ -35,13 +35,5 @@ const stopTimer = () => {
   wordIpt.value = "";
   wordIpt.disabled = true;
   sendBtn.disabled = true;
-  playClockAudio();
   clearInterval(timerInterval);
-};
-
-const playClockAudio = () => {
-  clockAudio.play();
-  setTimeout(() => {
-    clockAudio.pause();
-  }, 5000);
 };

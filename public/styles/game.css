@@ -82,13 +82,12 @@ body {
   margin-left: 10px;
 }
 
-[data-animate="clock"] {
+/* [data-animate="clock"] {
   visibility: hidden;
   transition: 0.5s;
-}
+} */
 
 [data-animate="clock"].animate {
-  visibility: visible;
   animation-name: shake;
   animation-duration: 0.5s;
   animation-timing-function: ease;
