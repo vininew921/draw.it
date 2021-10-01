@@ -22,7 +22,7 @@ class LobbyController{
     createRoom(socket, player) {
         var currentRoom = this.getRoomByCode(player.roomCode);
         if (!currentRoom) {
-            currentRoom = new Room(2, player.roomCode);
+            currentRoom = new Room(8, player.roomCode);
             currentRoom.addPlayer(player);
             this.addRoom(currentRoom);
             socket.join(currentRoom.roomCode);
