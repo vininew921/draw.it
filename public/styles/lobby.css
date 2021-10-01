@@ -7,8 +7,33 @@ body{
 }
 
 #header{
+    color: #FF006D;
     text-align: center;
     margin: auto;
     width: 50%;
     font-size: xx-large;
+    display: flex;
+    justify-content: center;
+}
+
+#roomCodeHeader{
+    color: #FF006D;
+    margin: auto;
+    margin-top: -3.3em;
+    font-size: xx-large;
+    display: flex;
+}
+
+#playerList{
+    margin: 30px;
+    font-size: x-large;
+    width: 50%;
+}
+
+#players{
+    column-count: auto;
+}
+
+.player{
+    margin-bottom: 5px;
 }

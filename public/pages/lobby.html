@@ -9,10 +9,18 @@
   </head>
   <body>
     <div id="header">
-      <h1>Lobby</h1>
+      <h1 id="lobbyHeader">Lobby</h1>
+    </div>
+    <div>
+      <h3 id="roomCodeHeader"></h3>
+    </div>
+    <div id="playerList">
+      <h3 id="playersHeader">Players</h3>
+      <div id="players">
+      </div>
     </div>
     <script src="/scripts/socket.io.min.js"></script>
-    <script src="../models//Player.js"></script>
+    <script src="../models/Player.js"></script>
     <script src="../js/lobby.js"></script>
   </body>
 </html>

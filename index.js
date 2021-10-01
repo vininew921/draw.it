@@ -39,23 +39,11 @@ function onConnection(socket) {
   socket.on("drawing", (data) => socket.broadcast.emit("drawing", data));
 
   socket.on("createRoom", (player) => {
-    console.log(lobbyController.rooms);
-    if (!lobbyController.getRoomByCode(player.roomCode)) {
-      console.log("Player " + player.nickname + " created room " + player.roomCode);
-      lobbyController.addRoom(new Room(8, player.roomCode));
-    }
-    else {
-      console.log("Room " + player.roomCode + " already exists!");
-    }
+    lobbyController.createRoom(socket, player);
   });
 
   socket.on("joinRoom", (player) => {
-    if (lobbyController.getRoomByCode(player.roomCode)) {
-      console.log("Player " + player.nickname + " joined room " + player.roomCode);
-    }
-    else {
-      console.log("Room " + player.roomCode + " doest not exists!");
-    }
+    lobbyController.joinRoom(io, socket, player);
   });
 }
 

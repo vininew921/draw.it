@@ -3,10 +3,12 @@ class Room{
         this.maxPlayers = maxPlayers;
         this.players = [];
         this.roomCode = roomCode;
+        this.mostRecentPlayer = undefined;
     }
 
     addPlayer(player) {
-        this.player.push(player);
+        this.players.push(player);
+        this.mostRecentPlayer = player;
     }
 }
 
