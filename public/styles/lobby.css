@@ -1,13 +1,45 @@
+html{
+    height: 100%;
+    margin: 0;
+    padding: 0;
+}
+
 body{
     background-color: #01BEFE;
+    height: auto;
+    width: auto;
+    min-height: 100vh;
+    margin: 0;
+    padding: 0;
 }
 
 *{
     font-family: cursive;
+    font-weight: bolder;
+    box-sizing: border-box;
 }
 
-#header{
-    color: #FF006D;
+.row{
+    height: 100%;
+    margin: 0;
+}
+
+.column{
+    float: left;
+}
+
+.columnLeft{
+    width: 25%;
+    height: 100vh;
+}
+
+.columnRight{
+    width: 75%;
+    height: 100vh;
+}
+
+.header{
+    color: #8F00FF;
     text-align: center;
     margin: auto;
     width: 50%;
@@ -16,24 +48,60 @@ body{
     justify-content: center;
 }
 
+.canvasDiv{
+    background-color: white;
+    width: 98%;
+    height: 75%;
+}
+
+.readyButton{
+    margin-top: 10%;
+    width: 100%;
+    font-size: 30px;
+    border: 3px solid #000;
+    border-radius: 5px;
+}
+
+.readyButton:hover{
+    background-color: black;
+    color: white;
+    cursor: pointer;
+}
+
+.ready{
+    background-color: #ADFF02;
+}
+
+.cancel{
+    background-color: #FF7D00;
+}
+
 #roomCodeHeader{
-    color: #FF006D;
-    margin: auto;
-    margin-top: -3.3em;
-    font-size: xx-large;
+    color: #8F00FF;
     display: flex;
 }
 
 #playerList{
-    margin: 30px;
+    width: 80%;
+    margin: auto;
+    margin-left: 2vh;
     font-size: x-large;
-    width: 50%;
+}
+
+#playersHeader{
+    text-decoration: underline;
 }
 
 #players{
     column-count: auto;
+    max-width: 100%;
 }
 
 .player{
     margin-bottom: 5px;
+    color: #ff006d;
+}
+
+.empty{
+    color: black;
 }

@@ -7,7 +7,6 @@ const livereload = require("livereload").createServer();
 const connectLivereload = require("connect-livereload");
 const port = process.env.PORT || 3000;
 const LobbyController = require("./Modules/LobbyController.js");
-const Room = require("./Modules/Room.js");
 
 const lobbyController = new LobbyController();
 
@@ -45,6 +44,10 @@ function onConnection(socket) {
   socket.on("joinRoom", (player) => {
     lobbyController.joinRoom(io, socket, player);
   });
+
+  socket.on("playerReadyChanged", (player) => {
+    lobbyController.changePlayerReady(io, socket, player);
+  })
 }
 
 io.on("connection", onConnection);

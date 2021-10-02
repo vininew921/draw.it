@@ -8,15 +8,26 @@
     <title>Draw.it</title>
   </head>
   <body>
-    <div id="header">
-      <h1 id="lobbyHeader">Lobby</h1>
-    </div>
-    <div>
-      <h3 id="roomCodeHeader"></h3>
-    </div>
-    <div id="playerList">
-      <h3 id="playersHeader">Players</h3>
-      <div id="players">
+    <div class="row">
+      <div class="column columnLeft">
+        <div class="header">
+          <h3 id="roomCodeHeader"></h3>
+        </div>
+        <div id="playerList">
+          <h3 id="playersHeader"></h3>
+          <div id="players">
+          </div>
+          <button class="readyButton ready" id="lobbyReady">Ready</button>
+        </div>
+      </div>
+      <div class="column columnRight">
+        <div class="header">
+          <h1 id="lobbyHeader">Lobby</h1>
+        </div>
+        <div class="canvasDiv">
+          <canvas id="lobbyCanvas">
+          </canvas>
+        </div>
       </div>
     </div>
     <script src="/scripts/socket.io.min.js"></script>

@@ -41,12 +41,26 @@ class LobbyController{
                 return;
             }
             currentRoom.addPlayer(player);
-            io.to(currentRoom.roomCode).emit("playerJoined", currentRoom);
+            io.to(currentRoom.roomCode).emit("playersChanged", currentRoom);
             socket.join(currentRoom.roomCode);
             socket.emit("joinComplete", currentRoom);
         }
         else {
             socket.emit("joinFailed");
+        }
+    }
+
+    changePlayerReady(io, socket, player) {
+        var currentRoom = this.getRoomByCode(player.roomCode);
+        if (currentRoom) {
+            for (let i = 0; i < currentRoom.players.length; i++){
+                if (currentRoom.players[i].nickname == player.nickname) {
+                    currentRoom.players[i].ready = player.ready;
+                    break;
+                }
+            }
+
+            io.to(currentRoom.roomCode).emit("playersChanged", currentRoom);
         }
     }
 }
