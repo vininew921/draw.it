@@ -10,11 +10,11 @@ const LobbyController = require("./Modules/LobbyController.js");
 
 const lobbyController = new LobbyController();
 
-const publicDirectory = path.join(__dirname, 'public');
+const publicDirectory = path.join(__dirname, "public");
 
 livereload.watch(publicDirectory);
-livereload.server.once("connection", () =>{
-  setTimeout(() =>{
+livereload.server.once("connection", () => {
+  setTimeout(() => {
     livereload.refresh("/");
   }, 100);
 });
@@ -24,14 +24,18 @@ app.use(connectLivereload());
 app.use(express.static(publicDirectory));
 
 //Expose socket.io to client
-app.use('/scripts', express.static(__dirname + '/node_modules/socket.io/client-dist/'));
+app.use("/scripts", express.static(__dirname + "/node_modules/socket.io/client-dist/"));
 
-app.get('/', (req, res) =>{
+app.get("/lobby", (req, res) => {
+  res.sendFile(publicDirectory + "/pages/lobby.html");
+});
+
+app.get("/", (req, res) => {
   res.sendFile(publicDirectory + "/pages/home.html");
 });
 
-app.get('/lobby', (req, res) => {
-  res.sendFile(publicDirectory + "/pages/lobby.html");
+app.get("/game", (req, res) => {
+  res.sendFile(publicDirectory + "/pages/game.html");
 });
 
 function onConnection(socket) {
