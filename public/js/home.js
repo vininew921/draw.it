@@ -1,3 +1,4 @@
+//HTML Elements
 const joinRoomModal = document.getElementById("joinRoomModal");
 const createRoomModal = document.getElementById("createRoomModal");
 const joinRoomBtn = document.getElementById("joinBtn");
@@ -9,7 +10,11 @@ const cancelBtn = document.getElementsByClassName("cancelModal");
 const joinNicknameIpt = document.getElementById("joinNicknameIpt");
 const createNicknameIpt = document.getElementById("createNicknameIpt");
 const roomCodeIpt = document.getElementById("roomCodeIpt");
+
+//Control variables
 var currentOpenModal = null;
+
+//Functions
 
 for (let index = 0; index < spanBtn.length; index++) {
     const span = spanBtn[index];
@@ -37,12 +42,12 @@ createRoomBtn.onclick = function() {
 confirmJoinModalBtn.onclick = function () {
   const nickname = joinNicknameIpt.value;
   const roomCode = roomCodeIpt.value;
-  alert(nickname + " entrou na sala " + roomCode); //placeholder enquanto o lobby de espera não está funcionando
+  window.location.href = "/lobby?type=join&nickname=" + nickname + "&roomCode=" + roomCode;
 }
 
 confirmCreateModalBtn.onclick = function () {
   const nickname = createNicknameIpt.value;
-  alert(nickname + " criou uma sala"); //placeholder enquanto o lobby de espera não está funcionando
+  window.location.href = "/lobby?type=create&nickname=" + nickname + "&roomCode=" + generateRoomCode(6);
 }
 
 window.onclick = function(event) {
@@ -55,4 +60,17 @@ function resetInputValues() {
   joinNicknameIpt.value = "";
   createNicknameIpt.value = "";
   roomCodeIpt.value = "";
+}
+
+
+
+function generateRoomCode(roomCodeLength) {
+  var result = '';
+  var characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
+  var charactersLength = characters.length;
+  for ( var i = 0; i < roomCodeLength; i++ ) {
+    result += characters.charAt(Math.floor(Math.random() * charactersLength));
+  }
+  
+ return result;
 }
