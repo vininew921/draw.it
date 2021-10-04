@@ -45,6 +45,10 @@ function onConnection(socket) {
     lobbyController.createRoom(socket, player);
   });
 
+  socket.on("disconnecting", () => {
+    lobbyController.removePlayerFromRooms(io, socket);
+  });
+
   socket.on("joinRoom", (player) => {
     lobbyController.joinRoom(io, socket, player);
   });

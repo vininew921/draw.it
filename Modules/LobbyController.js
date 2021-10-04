@@ -20,6 +20,7 @@ class LobbyController{
     }
 
     createRoom(socket, player) {
+        player.socketId = socket.id;
         var currentRoom = this.getRoomByCode(player.roomCode);
         if (!currentRoom) {
             currentRoom = new Room(8, player.roomCode);
@@ -34,6 +35,7 @@ class LobbyController{
     }
 
     joinRoom(io, socket, player) {
+        player.socketId = socket.id;
         var currentRoom = this.getRoomByCode(player.roomCode);
         if (currentRoom) {
             if (currentRoom.players.length >= currentRoom.maxPlayers) {
@@ -51,16 +53,42 @@ class LobbyController{
     }
 
     changePlayerReady(io, socket, player) {
-        var currentRoom = this.getRoomByCode(player.roomCode);
-        if (currentRoom) {
-            for (let i = 0; i < currentRoom.players.length; i++){
-                if (currentRoom.players[i].nickname == player.nickname) {
-                    currentRoom.players[i].ready = player.ready;
-                    break;
+        const iterator = socket.rooms.values();
+        var roomCode = iterator.next()?.value;
+        while (roomCode) {
+            var currentRoom = this.getRoomByCode(roomCode);
+            if (currentRoom) {
+                for (let i = 0; i < currentRoom.players.length; i++){
+                    if (currentRoom.players[i].nickname == player.nickname) {
+                        currentRoom.players[i].ready = player.ready;
+                        break;
+                    }
                 }
-            }
 
-            io.to(currentRoom.roomCode).emit("playersChanged", currentRoom);
+                io.to(currentRoom.roomCode).emit("playersChanged", currentRoom);
+            }
+            roomCode = iterator.next()?.value;
+        }
+    }
+
+    removePlayerFromRooms(io, socket) {
+        const iterator = socket.rooms.values();
+        var roomCode = iterator.next()?.value;
+        while (roomCode) {
+            console.log("Removing " + socket.id + " from room " + roomCode);
+            var currentRoom = this.getRoomByCode(roomCode);
+            if (currentRoom) {
+                var newPlayersList = [];
+                for (let i = 0; i < currentRoom.players.length; i++) {
+                    if (currentRoom.players[i].socketId != socket.id) {
+                        newPlayersList.push(currentRoom.players[i]);
+                    }
+                }
+
+                currentRoom.players = newPlayersList;
+                io.to(currentRoom.roomCode).emit("playersChanged", currentRoom);
+            }
+            roomCode = iterator.next()?.value;
         }
     }
 }
