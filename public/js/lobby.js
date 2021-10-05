@@ -33,6 +33,8 @@ const roomCode = urlParams.get('roomCode');
 var player;
 var socket;
 var currentRoom;
+var startGameTimer;
+var startGameSeconds = 5;
 
 //Initialization
 checkParameters();
@@ -83,6 +85,33 @@ function updatePlayerList() {
             p.innerHTML = "Empty";
         }
         playersList.appendChild(p);
+    }
+
+    if (currentRoom.everyoneReady) {
+        startGame(true);
+    }
+    else {
+        startGame(false);
+    }
+}
+
+function startGame(start) {
+    if (start && !startGameTimer) {
+        startGameTimer = setInterval(() => {
+            if (startGameSeconds == 0) {
+                window.location.href = "/game";
+            }
+            else {
+                lobbyHeader.innerHTML = "Game starting in " + startGameSeconds;
+                startGameSeconds--;
+            }
+        }, 1000);
+    }
+    else {
+        clearInterval(startGameTimer);
+        startGameTimer = undefined;
+        startGameSeconds = 5;
+        lobbyHeader.innerHTML = "Waiting Room";
     }
 }
 

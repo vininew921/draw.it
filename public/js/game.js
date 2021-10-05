@@ -1,10 +1,11 @@
-const socket = io();
+//HTML Elements
 const wordIpt = document.querySelector("#wordIpt");
 const sendBtn = document.querySelector("#sendBtn");
 const timer = document.querySelector("#timer");
 const imgClock = document.querySelector("#img-clock");
 const clockAudio = document.querySelector("#clockAudio");
 
+//HTML Events
 sendBtn.onclick = function () {
   const text = wordIpt.value;
   if (text) {
@@ -12,8 +13,11 @@ sendBtn.onclick = function () {
   }
 };
 
+//Control variables
 let timerInterval;
-let cont = 120; // 120s = 2min
+let cont = 120;
+
+//Functions
 const initTimer = () => {
   timerInterval = setInterval(() => {
     cont--;
@@ -27,8 +31,6 @@ const initTimer = () => {
   }, 1000);
 };
 
-initTimer();
-
 const stopTimer = () => {
   timer.innerHTML = `0:00`;
   imgClock.classList.add("animate");
@@ -37,3 +39,5 @@ const stopTimer = () => {
   sendBtn.disabled = true;
   clearInterval(timerInterval);
 };
+
+initTimer();

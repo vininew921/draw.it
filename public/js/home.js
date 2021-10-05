@@ -15,7 +15,6 @@ const roomCodeIpt = document.getElementById("roomCodeIpt");
 var currentOpenModal = null;
 
 //Functions
-
 for (let index = 0; index < spanBtn.length; index++) {
     const span = spanBtn[index];
     const cancel = cancelBtn[index];

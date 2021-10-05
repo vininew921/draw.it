@@ -65,6 +65,7 @@ class LobbyController{
                     }
                 }
 
+                currentRoom.checkEveryoneReady();
                 io.to(currentRoom.roomCode).emit("playersChanged", currentRoom);
             }
             roomCode = iterator.next()?.value;
@@ -75,7 +76,6 @@ class LobbyController{
         const iterator = socket.rooms.values();
         var roomCode = iterator.next()?.value;
         while (roomCode) {
-            console.log("Removing " + socket.id + " from room " + roomCode);
             var currentRoom = this.getRoomByCode(roomCode);
             if (currentRoom) {
                 var newPlayersList = [];
@@ -86,6 +86,7 @@ class LobbyController{
                 }
 
                 currentRoom.players = newPlayersList;
+                currentRoom.checkEveryoneReady();
                 io.to(currentRoom.roomCode).emit("playersChanged", currentRoom);
             }
             roomCode = iterator.next()?.value;
