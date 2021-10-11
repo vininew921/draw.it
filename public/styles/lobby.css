@@ -31,6 +31,7 @@ body{
 .columnLeft{
     width: 25%;
     height: 100vh;
+    background-color: #01BEFE;
 }
 
 .columnRight{
@@ -39,19 +40,13 @@ body{
 }
 
 .header{
+    background-color: #01BEFE;
     color: #8F00FF;
     text-align: center;
     margin: auto;
-    width: 50%;
     font-size: xx-large;
     display: flex;
     justify-content: center;
-}
-
-.canvasDiv{
-    background-color: white;
-    width: 98%;
-    height: 75%;
 }
 
 .readyButton{
@@ -74,6 +69,12 @@ body{
 
 .cancel{
     background-color: #FF7D00;
+}
+
+#lobbyCanvas{
+    position: absolute;
+    top: 0;
+    left: 0;
 }
 
 #roomCodeHeader{
