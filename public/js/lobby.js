@@ -5,15 +5,21 @@ const playersList = document.getElementById("players");
 const lobbyHeader = document.getElementById("lobbyHeader");
 const readyButton = document.getElementById("lobbyReady");
 const canvasDiv = document.getElementById("canvasDiv");
-const lobbyCanvas = document.getElementById("lobbyCanvas");
+var lobbyCanvas = document.getElementById("lobbyCanvas");
 const context = lobbyCanvas.getContext("2d");
 
 //HTML Events Setup
 readyButton.onclick = onReadyClick;
-document.addEventListener('mousedown', onMouseDown, false);
-document.addEventListener('mouseup', onMouseUp, false);
-document.addEventListener('mouseout', onMouseUp, false);
-document.addEventListener('mousemove', throttle(onMouseMove, 10), false);
+lobbyCanvas.addEventListener('mousedown', onMouseDown, false);
+lobbyCanvas.addEventListener('mouseup', onMouseUp, false);
+lobbyCanvas.addEventListener('mouseout', onMouseUp, false);
+lobbyCanvas.addEventListener('mousemove', throttle(onMouseMove, 10), false);
+
+ //Touch support for mobile devices
+ lobbyCanvas.addEventListener('touchstart', onMouseDown, false);
+ lobbyCanvas.addEventListener('touchend', onMouseUp, false);
+ lobbyCanvas.addEventListener('touchcancel', onMouseUp, false);
+ lobbyCanvas.addEventListener('touchmove', throttle(onMouseMove, 10), false);
 
 //HTML Events Definition
 function onReadyClick() {
@@ -57,7 +63,6 @@ checkParameters();
 initializeClient();
 onScreenResize();
 
-
 //Functions
 function checkParameters() {
     if (!lobbyType || !nickname || !roomCode) {
@@ -83,7 +88,7 @@ function setupSocket() {
     socket.on("playersChanged", onPlayersChanged);
     socket.on("joinFailed", onJoinFailed);
     socket.on("joinFailedMaxPlayers", onJoinFailedMaxPlayers);
-    socket.on('lobbyDrawing', onDrawingEvent);
+    socket.on('playerDrawing', onDrawingEvent);
 }
 
 function updatePlayerList() {
@@ -138,25 +143,28 @@ function throttle(callback, delay) {
 }
 
 function drawLine(x0, y0, x1, y1, color, emit){
+    var rect = lobbyCanvas.getBoundingClientRect();
+    var offsetX = rect.left/(800/lobbyCanvas.width);
+    var offsetY = rect.top/(lobbyCanvas.height);
+
     context.beginPath();
-    context.moveTo(x0, y0);
-    context.lineTo(x1, y1);
+    context.moveTo(x0-offsetX, y0-offsetY);
+    context.lineTo(x1-offsetX, y1-offsetY);
     context.strokeStyle = color;
     context.lineWidth = 2;
     context.stroke();
     context.closePath();
+    player = new Player(nickname, roomCode);
 
     if (!emit) { return; }
-    var w = lobbyCanvas.width;
-    var h = lobbyCanvas.height;
 
     socket.emit('lobbyDrawing', {
-        x0: x0 / w,
-        y0: y0 / h,
-        x1: x1 / w,
-        y1: y1 / h,
+        x0: x0,
+        y0: y0,
+        x1: x1,
+        y1: y1,
         color: color
-    });
+    },player);
 }
 
 //Socket events

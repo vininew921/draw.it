@@ -39,7 +39,10 @@ app.get("/game", (req, res) => {
 });
 
 function onConnection(socket) {
-  socket.on("lobbyDrawing", (data) => socket.broadcast.emit("lobbyDrawing", data));
+  socket.on("lobbyDrawing", (data,player) => {
+    lobbyController.drawing(io, player, data)
+    //socket.broadcast.emit("lobbyDrawing", data)
+  });
 
   socket.on("createRoom", (player) => {
     lobbyController.createRoom(socket, player);

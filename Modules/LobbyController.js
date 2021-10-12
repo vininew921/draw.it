@@ -52,6 +52,11 @@ class LobbyController{
         }
     }
 
+    drawing(io, player, data){
+        var currentRoom = this.getRoomByCode(player.roomCode);
+        io.to(currentRoom.roomCode).emit("playerDrawing", data);
+    }
+
     changePlayerReady(io, socket, player) {
         const iterator = socket.rooms.values();
         var roomCode = iterator.next()?.value;
