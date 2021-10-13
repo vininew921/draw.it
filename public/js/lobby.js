@@ -5,7 +5,7 @@ const playersList = document.getElementById("players");
 const lobbyHeader = document.getElementById("lobbyHeader");
 const readyButton = document.getElementById("lobbyReady");
 const canvasDiv = document.getElementById("canvasDiv");
-var lobbyCanvas = document.getElementById("lobbyCanvas");
+const lobbyCanvas = document.getElementById("lobbyCanvas");
 const context = lobbyCanvas.getContext("2d");
 
 //HTML Events Setup
@@ -14,6 +14,7 @@ lobbyCanvas.addEventListener('mousedown', onMouseDown, false);
 lobbyCanvas.addEventListener('mouseup', onMouseUp, false);
 lobbyCanvas.addEventListener('mouseout', onMouseUp, false);
 lobbyCanvas.addEventListener('mousemove', throttle(onMouseMove, 10), false);
+window.addEventListener('resize', onScreenResize);
 
  //Touch support for mobile devices
  lobbyCanvas.addEventListener('touchstart', onMouseDown, false);
@@ -142,21 +143,24 @@ function throttle(callback, delay) {
     };
 }
 
-function drawLine(x0, y0, x1, y1, color, emit){
-    var rect = lobbyCanvas.getBoundingClientRect();
-    var offsetX = rect.left/(800/lobbyCanvas.width);
-    var offsetY = rect.top/(lobbyCanvas.height);
+function drawLine(x0, y0, x1, y1, color, emit) {
 
-    context.beginPath();
-    context.moveTo(x0-offsetX, y0-offsetY);
-    context.lineTo(x1-offsetX, y1-offsetY);
-    context.strokeStyle = color;
-    context.lineWidth = 2;
-    context.stroke();
-    context.closePath();
-    player = new Player(nickname, roomCode);
+    if (!emit) {
+        var rect = lobbyCanvas.getBoundingClientRect();
+        var widthMultiplier = lobbyCanvas.width/rect.width;
 
-    if (!emit) { return; }
+        context.beginPath();
+        context.moveTo((x0 - rect.left) * widthMultiplier, (y0 - rect.top) * widthMultiplier);
+        context.lineTo((x1 - rect.left) * widthMultiplier, (y1 - rect.top) * widthMultiplier);
+        context.strokeStyle = color;
+        context.lineWidth = 2;
+        context.stroke();
+        context.closePath();
+        player = new Player(nickname, roomCode);
+
+        console.log("" + (x0 - rect.left) + "," + (y0 - rect.top));
+        return;
+    }
 
     socket.emit('lobbyDrawing', {
         x0: x0,
@@ -194,7 +198,5 @@ function onPlayersChanged(data) {
 }
 
 function onDrawingEvent(data){
-    var w = lobbyCanvas.width;
-    var h = lobbyCanvas.height;
-    drawLine(data.x0 * w, data.y0 * h, data.x1 * w, data.y1 * h, data.color);
+    drawLine(data.x0, data.y0, data.x1, data.y1, data.color, false);
 }
