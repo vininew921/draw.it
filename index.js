@@ -55,7 +55,11 @@ function onConnection(socket) {
 
   socket.on("playerReadyChanged", (player) => {
     lobbyController.changePlayerReady(io, socket, player);
-  })
+  });
+
+  socket.on("joinGame", (data) => {
+    lobbyController.joinGame(io, socket, data.playerId, data.roomCode);
+  });
 }
 
 io.on("connection", onConnection);

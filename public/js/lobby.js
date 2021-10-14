@@ -69,29 +69,31 @@ function setupSocket() {
 }
 
 function updatePlayerList() {
-    playersList.innerHTML = "";
-    playersHeader.innerHTML = "Players - " + currentRoom.players.length + "/" + currentRoom.maxPlayers;
-    for (var i = 0; i < currentRoom.maxPlayers; i++){
-        var p = document.createElement("p");
-        if (currentRoom.players[i]) {
-            p.className = "player joined";
-            p.innerHTML = currentRoom.players[i].nickname;
-            if (currentRoom.players[i].ready) {
-                p.innerHTML += " 👍";
+    if (!currentRoom.gameStarted) {
+        playersList.innerHTML = "";
+        playersHeader.innerHTML = "Players - " + currentRoom.players.length + "/" + currentRoom.maxPlayers;
+        for (var i = 0; i < currentRoom.maxPlayers; i++){
+            var p = document.createElement("p");
+            if (currentRoom.players[i]) {
+                p.className = "player joined";
+                p.innerHTML = currentRoom.players[i].nickname;
+                if (currentRoom.players[i].ready) {
+                    p.innerHTML += " 👍";
+                }
             }
+            else {
+                p.className = "player empty";
+                p.innerHTML = "Empty";
+            }
+            playersList.appendChild(p);
+        }
+
+        if (currentRoom.everyoneReady) {
+            startGame(true);
         }
         else {
-            p.className = "player empty";
-            p.innerHTML = "Empty";
+            startGame(false);
         }
-        playersList.appendChild(p);
-    }
-
-    if (currentRoom.everyoneReady) {
-        startGame(true);
-    }
-    else {
-        startGame(false);
     }
 }
 
@@ -99,7 +101,7 @@ function startGame(start) {
     if (start && !startGameTimer) {
         startGameTimer = setInterval(() => {
             if (startGameSeconds == 0) {
-                window.location.href = "/game";
+                window.location.href = "/game?roomCode=" + currentRoom.roomCode + "&playerId=" + socket.id;
             }
             else {
                 lobbyHeader.innerHTML = "Game starting in " + startGameSeconds;

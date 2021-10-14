@@ -14,10 +14,42 @@ sendBtn.onclick = function () {
 };
 
 //Control variables
+const queryString = window.location.search;
+const urlParams = new URLSearchParams(queryString);
+const playerId = urlParams.get('playerId');
+const roomCode = urlParams.get('roomCode');
+var player;
+var socket;
+var currentRoom;
 let timerInterval;
 let cont = 120;
 
+//Initialization
+checkParameters();
+initializeClient();
+
 //Functions
+function checkParameters() {
+  if (!playerId || !roomCode) {
+      window.location.href = "/";
+  }
+}
+
+function initializeClient() {
+  setupSocket();
+
+  socket.emit("joinGame", { playerId, roomCode });
+}
+
+function setupSocket() {
+  socket = io.connect("/");
+
+  socket.on("joinComplete", onJoinComplete);
+  socket.on("playersChanged", onPlayersChanged);
+  socket.on("joinFailed", onJoinFailed);
+  socket.on("joinFailedMaxPlayers", onJoinFailedMaxPlayers);
+}
+
 const initTimer = () => {
   timerInterval = setInterval(() => {
     cont--;

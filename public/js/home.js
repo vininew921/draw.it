@@ -61,8 +61,6 @@ function resetInputValues() {
   roomCodeIpt.value = "";
 }
 
-
-
 function generateRoomCode(roomCodeLength) {
   var result = '';
   var characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';

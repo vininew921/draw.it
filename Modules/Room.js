@@ -5,6 +5,7 @@ class Room{
         this.roomCode = roomCode;
         this.mostRecentPlayer = undefined;
         this.everyoneReady = false;
+        this.gameStarted = false;
     }
 
     addPlayer(player) {
