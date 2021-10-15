@@ -14,7 +14,6 @@ lobbyCanvas.addEventListener('mousedown', onMouseDown, false);
 lobbyCanvas.addEventListener('mouseup', onMouseUp, false);
 lobbyCanvas.addEventListener('mouseout', onMouseUp, false);
 lobbyCanvas.addEventListener('mousemove', throttle(onMouseMove, 10), false);
-window.addEventListener('resize', onScreenResize);
 
  //Touch support for mobile devices
  lobbyCanvas.addEventListener('touchstart', onMouseDown, false);
@@ -38,11 +37,6 @@ function onReadyClick() {
     }
 }
 
-function onScreenResize() {
-    lobbyCanvas.width = window.innerWidth;
-    lobbyCanvas.height = window.innerHeight;
-}
-
 //Control variables
 const queryString = window.location.search;
 const urlParams = new URLSearchParams(queryString);
@@ -52,17 +46,13 @@ const roomCode = urlParams.get('roomCode');
 var player;
 var socket;
 var currentRoom;
-var current = {
-    color: 'black',
-    x: 0,
-    y: 0
-};
+var currentPos = { color: 'black', x: 0, y: 0 };
+var targetPos = { color: 'black', x: 0, y: 0 };
 var drawing = false;
 
 //Initialization
 checkParameters();
 initializeClient();
-onScreenResize();
 
 //Functions
 function checkParameters() {
@@ -114,21 +104,34 @@ function updatePlayerList() {
 
 function onMouseDown(e){
     drawing = true;
-    current.x = e.clientX||e.touches[0].clientX;
-    current.y = e.clientY||e.touches[0].clientY;
+    relMouseCoords(e, currentPos);
 }
 
 function onMouseUp(e){
     if (!drawing) { return; }
     drawing = false;
-    drawLine(current.x, current.y, e.clientX||e.touches[0].clientX, e.clientY||e.touches[0].clientY, current.color, true);
+    drawLine(currentPos.x, currentPos.y, targetPos.x, targetPos.y, currentPos.color, true);
 }
 
 function onMouseMove(e){
     if (!drawing) { return; }
-    drawLine(current.x, current.y, e.clientX||e.touches[0].clientX, e.clientY||e.touches[0].clientY, current.color, true);
-    current.x = e.clientX||e.touches[0].clientX;
-    current.y = e.clientY||e.touches[0].clientY;
+    relMouseCoords(e, targetPos);
+    drawLine(currentPos.x, currentPos.y, targetPos.x, targetPos.y, currentPos.color, true);
+    relMouseCoords(e, currentPos);
+}
+
+function relMouseCoords(e, position) {
+    var totalOffsetX = 0;
+    var totalOffsetY = 0;
+    var currentElement = e.target;
+
+    do {
+        totalOffsetX += currentElement.offsetLeft - currentElement.scrollLeft;
+        totalOffsetY += currentElement.offsetTop - currentElement.scrollTop;
+    } while(currentElement = currentElement.offsetParent)
+
+    position.x = (e.pageX || e.touches[0].pageX) - totalOffsetX;
+    position.y = (e.pageY || e.touches[0].pageY) - totalOffsetY;
 }
 
 function throttle(callback, delay) {
@@ -150,15 +153,15 @@ function drawLine(x0, y0, x1, y1, color, emit) {
         var widthMultiplier = lobbyCanvas.width/rect.width;
 
         context.beginPath();
-        context.moveTo((x0 - rect.left) * widthMultiplier, (y0 - rect.top) * widthMultiplier);
-        context.lineTo((x1 - rect.left) * widthMultiplier, (y1 - rect.top) * widthMultiplier);
+        context.moveTo((x0 * widthMultiplier), (y0 * widthMultiplier));
+        context.lineTo((x1 * widthMultiplier), (y1 * widthMultiplier));
         context.strokeStyle = color;
         context.lineWidth = 2;
         context.stroke();
         context.closePath();
         player = new Player(nickname, roomCode);
 
-        console.log("" + (x0 - rect.left) + "," + (y0 - rect.top));
+        console.log("" + x0 + "," + y0);
         return;
     }
 
