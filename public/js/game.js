@@ -108,9 +108,9 @@ function onJoinComplete(data) {
 
 function onJoinFailed(data) {
   gameHeader.innerHTML = "Room not found!";
-  // setTimeout(() => {
-  //     window.location.href = "/";
-  // }, 2000);
+  setTimeout(() => {
+      window.location.href = "/";
+  }, 2000);
 }
 
 function onJoinFailedMaxPlayers(){
