@@ -37,7 +37,7 @@ class LobbyController{
     joinRoom(io, socket, player) {
         player.socketId = socket.id;
         var currentRoom = this.getRoomByCode(player.roomCode);
-        if (currentRoom) {
+        if (currentRoom && !currentRoom.gameStarted) {
             if (currentRoom.players.length >= currentRoom.maxPlayers) {
                 socket.emit("joinFailedMaxPlayers");
                 return;
@@ -79,7 +79,7 @@ class LobbyController{
         var roomCode = iterator.next()?.value;
         while (roomCode) {
             var currentRoom = this.getRoomByCode(roomCode);
-            if (currentRoom) {
+            if (currentRoom && !currentRoom.gameStarted) {
                 var newPlayersList = [];
                 for (let i = 0; i < currentRoom.players.length; i++) {
                     if (currentRoom.players[i].socketId != socket.id) {

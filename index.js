@@ -46,7 +46,7 @@ function onConnection(socket) {
   });
 
   socket.on("disconnecting", () => {
-    lobbyController.removePlayerFromRooms(io, socket);
+    setTimeout(() => lobbyController.removePlayerFromRooms(io, socket), 10000);
   });
 
   socket.on("joinRoom", (player) => {
