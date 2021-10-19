@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 html {
   /*
   Draw.it
@@ -20,6 +21,9 @@ html {
   margin: 0;
   padding: 0;
 }
+=======
+@import "https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css";
+>>>>>>> ad6573f (tools for drawing)
 
 body {
   background-color: #01befe;
@@ -199,4 +203,52 @@ canvas {
   100% {
     transform: rotate3d(0, 0, 1, -20deg);
   }
+}
+
+#controls {
+  height: 50px;
+  display: flex;
+  align-items: center;
+  background: #ddd;
+  padding: 0px 10px;
+}
+
+#controls #type,
+#controls #size,
+#controls #color {
+  margin: 0px 10px;
+}
+
+#controls #type input {
+  display: none;
+}
+
+#controls #type label {
+  width: 30px;
+  height: 30px;
+  display: inline-block;
+  text-align: center;
+  line-height: 30px;
+  margin: 0px 2px;
+  cursor: pointer;
+}
+
+#controls #type input:checked + label {
+  background: #111;
+  color: #eee;
+  border-radius: 50%;
+}
+
+#controls #size input {
+  height: 10px;
+}
+
+#controls #actions {
+  flex: 1;
+  text-align: right;
+}
+
+#controls #actions button {
+  padding: 5px 10px;
+  cursor: pointer;
 }
