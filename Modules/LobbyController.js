@@ -37,11 +37,12 @@ class LobbyController{
     joinRoom(io, socket, player) {
         player.socketId = socket.id;
         var currentRoom = this.getRoomByCode(player.roomCode);
-        if (currentRoom) {
+        if (currentRoom && !currentRoom.gameStarted) {
             if (currentRoom.players.length >= currentRoom.maxPlayers) {
                 socket.emit("joinFailedMaxPlayers");
                 return;
             }
+            
             currentRoom.addPlayer(player);
             io.to(currentRoom.roomCode).emit("playersChanged", currentRoom);
             socket.join(currentRoom.roomCode);
@@ -70,8 +71,10 @@ class LobbyController{
                     }
                 }
 
+                currentRoom.checkEveryoneReady();
                 io.to(currentRoom.roomCode).emit("playersChanged", currentRoom);
             }
+
             roomCode = iterator.next()?.value;
         }
     }
@@ -80,9 +83,8 @@ class LobbyController{
         const iterator = socket.rooms.values();
         var roomCode = iterator.next()?.value;
         while (roomCode) {
-            console.log("Removing " + socket.id + " from room " + roomCode);
             var currentRoom = this.getRoomByCode(roomCode);
-            if (currentRoom) {
+            if (currentRoom && !currentRoom.gameStarted) {
                 var newPlayersList = [];
                 for (let i = 0; i < currentRoom.players.length; i++) {
                     if (currentRoom.players[i].socketId != socket.id) {
@@ -91,9 +93,33 @@ class LobbyController{
                 }
 
                 currentRoom.players = newPlayersList;
+                currentRoom.checkEveryoneReady();
                 io.to(currentRoom.roomCode).emit("playersChanged", currentRoom);
             }
+
             roomCode = iterator.next()?.value;
+        }
+    }
+
+    joinGame(io, socket, playerId, roomCode) {
+        var currentRoom = this.getRoomByCode(roomCode);
+        if (currentRoom) {
+            for (let i = 0; i < currentRoom.players.length; i++){
+                let currentPlayer = currentRoom.players[i];
+                if (currentPlayer.socketId == playerId) {
+                    socket.join(currentRoom.roomCode);
+                    currentPlayer.socketId = socket.id;
+                    currentRoom.gameStarted = true;
+                    socket.emit("joinComplete", currentRoom);
+                    io.to(currentRoom.roomCode).emit("playersChanged", currentRoom);
+                    return;
+                }
+            }
+
+            socket.emit("joinFailed");
+        }
+        else {
+            socket.emit("joinFailed");
         }
     }
 }

@@ -49,6 +49,8 @@ var currentRoom;
 var currentPos = { color: 'black', x: 0, y: 0 };
 var targetPos = { color: 'black', x: 0, y: 0 };
 var drawing = false;
+var startGameTimer;
+var startGameSeconds = 5;
 
 //Initialization
 checkParameters();
@@ -83,22 +85,51 @@ function setupSocket() {
 }
 
 function updatePlayerList() {
-    playersList.innerHTML = "";
-    playersHeader.innerHTML = "Players - " + currentRoom.players.length + "/" + currentRoom.maxPlayers;
-    for (var i = 0; i < currentRoom.maxPlayers; i++){
-        var p = document.createElement("p");
-        if (currentRoom.players[i]) {
-            p.className = "player joined";
-            p.innerHTML = currentRoom.players[i].nickname;
-            if (currentRoom.players[i].ready) {
-                p.innerHTML += " 👍";
+    if (!currentRoom.gameStarted) {
+        playersList.innerHTML = "";
+        playersHeader.innerHTML = "Players - " + currentRoom.players.length + "/" + currentRoom.maxPlayers;
+        for (var i = 0; i < currentRoom.maxPlayers; i++){
+            var p = document.createElement("p");
+            if (currentRoom.players[i]) {
+                p.className = "player joined";
+                p.innerHTML = currentRoom.players[i].nickname;
+                if (currentRoom.players[i].ready) {
+                    p.innerHTML += " 👍";
+                }
             }
+            else {
+                p.className = "player empty";
+                p.innerHTML = "Empty";
+            }
+            playersList.appendChild(p);
+        }
+
+        if (currentRoom.everyoneReady) {
+            startGame(true);
         }
         else {
-            p.className = "player empty";
-            p.innerHTML = "Empty";
+            startGame(false);
         }
-        playersList.appendChild(p);
+    }
+}
+
+function startGame(start) {
+    if (start && !startGameTimer) {
+        startGameTimer = setInterval(() => {
+            if (startGameSeconds == 0) {
+                window.location.href = "/game?roomCode=" + currentRoom.roomCode + "&playerId=" + socket.id;
+            }
+            else {
+                lobbyHeader.innerHTML = "Game starting in " + startGameSeconds;
+                startGameSeconds--;
+            }
+        }, 1000);
+    }
+    else {
+        clearInterval(startGameTimer);
+        startGameTimer = undefined;
+        startGameSeconds = 5;
+        lobbyHeader.innerHTML = "Waiting Room";
     }
 }
 

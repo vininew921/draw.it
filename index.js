@@ -48,7 +48,7 @@ function onConnection(socket) {
   });
 
   socket.on("disconnecting", () => {
-    lobbyController.removePlayerFromRooms(io, socket);
+    setTimeout(() => lobbyController.removePlayerFromRooms(io, socket), 10000);
   });
 
   socket.on("joinRoom", (player) => {
@@ -57,7 +57,11 @@ function onConnection(socket) {
 
   socket.on("playerReadyChanged", (player) => {
     lobbyController.changePlayerReady(io, socket, player);
-  })
+  });
+
+  socket.on("joinGame", (data) => {
+    lobbyController.joinGame(io, socket, data.playerId, data.roomCode);
+  });
 }
 
 io.on("connection", onConnection);
