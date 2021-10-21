@@ -19,6 +19,15 @@ body{
   box-sizing: border-box;
 }
 
+canvas {
+  padding-left: 0;
+  padding-right: 0;
+  margin-left: auto;
+  margin-right: auto;
+  display: block;
+  touch-action: none;
+}
+
 .row{
   height: 100%;
   margin: 0;
@@ -47,12 +56,6 @@ body{
   font-size: xx-large;
   display: flex;
   justify-content: center;
-}
-
-.canvasDiv{
-  background-color: white;
-  width: 98%;
-  height: 75%;
 }
 
 #header {
@@ -94,18 +97,16 @@ body{
   justify-content: center;
 }
 
-#box-canvas {
-  width: 100%;
-  height: 200px;
-  background-color: white;
-  border: 1px solid black;
-}
-
 #footer {
   display: flex;
   padding: 10px;
   align-items: center;
   justify-content: space-around;
+}
+
+#gameCanvas{
+  background-color: white;
+  margin: 1rem auto;
 }
 
 #wordIpt {
