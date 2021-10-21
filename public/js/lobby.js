@@ -4,9 +4,22 @@ const playersHeader = document.getElementById("playersHeader");
 const playersList = document.getElementById("players");
 const lobbyHeader = document.getElementById("lobbyHeader");
 const readyButton = document.getElementById("lobbyReady");
+const canvasDiv = document.getElementById("canvasDiv");
+const lobbyCanvas = document.getElementById("lobbyCanvas");
+const context = lobbyCanvas.getContext("2d");
 
 //HTML Events Setup
 readyButton.onclick = onReadyClick;
+lobbyCanvas.addEventListener('mousedown', onMouseDown, false);
+lobbyCanvas.addEventListener('mouseup', onMouseUp, false);
+lobbyCanvas.addEventListener('mouseout', onMouseUp, false);
+lobbyCanvas.addEventListener('mousemove', throttle(onMouseMove, 10), false);
+
+ //Touch support for mobile devices
+ lobbyCanvas.addEventListener('touchstart', onMouseDown, false);
+ lobbyCanvas.addEventListener('touchend', onMouseUp, false);
+ lobbyCanvas.addEventListener('touchcancel', onMouseUp, false);
+ lobbyCanvas.addEventListener('touchmove', throttle(onMouseMove, 10), false);
 
 //HTML Events Definition
 function onReadyClick() {
@@ -33,13 +46,15 @@ const roomCode = urlParams.get('roomCode');
 var player;
 var socket;
 var currentRoom;
+var currentPos = { color: 'black', x: 0, y: 0 };
+var targetPos = { color: 'black', x: 0, y: 0 };
+var drawing = false;
 var startGameTimer;
 var startGameSeconds = 5;
 
 //Initialization
 checkParameters();
 initializeClient();
-
 
 //Functions
 function checkParameters() {
@@ -66,6 +81,7 @@ function setupSocket() {
     socket.on("playersChanged", onPlayersChanged);
     socket.on("joinFailed", onJoinFailed);
     socket.on("joinFailedMaxPlayers", onJoinFailedMaxPlayers);
+    socket.on('playerDrawing', onDrawingEvent);
 }
 
 function updatePlayerList() {
@@ -117,6 +133,78 @@ function startGame(start) {
     }
 }
 
+function onMouseDown(e){
+    drawing = true;
+    relMouseCoords(e, currentPos);
+}
+
+function onMouseUp(e){
+    if (!drawing) { return; }
+    drawing = false;
+    drawLine(currentPos.x, currentPos.y, targetPos.x, targetPos.y, currentPos.color, true);
+}
+
+function onMouseMove(e){
+    if (!drawing) { return; }
+    relMouseCoords(e, targetPos);
+    drawLine(currentPos.x, currentPos.y, targetPos.x, targetPos.y, currentPos.color, true);
+    relMouseCoords(e, currentPos);
+}
+
+function relMouseCoords(e, position) {
+    var totalOffsetX = 0;
+    var totalOffsetY = 0;
+    var currentElement = e.target;
+
+    do {
+        totalOffsetX += currentElement.offsetLeft - currentElement.scrollLeft;
+        totalOffsetY += currentElement.offsetTop - currentElement.scrollTop;
+    } while(currentElement = currentElement.offsetParent)
+
+    position.x = (e.pageX || e.touches[0].pageX) - totalOffsetX;
+    position.y = (e.pageY || e.touches[0].pageY) - totalOffsetY;
+}
+
+function throttle(callback, delay) {
+    var previousCall = new Date().getTime();
+    return function() {
+        var time = new Date().getTime();
+
+        if ((time - previousCall) >= delay) {
+        previousCall = time;
+        callback.apply(null, arguments);
+        }
+    };
+}
+
+function drawLine(x0, y0, x1, y1, color, emit) {
+
+    if (!emit) {
+        var rect = lobbyCanvas.getBoundingClientRect();
+        var widthMultiplier = lobbyCanvas.width/rect.width;
+
+        context.beginPath();
+        context.moveTo((x0 * widthMultiplier), (y0 * widthMultiplier));
+        context.lineTo((x1 * widthMultiplier), (y1 * widthMultiplier));
+        context.strokeStyle = color;
+        context.lineWidth = 2;
+        context.stroke();
+        context.closePath();
+        player = new Player(nickname, roomCode);
+
+        console.log("" + x0 + "," + y0);
+        return;
+    }
+
+    socket.emit('lobbyDrawing', {
+        x0: x0,
+        y0: y0,
+        x1: x1,
+        y1: y1,
+        color: color
+    },player);
+}
+
 //Socket events
 function onJoinComplete(data) {
     currentRoom = data;
@@ -143,3 +231,6 @@ function onPlayersChanged(data) {
     updatePlayerList();
 }
 
+function onDrawingEvent(data){
+    drawLine(data.x0, data.y0, data.x1, data.y1, data.color, false);
+}
