@@ -62,6 +62,10 @@ function onConnection(socket) {
   socket.on("joinGame", (data) => {
     lobbyController.joinGame(io, socket, data.playerId, data.roomCode);
   });
+
+  socket.on("gameDrawing", (data,player) => {
+    lobbyController.drawing(io, player, data)
+  });
 }
 
 io.on("connection", onConnection);

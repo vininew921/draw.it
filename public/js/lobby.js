@@ -81,7 +81,7 @@ function setupSocket() {
     socket.on("playersChanged", onPlayersChanged);
     socket.on("joinFailed", onJoinFailed);
     socket.on("joinFailedMaxPlayers", onJoinFailedMaxPlayers);
-    socket.on('playerDrawing', onDrawingEvent);
+    socket.on("playerDrawing", onDrawingEvent);
 }
 
 function updatePlayerList() {
@@ -141,6 +141,7 @@ function onMouseDown(e){
 function onMouseUp(e){
     if (!drawing) { return; }
     drawing = false;
+    relMouseCoords(e, targetPos);
     drawLine(currentPos.x, currentPos.y, targetPos.x, targetPos.y, currentPos.color, true);
 }
 
@@ -190,9 +191,7 @@ function drawLine(x0, y0, x1, y1, color, emit) {
         context.lineWidth = 2;
         context.stroke();
         context.closePath();
-        player = new Player(nickname, roomCode);
 
-        console.log("" + x0 + "," + y0);
         return;
     }
 

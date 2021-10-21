@@ -44,6 +44,7 @@ class LobbyController{
             }
             
             currentRoom.addPlayer(player);
+            currentRoom.everyoneReady = false;
             io.to(currentRoom.roomCode).emit("playersChanged", currentRoom);
             socket.join(currentRoom.roomCode);
             socket.emit("joinComplete", currentRoom);
@@ -110,6 +111,7 @@ class LobbyController{
                     socket.join(currentRoom.roomCode);
                     currentPlayer.socketId = socket.id;
                     currentRoom.gameStarted = true;
+                    currentRoom.mostRecentPlayer = currentPlayer;
                     socket.emit("joinComplete", currentRoom);
                     io.to(currentRoom.roomCode).emit("playersChanged", currentRoom);
                     return;
