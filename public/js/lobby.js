@@ -1,42 +1,20 @@
-// HTML Elements
+/*
+ * HTML Elements
+*/
+
 const roomCodeHeader = document.getElementById('roomCodeHeader');
 const playersHeader = document.getElementById('playersHeader');
 const playersList = document.getElementById('players');
 const lobbyHeader = document.getElementById('lobbyHeader');
-const readyButton = document.getElementById('lobbyReady');
-const canvasDiv = document.getElementById('canvasDiv');
 const lobbyCanvas = document.getElementById('lobbyCanvas');
+const readyButton = document.getElementById('lobbyReady');
+
+/*
+ * Control variables
+ */
+
 const context = lobbyCanvas.getContext('2d');
 
-// HTML Events Setup
-readyButton.onclick = onReadyClick;
-lobbyCanvas.addEventListener('mousedown', onMouseDown, false);
-lobbyCanvas.addEventListener('mouseup', onMouseUp, false);
-lobbyCanvas.addEventListener('mouseout', onMouseUp, false);
-lobbyCanvas.addEventListener('mousemove', throttle(onMouseMove, 10), false);
-
-// Touch support for mobile devices
-lobbyCanvas.addEventListener('touchstart', onMouseDown, false);
-lobbyCanvas.addEventListener('touchend', onMouseUp, false);
-lobbyCanvas.addEventListener('touchcancel', onMouseUp, false);
-lobbyCanvas.addEventListener('touchmove', throttle(onMouseMove, 10), false);
-
-// HTML Events Definition
-function onReadyClick() {
-  if (readyButton.className == 'readyButton ready') {
-    readyButton.className = 'readyButton cancel';
-    readyButton.innerHTML = 'Cancel';
-    player.ready = true;
-    socket.emit('playerReadyChanged', player);
-  } else {
-    readyButton.className = 'readyButton ready';
-    readyButton.innerHTML = 'Ready';
-    player.ready = false;
-    socket.emit('playerReadyChanged', player);
-  }
-}
-
-// Control variables
 const queryString = window.location.search;
 const urlParams = new URLSearchParams(queryString);
 const lobbyType = urlParams.get('type');
@@ -51,35 +29,26 @@ let drawing = false;
 let startGameTimer;
 let startGameSeconds = 5;
 
-// Initialization
-checkParameters();
-initializeClient();
+/*
+ * Lobby Functions
+ */
 
-// Functions
-function checkParameters() {
-  if (!lobbyType || !nickname || !roomCode) {
-    window.location.href = '/';
-  }
-}
-
-function initializeClient() {
-  setupSocket();
-  player = new Player(nickname, roomCode);
-  if (lobbyType == 'create') {
-    socket.emit('createRoom', player);
+function startGame(start) {
+  if (start && !startGameTimer) {
+    startGameTimer = setInterval(() => {
+      if (startGameSeconds === 0) {
+        window.location.href = `/game?roomCode=${currentRoom.roomCode}&playerId=${socket.id}`;
+      } else {
+        lobbyHeader.innerHTML = `Game starting in ${startGameSeconds}`;
+        startGameSeconds--;
+      }
+    }, 1000);
   } else {
-    socket.emit('joinRoom', player);
+    clearInterval(startGameTimer);
+    startGameTimer = undefined;
+    startGameSeconds = 5;
+    lobbyHeader.innerHTML = 'Waiting Room';
   }
-}
-
-function setupSocket() {
-  socket = io.connect('/');
-
-  socket.on('joinComplete', onJoinComplete);
-  socket.on('playersChanged', onPlayersChanged);
-  socket.on('joinFailed', onJoinFailed);
-  socket.on('joinFailedMaxPlayers', onJoinFailedMaxPlayers);
-  socket.on('playerDrawing', onDrawingEvent);
 }
 
 function updatePlayerList() {
@@ -109,42 +78,9 @@ function updatePlayerList() {
   }
 }
 
-function startGame(start) {
-  if (start && !startGameTimer) {
-    startGameTimer = setInterval(() => {
-      if (startGameSeconds == 0) {
-        window.location.href = `/game?roomCode=${currentRoom.roomCode}&playerId=${socket.id}`;
-      } else {
-        lobbyHeader.innerHTML = `Game starting in ${startGameSeconds}`;
-        startGameSeconds--;
-      }
-    }, 1000);
-  } else {
-    clearInterval(startGameTimer);
-    startGameTimer = undefined;
-    startGameSeconds = 5;
-    lobbyHeader.innerHTML = 'Waiting Room';
-  }
-}
-
-function onMouseDown(e) {
-  drawing = true;
-  relMouseCoords(e, currentPos);
-}
-
-function onMouseUp(e) {
-  if (!drawing) { return; }
-  drawing = false;
-  relMouseCoords(e, targetPos);
-  drawLine(currentPos.x, currentPos.y, targetPos.x, targetPos.y, currentPos.color, true);
-}
-
-function onMouseMove(e) {
-  if (!drawing) { return; }
-  relMouseCoords(e, targetPos);
-  drawLine(currentPos.x, currentPos.y, targetPos.x, targetPos.y, currentPos.color, true);
-  relMouseCoords(e, currentPos);
-}
+/*
+ * Canvas Functions
+ */
 
 function relMouseCoords(e, position) {
   let totalOffsetX = 0;
@@ -154,7 +90,8 @@ function relMouseCoords(e, position) {
   do {
     totalOffsetX += currentElement.offsetLeft - currentElement.scrollLeft;
     totalOffsetY += currentElement.offsetTop - currentElement.scrollTop;
-  } while (currentElement = currentElement.offsetParent);
+    currentElement = currentElement.offsetParent;
+  } while (currentElement);
 
   position.x = (e.pageX || e.touches[0].pageX) - totalOffsetX;
   position.y = (e.pageY || e.touches[0].pageY) - totalOffsetY;
@@ -162,12 +99,11 @@ function relMouseCoords(e, position) {
 
 function throttle(callback, delay) {
   let previousCall = new Date().getTime();
-  return function () {
+  return (...args) => {
     const time = new Date().getTime();
-
     if ((time - previousCall) >= delay) {
       previousCall = time;
-      callback.apply(null, arguments);
+      callback.apply(null, args);
     }
   };
 }
@@ -197,25 +133,61 @@ function drawLine(x0, y0, x1, y1, color, emit) {
   }, player);
 }
 
-// Socket events
+/*
+ * HTML Events Definitions
+ */
+
+function onReadyClick() {
+  if (readyButton.className === 'readyButton ready') {
+    readyButton.className = 'readyButton cancel';
+    readyButton.innerHTML = 'Cancel';
+    player.ready = true;
+    socket.emit('playerReadyChanged', player);
+  } else {
+    readyButton.className = 'readyButton ready';
+    readyButton.innerHTML = 'Ready';
+    player.ready = false;
+    socket.emit('playerReadyChanged', player);
+  }
+}
+
+function onMouseDown(e) {
+  drawing = true;
+  relMouseCoords(e, currentPos);
+}
+
+function onMouseUp(e) {
+  if (!drawing) { return; }
+  drawing = false;
+  relMouseCoords(e, targetPos);
+  drawLine(currentPos.x, currentPos.y, targetPos.x, targetPos.y, currentPos.color, true);
+}
+
+function onMouseMove(e) {
+  if (!drawing) { return; }
+  relMouseCoords(e, targetPos);
+  drawLine(currentPos.x, currentPos.y, targetPos.x, targetPos.y, currentPos.color, true);
+  relMouseCoords(e, currentPos);
+}
+
+/*
+ * Socket Events
+ */
+
 function onJoinComplete(data) {
   currentRoom = data;
   roomCodeHeader.innerHTML = `Room ${currentRoom.roomCode}`;
   updatePlayerList();
 }
 
-function onJoinFailed(data) {
+function onJoinFailed() {
   lobbyHeader.innerHTML = 'Room not found!';
-  setTimeout(() => {
-    window.location.href = '/';
-  }, 2000);
+  setTimeout(() => { window.location.href = '/'; }, 2000);
 }
 
 function onJoinFailedMaxPlayers() {
   lobbyHeader.innerHTML = 'Room is full!';
-  setTimeout(() => {
-    window.location.href = '/';
-  }, 2000);
+  setTimeout(() => { window.location.href = '/'; }, 2000);
 }
 
 function onPlayersChanged(data) {
@@ -226,3 +198,53 @@ function onPlayersChanged(data) {
 function onDrawingEvent(data) {
   drawLine(data.x0, data.y0, data.x1, data.y1, data.color, false);
 }
+
+/*
+ * Init
+ */
+
+function setupSocket() {
+  // eslint-disable-next-line no-undef
+  socket = io.connect('/');
+
+  socket.on('joinComplete', onJoinComplete);
+  socket.on('playersChanged', onPlayersChanged);
+  socket.on('joinFailed', onJoinFailed);
+  socket.on('joinFailedMaxPlayers', onJoinFailedMaxPlayers);
+  socket.on('playerDrawing', onDrawingEvent);
+}
+
+function initializeClient() {
+  // eslint-disable-next-line no-undef
+  player = new Player(nickname, roomCode);
+
+  if (lobbyType === 'create') {
+    socket.emit('createRoom', player);
+  } else {
+    socket.emit('joinRoom', player);
+  }
+}
+
+function checkParameters() {
+  if (!lobbyType || !nickname || !roomCode) {
+    window.location.href = '/';
+  }
+}
+
+setupSocket();
+checkParameters();
+initializeClient();
+
+/* HTML Events Setup */
+
+readyButton.onclick = onReadyClick;
+lobbyCanvas.addEventListener('mousedown', onMouseDown, false);
+lobbyCanvas.addEventListener('mouseup', onMouseUp, false);
+lobbyCanvas.addEventListener('mouseout', onMouseUp, false);
+lobbyCanvas.addEventListener('mousemove', throttle(onMouseMove, 10), false);
+
+// touch support for mobile devices
+lobbyCanvas.addEventListener('touchstart', onMouseDown, false);
+lobbyCanvas.addEventListener('touchend', onMouseUp, false);
+lobbyCanvas.addEventListener('touchcancel', onMouseUp, false);
+lobbyCanvas.addEventListener('touchmove', throttle(onMouseMove, 10), false);

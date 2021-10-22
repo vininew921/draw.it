@@ -4,34 +4,15 @@ const sendBtn = document.querySelector('#sendBtn');
 const timer = document.querySelector('#timer');
 const imgClock = document.querySelector('#img-clock');
 const roomCodeHeader = document.getElementById('roomCodeHeader');
-const playersHeader = document.getElementById('playersHeader');
 const playersList = document.getElementById('players');
 const gameHeader = document.getElementById('gameHeader');
-const canvasDiv = document.getElementById('canvasDiv');
 const gameCanvas = document.getElementById('gameCanvas');
+
+/*
+ * Control variables
+ */
 const context = gameCanvas.getContext('2d');
 
-// HTML Events Setup
-gameCanvas.addEventListener('mousedown', onMouseDown, false);
-gameCanvas.addEventListener('mouseup', onMouseUp, false);
-gameCanvas.addEventListener('mouseout', onMouseUp, false);
-gameCanvas.addEventListener('mousemove', throttle(onMouseMove, 10), false);
-
-// Touch support for mobile devices
-gameCanvas.addEventListener('touchstart', onMouseDown, false);
-gameCanvas.addEventListener('touchend', onMouseUp, false);
-gameCanvas.addEventListener('touchcancel', onMouseUp, false);
-gameCanvas.addEventListener('touchmove', throttle(onMouseMove, 10), false);
-
-// HTML Events Definition
-sendBtn.onclick = function () {
-  const text = wordIpt.value;
-  if (text) {
-    console.log(text);
-  }
-};
-
-// Control variables
 const queryString = window.location.search;
 const urlParams = new URLSearchParams(queryString);
 const playerId = urlParams.get('playerId');
@@ -45,33 +26,9 @@ const currentPos = { color: 'black', x: 0, y: 0 };
 const targetPos = { color: 'black', x: 0, y: 0 };
 let drawing = false;
 
-// Initialization
-checkParameters();
-initializeClient();
-
-// Functions
-function checkParameters() {
-  if (!playerId || !roomCode) {
-    window.location.href = '/';
-  }
-}
-
-function initializeClient() {
-  setupSocket();
-
-  const gameOptions = { playerId, roomCode };
-  socket.emit('joinGame', gameOptions);
-}
-
-function setupSocket() {
-  socket = io.connect('/');
-
-  socket.on('joinComplete', onJoinComplete);
-  socket.on('playersChanged', onPlayersChanged);
-  socket.on('joinFailed', onJoinFailed);
-  socket.on('joinFailedMaxPlayers', onJoinFailedMaxPlayers);
-  socket.on('playerDrawing', onDrawingEvent);
-}
+/*
+ * Game Functions
+ */
 
 function updatePlayerList() {
   playersList.innerHTML = '';
@@ -88,19 +45,6 @@ function updatePlayerList() {
   }
 }
 
-const initTimer = () => {
-  timerInterval = setInterval(() => {
-    cont--;
-    const time = (cont / 60).toFixed(2).toString().split('.');
-    const min = time[0];
-    const sec = ((time[1] * 60) / 100).toFixed(0);
-    timer.innerHTML = `${min}:${sec < 10 ? `0${sec}` : sec}`;
-    if (cont <= 0) {
-      stopTimer();
-    }
-  }, 1000);
-};
-
 const stopTimer = () => {
   timer.innerHTML = '0:00';
   imgClock.classList.add('animate');
@@ -110,26 +54,18 @@ const stopTimer = () => {
   clearInterval(timerInterval);
 };
 
-initTimer();
+const initTimer = () => {
+  timerInterval = setInterval(() => {
+    cont--;
+    const time = new Date(cont * 1000).toISOString().substr(15, 4);
+    timer.innerHTML = time;
+    if (cont <= 0) { stopTimer(); }
+  }, 1000);
+};
 
-function onMouseDown(e) {
-  drawing = true;
-  relMouseCoords(e, currentPos);
-}
-
-function onMouseUp(e) {
-  if (!drawing) { return; }
-  drawing = false;
-  relMouseCoords(e, targetPos);
-  drawLine(currentPos.x, currentPos.y, targetPos.x, targetPos.y, currentPos.color, true);
-}
-
-function onMouseMove(e) {
-  if (!drawing) { return; }
-  relMouseCoords(e, targetPos);
-  drawLine(currentPos.x, currentPos.y, targetPos.x, targetPos.y, currentPos.color, true);
-  relMouseCoords(e, currentPos);
-}
+/*
+ * Canvas Functions
+ */
 
 function relMouseCoords(e, position) {
   let totalOffsetX = 0;
@@ -139,7 +75,8 @@ function relMouseCoords(e, position) {
   do {
     totalOffsetX += currentElement.offsetLeft - currentElement.scrollLeft;
     totalOffsetY += currentElement.offsetTop - currentElement.scrollTop;
-  } while (currentElement = currentElement.offsetParent);
+    currentElement = currentElement.offsetParent;
+  } while (currentElement);
 
   position.x = (e.pageX || e.touches[0].pageX) - totalOffsetX;
   position.y = (e.pageY || e.touches[0].pageY) - totalOffsetY;
@@ -147,12 +84,11 @@ function relMouseCoords(e, position) {
 
 function throttle(callback, delay) {
   let previousCall = new Date().getTime();
-  return function () {
+  return (...args) => {
     const time = new Date().getTime();
-
     if ((time - previousCall) >= delay) {
       previousCall = time;
-      callback.apply(null, arguments);
+      callback.apply(null, args);
     }
   };
 }
@@ -182,7 +118,38 @@ function drawLine(x0, y0, x1, y1, color, emit) {
   }, player);
 }
 
-// Socket events
+/*
+ * HTML Events Definitions
+ */
+
+function onSubmitBtnClick() {
+  const text = wordIpt.value;
+  if (text) { console.log(text); }
+}
+
+function onMouseDown(e) {
+  drawing = true;
+  relMouseCoords(e, currentPos);
+}
+
+function onMouseUp(e) {
+  if (!drawing) { return; }
+  drawing = false;
+  relMouseCoords(e, targetPos);
+  drawLine(currentPos.x, currentPos.y, targetPos.x, targetPos.y, currentPos.color, true);
+}
+
+function onMouseMove(e) {
+  if (!drawing) { return; }
+  relMouseCoords(e, targetPos);
+  drawLine(currentPos.x, currentPos.y, targetPos.x, targetPos.y, currentPos.color, true);
+  relMouseCoords(e, currentPos);
+}
+
+/*
+ * Socket Events
+ */
+
 function onPlayersChanged(data) {
   currentRoom = data;
   updatePlayerList();
@@ -195,20 +162,64 @@ function onJoinComplete(data) {
   updatePlayerList();
 }
 
-function onJoinFailed(data) {
+function onJoinFailed() {
   gameHeader.innerHTML = 'Room not found!';
-  setTimeout(() => {
-    window.location.href = '/';
-  }, 2000);
+  setTimeout(() => { window.location.href = '/'; }, 2000);
 }
 
 function onJoinFailedMaxPlayers() {
   gameHeader.innerHTML = 'Room is full!';
-  setTimeout(() => {
-    window.location.href = '/';
-  }, 2000);
+  setTimeout(() => { window.location.href = '/'; }, 2000);
 }
 
 function onDrawingEvent(data) {
   drawLine(data.x0, data.y0, data.x1, data.y1, data.color, false);
 }
+
+/*
+ * Init
+ */
+
+function setupSocket() {
+  // eslint-disable-next-line no-undef
+  socket = io.connect('/');
+
+  socket.on('joinComplete', onJoinComplete);
+  socket.on('playersChanged', onPlayersChanged);
+  socket.on('joinFailed', onJoinFailed);
+  socket.on('joinFailedMaxPlayers', onJoinFailedMaxPlayers);
+  socket.on('playerDrawing', onDrawingEvent);
+}
+
+function initializeClient() {
+  const gameOptions = { playerId, roomCode };
+  socket.emit('joinGame', gameOptions);
+}
+
+function checkParameters() {
+  if (!playerId || !roomCode) {
+    window.location.href = '/';
+  }
+}
+
+setupSocket();
+checkParameters();
+initializeClient();
+
+initTimer();
+
+/* HTML Events Setup */
+
+// HTML Events Definition
+
+sendBtn.onclick = onSubmitBtnClick;
+gameCanvas.addEventListener('mousedown', onMouseDown, false);
+gameCanvas.addEventListener('mouseup', onMouseUp, false);
+gameCanvas.addEventListener('mouseout', onMouseUp, false);
+gameCanvas.addEventListener('mousemove', throttle(onMouseMove, 10), false);
+
+// touch support for mobile devices
+gameCanvas.addEventListener('touchstart', onMouseDown, false);
+gameCanvas.addEventListener('touchend', onMouseUp, false);
+gameCanvas.addEventListener('touchcancel', onMouseUp, false);
+gameCanvas.addEventListener('touchmove', throttle(onMouseMove, 10), false);

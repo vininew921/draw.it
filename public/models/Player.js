@@ -1,3 +1,4 @@
+/* eslint-disable no-unused-vars */
 class Player {
   constructor(nickname, roomCode) {
     this.socketId = undefined;

@@ -1,4 +1,4 @@
-const Room = require('./Room.js');
+const Room = require('./Room');
 
 class LobbyController {
   constructor() {
@@ -11,11 +11,10 @@ class LobbyController {
 
   getRoomByCode(roomCode) {
     for (let i = 0; i < this.rooms.length; i++) {
-      if (this.rooms[i].roomCode == roomCode) {
+      if (this.rooms[i].roomCode === roomCode) {
         return this.rooms[i];
       }
     }
-
     return undefined;
   }
 
@@ -64,12 +63,11 @@ class LobbyController {
       const currentRoom = this.getRoomByCode(roomCode);
       if (currentRoom) {
         for (let i = 0; i < currentRoom.players.length; i++) {
-          if (currentRoom.players[i].nickname == player.nickname) {
+          if (currentRoom.players[i].nickname === player.nickname) {
             currentRoom.players[i].ready = player.ready;
             break;
           }
         }
-
         currentRoom.checkEveryoneReady();
         io.to(currentRoom.roomCode).emit('playersChanged', currentRoom);
       }
@@ -86,7 +84,7 @@ class LobbyController {
       if (currentRoom && !currentRoom.gameStarted) {
         const newPlayersList = [];
         for (let i = 0; i < currentRoom.players.length; i++) {
-          if (currentRoom.players[i].socketId != socket.id) {
+          if (currentRoom.players[i].socketId !== socket.id) {
             newPlayersList.push(currentRoom.players[i]);
           }
         }
@@ -105,7 +103,7 @@ class LobbyController {
     if (currentRoom) {
       for (let i = 0; i < currentRoom.players.length; i++) {
         const currentPlayer = currentRoom.players[i];
-        if (currentPlayer.socketId == playerId) {
+        if (currentPlayer.socketId === playerId) {
           socket.join(currentRoom.roomCode);
           currentPlayer.socketId = socket.id;
           currentRoom.gameStarted = true;
