@@ -18,13 +18,16 @@
   },
   "homepage": "https://github.com/vininew921/draw.it#readme",
   "devDependencies": {
-    "connect-livereload": "^0.6.1",
-    "livereload": "^0.9.3",
-    "nodemon": "^2.0.13"
+    "nodemon": "^2.0.13",
+    "eslint": "^7.32.0",
+    "eslint-config-airbnb-base": "^14.2.1",
+    "eslint-plugin-import": "^2.25.2"
   },
   "dependencies": {
     "express": "^4.17.1",
     "http": "0.0.1-security",
-    "socket.io": "^4.2.0"
+    "socket.io": "^4.2.0",
+    "connect-livereload": "^0.6.1",
+    "livereload": "^0.9.3"
   }
 }
