@@ -40,13 +40,14 @@ let player;
 let socket;
 let currentRoom;
 let timerInterval;
-let initialCont = 120;
+let initialCont = 10;
 let cont = initialCont;
 const currentPos = { color: 'black', x: 0, y: 0 };
 const targetPos = { color: 'black', x: 0, y: 0 };
 let drawing = false;
 let isDrawer = false;
-let startGameSeconds = 5;
+let initialStartGameSeconds = 5;
+let startGameSeconds = initialStartGameSeconds;
 /*
  * Game Functions
  */
@@ -67,6 +68,7 @@ function updatePlayerList() {
 }
 
 const newGame = () => {
+  startGameSeconds = initialStartGameSeconds;
   startGameTimer = setInterval(() => {
     if (startGameSeconds === 0) {
       if(currentRoom.drawer.nickname == playerNick){
