@@ -40,7 +40,7 @@ let player;
 let socket;
 let currentRoom;
 let timerInterval;
-let cont = 5;
+let cont = 120;
 const currentPos = { color: 'black', x: 0, y: 0 };
 const targetPos = { color: 'black', x: 0, y: 0 };
 let drawing = false;
