@@ -1,0 +1,198 @@
+/*
+  Draw.it
+  Copyright (C) 2021  Various Authors
+
+  This program is free software: you can redistribute it and/or modify
+  it under the terms of the GNU General Public License as published by
+  the Free Software Foundation, either version 3 of the License, or
+  (at your option) any later version.
+
+  This program is distributed in the hope that it will be useful,
+  but WITHOUT ANY WARRANTY; without even the implied warranty of
+  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+  GNU General Public License for more details.
+
+  You should have received a copy of the GNU General Public License
+  along with this program.  If not, see <https://www.gnu.org/licenses/>.
+*/
+
+html{
+  height: 100%;
+  margin: 0;
+  padding: 0;
+}
+
+body{
+  background-color: #01BEFE;
+  height: auto;
+  width: auto;
+  min-height: 100vh;
+  margin: 0;
+  padding: 0;
+}
+
+*{
+  font-family: cursive;
+  font-weight: bolder;
+  box-sizing: border-box;
+}
+
+canvas {
+  padding-left: 0;
+  padding-right: 0;
+  margin-left: auto;
+  margin-right: auto;
+  display: block;
+  touch-action: none;
+}
+
+.row{
+  height: 100%;
+  margin: 0;
+}
+
+.column{
+  float: left;
+}
+
+.columnLeft{
+  position: relative;
+  width: 30%;
+  height: 100vh;
+}
+
+.columnRight{
+  width: 70%;
+  height: 100vh;
+}
+
+.header{
+  color: #8F00FF;
+  text-align: center;
+  margin: auto;
+  width: 50%;
+  font-size: xx-large;
+  display: flex;
+  justify-content: center;
+}
+
+#header {
+  text-align: center;
+  margin: auto;
+  width: 50%;
+  font-size: xx-large;
+}
+
+#playerList{
+  width: 80%;
+  margin: auto;
+  margin-left: 2vh;
+  font-size: x-large;
+}
+
+#playersHeader{
+  text-decoration: underline;
+}
+
+#players{
+  column-count: auto;
+  max-width: 100%;
+}
+
+#box-game {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  position: absolute;
+  bottom: 0;
+}
+
+#content-box {
+  width: 100%;
+  display: flex;
+  background-color: #e4e4e4;
+  flex-direction: column;
+  justify-content: center;
+}
+
+#footer {
+  display: flex;
+  padding: 10px;
+  align-items: center;
+  justify-content: space-around;
+}
+
+#gameCanvas{
+  background-color: white;
+  margin: 1rem auto;
+}
+
+#wordIpt {
+  height: 30px;
+  width: 100%;
+  background-color: transparent;
+  border-color: transparent;
+  border-bottom: 2px solid black;
+}
+
+#sendBtn {
+  background-color: rgba(255, 255, 255, 1);
+  border-color: transparent;
+  border-radius: 5px;
+  padding: 5px 20px;
+  margin-left: 10px;
+}
+
+#sendBtn:active {
+  background-color: rgba(255, 255, 255, 0.5);
+  border-color: transparent;
+  border-radius: 5px;
+  padding: 5px 20px;
+  margin-left: 10px;
+}
+
+#sendBtn:hover {
+  transition: 2ms;
+  border-color: black;
+}
+
+#timer {
+  width: max-content;
+  font-weight: bolder;
+  margin-left: 30px;
+}
+
+#img-clock {
+  width: 40px;
+  margin-left: 10px;
+}
+
+/* [data-animate="clock"] {
+  visibility: hidden;
+  transition: 0.5s;
+} */
+
+[data-animate="clock"].animate {
+  animation-name: shake;
+  animation-duration: 0.5s;
+  animation-timing-function: ease;
+  animation-iteration-count: 10;
+}
+
+@keyframes shake {
+  0% {
+    transform: rotate3d(0, 0, 1, -20deg);
+  }
+  25% {
+    transform: rotate3d(0, 0, 1, 20deg);
+  }
+  50% {
+    transform: rotate3d(0, 0, 1, -20deg);
+  }
+  75% {
+    transform: rotate3d(0, 0, 1, 20deg);
+  }
+  100% {
+    transform: rotate3d(0, 0, 1, -20deg);
+  }
+}

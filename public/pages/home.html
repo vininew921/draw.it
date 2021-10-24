@@ -1,0 +1,88 @@
+<!--
+  Draw.it
+  Copyright (C) 2021  Various Authors
+
+  This program is free software: you can redistribute it and/or modify
+  it under the terms of the GNU General Public License as published by
+  the Free Software Foundation, either version 3 of the License, or
+  (at your option) any later version.
+
+  This program is distributed in the hope that it will be useful,
+  but WITHOUT ANY WARRANTY; without even the implied warranty of
+  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+  GNU General Public License for more details.
+
+  You should have received a copy of the GNU General Public License
+  along with this program.  If not, see <https://www.gnu.org/licenses/>.
+-->
+
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <link rel="stylesheet" href="../styles/home.css">
+  <link rel="stylesheet" href="../styles/modal.css">
+  <title>Draw.it</title>
+</head>
+
+<body>
+  <div id="header">
+    <h1>Draw.IT</h1>
+  </div>
+  <div class="options">
+    <div class="roomOptions">
+      <button class="roomBtn" id="joinBtn">Join Room</button>
+      <button class="roomBtn" id="createBtn">Create Room</button>
+    </div>
+  </div>
+
+  <div id="joinRoomModal" class="modal">
+    <div class="modal-content">
+      <div class="modal-header">
+        <span class="close cancelModal">&times;</span>
+        <h2>Join Room</h2>
+      </div>
+      <div class="modal-body">
+        <label for="nicknameIpt">Nickname</label>
+        <input type="text" class="modalInput" id="joinNicknameIpt">
+        <label for="roomCodeIpt">Room Code</label>
+        <input type="text" class="modalInput" id="roomCodeIpt">
+      </div>
+      <div class="modal-footer">
+        <button class="modalBtn confirmModal" id="confirmJoinModalBtn">OK</button>
+        <button class="modalBtn cancelModal" id="cancelModalBtn">Cancel</button>
+      </div>
+    </div>
+  </div>
+
+  <div id="createRoomModal" class="modal">
+    <div class="modal-content">
+      <div class="modal-header">
+        <span class="close">&times;</span>
+        <h2>Create Room</h2>
+      </div>
+      <div class="modal-body">
+        <label for="nicknameIpt">Nickname</label>
+        <input type="text" class="modalInput" id="createNicknameIpt">
+      </div>
+      <div class="modal-footer">
+        <button class="modalBtn confirmModal" id="confirmCreateModalBtn">OK</button>
+        <button class="modalBtn cancelModal" id="cancelModalBtn">Cancel</button>
+      </div>
+    </div>
+  </div>
+
+  <div id="copyright">
+    <p> Copyright (c) 2021
+      <br> Draw.it Various Authors
+      <br> This project is under the GNU GPL License
+      <br> Please, see this link for more details
+    </p>
+  </div>
+
+  <script src="../js/home.js"></script>
+</body>
+
+</html>
