@@ -132,18 +132,19 @@ function throttle(callback, delay) {
 }
 
 function drawLine(x0, y0, x1, y1, color, emit) {
+  
+  const rect = gameCanvas.getBoundingClientRect();
+  const widthMultiplier = gameCanvas.width / rect.width;
+
+  context.beginPath();
+  context.moveTo((x0 * widthMultiplier), (y0 * widthMultiplier));
+  context.lineTo((x1 * widthMultiplier), (y1 * widthMultiplier));
+  context.strokeStyle = color;
+  context.lineWidth = 2;
+  context.stroke();
+  context.closePath();
+  
   if (emit) {
-    const rect = gameCanvas.getBoundingClientRect();
-    const widthMultiplier = gameCanvas.width / rect.width;
-
-    context.beginPath();
-    context.moveTo((x0 * widthMultiplier), (y0 * widthMultiplier));
-    context.lineTo((x1 * widthMultiplier), (y1 * widthMultiplier));
-    context.strokeStyle = color;
-    context.lineWidth = 2;
-    context.stroke();
-    context.closePath();
-
     socket.emit('gameDrawing', {
       x0,
       y0,
@@ -171,17 +172,21 @@ function onMouseDown(e) {
 }
 
 function onMouseUp(e) {
-  if (!drawing) { return; }
-  drawing = false;
-  relMouseCoords(e, targetPos);
-  drawLine(currentPos.x, currentPos.y, targetPos.x, targetPos.y, currentPos.color, isDrawer);
+  if (isDrawer) {
+    if (!drawing) { return; }
+    drawing = false;
+    relMouseCoords(e, targetPos);
+    drawLine(currentPos.x, currentPos.y, targetPos.x, targetPos.y, currentPos.color, true);
+  }
 }
 
 function onMouseMove(e) {
-  if (!drawing) { return; }
-  relMouseCoords(e, targetPos);
-  drawLine(currentPos.x, currentPos.y, targetPos.x, targetPos.y, currentPos.color, isDrawer);
-  relMouseCoords(e, currentPos);
+  if (isDrawer) {
+    if (!drawing) { return; }
+    relMouseCoords(e, targetPos);
+    drawLine(currentPos.x, currentPos.y, targetPos.x, targetPos.y, currentPos.color, true);
+    relMouseCoords(e, currentPos);
+  }
 }
 
 /*
@@ -212,7 +217,7 @@ function onJoinFailedMaxPlayers() {
 }
 
 function onDrawingEvent(data) {
-  drawLine(data.x0, data.y0, data.x1, data.y1, data.color, true);
+  drawLine(data.x0, data.y0, data.x1, data.y1, data.color, false);
 }
 
 function onEndGame() {
