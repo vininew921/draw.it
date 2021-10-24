@@ -18,6 +18,13 @@
 
 body{
     background-color: #01BEFE;
+    max-height: 100vh;
+    max-width: 100vw;
+    padding: 0;
+    margin: 0;
+    overflow-y: auto;
+    overflow-x: hidden;
+    position: relative;
 }
 
 *{
@@ -56,4 +63,17 @@ body{
 .roomBtn:hover{
     background-color: #FF7D00;
     cursor: pointer;
+}
+
+#copyright{
+    text-align: right;
+    width: 100%;
+    position: fixed;
+    bottom: 8px;
+    right: 10px;
+}
+
+#copyright p {
+    margin: 0;
+    padding: 0;
 }
