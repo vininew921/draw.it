@@ -40,7 +40,8 @@ let player;
 let socket;
 let currentRoom;
 let timerInterval;
-let cont = 120;
+let initialCont = 120;
+let cont = initialCont;
 const currentPos = { color: 'black', x: 0, y: 0 };
 const targetPos = { color: 'black', x: 0, y: 0 };
 let drawing = false;
@@ -85,7 +86,7 @@ function stopTimer(){
   wordIpt.value = '';
   wordIpt.disabled = true;
   sendBtn.disabled = true;
-  isDrawer=false
+  isDrawer = false;
   newGame();
   clearInterval(timerInterval);
 };
@@ -226,6 +227,7 @@ function onEndGame() {
 }
 
 function onNewGame(data) {
+  cont = initialCont;
   currentRoom = data;
   getDrawer();
   initTimer();
