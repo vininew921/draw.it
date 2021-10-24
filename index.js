@@ -93,6 +93,10 @@ function onConnection(socket) {
   socket.on('gameDrawing', (data, player) => {
     lobbyController.drawing(io, player, data);
   });
+
+  socket.on('startNewTurn', (roomCode) => {
+    lobbyController.newTurn(io, roomCode);
+  });
 }
 
 /*

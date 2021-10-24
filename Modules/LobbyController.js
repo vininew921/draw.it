@@ -23,6 +23,15 @@ class LobbyController {
     this.rooms = [];
   }
 
+  randomIndex(min, max) {
+    return Math.floor(Math.random() * (max - min + 1)) + min;
+  }
+
+  randomizeWord() {
+    let number = this.randomIndex(0,this.words.length);
+    this.word = this.list.pop(number)
+  }
+
   addRoom(room) {
     this.rooms.push(room);
   }
@@ -50,12 +59,25 @@ class LobbyController {
     }
   }
 
+  checkRepeatedNicknames(player, players){
+    for (let i = 0; i < players.length; i++) {
+      if(players[i].nickname == player.nickname)
+        return false;
+    }
+    return true;
+  }
+
   joinRoom(io, socket, player) {
     player.socketId = socket.id;
     const currentRoom = this.getRoomByCode(player.roomCode);
     if (currentRoom && !currentRoom.gameStarted) {
       if (currentRoom.players.length >= currentRoom.maxPlayers) {
         socket.emit('joinFailedMaxPlayers');
+        return;
+      }
+
+      if(!this.checkRepeatedNicknames(player, currentRoom.players)){
+        socket.emit('nickInUse');
         return;
       }
 
@@ -87,11 +109,30 @@ class LobbyController {
           }
         }
         currentRoom.checkEveryoneReady();
+        currentRoom.setupAvaialbleDrawers();
+        this.setupTurn(roomCode);
         io.to(currentRoom.roomCode).emit('playersChanged', currentRoom);
       }
 
       roomCode = iterator.next()?.value;
     }
+  }
+
+  setupTurn(roomCode){
+    const currentRoom = this.getRoomByCode(roomCode);
+    currentRoom.chooseDrawer()
+    currentRoom.chooseWord()
+    return currentRoom;
+  }
+
+  newTurn(io, roomCode) {
+    let currentRoom = this.getRoomByCode(roomCode);
+    if(currentRoom.availableDrawers.length == 0){
+      io.to(currentRoom.roomCode).emit('endGame', currentRoom);
+    }
+    currentRoom = this.setupTurn(roomCode);
+    io.to(currentRoom.roomCode).emit('newGame', currentRoom);
+    return;
   }
 
   removePlayerFromRooms(io, socket) {
@@ -119,6 +160,7 @@ class LobbyController {
   joinGame(io, socket, playerId, roomCode) {
     const currentRoom = this.getRoomByCode(roomCode);
     if (currentRoom) {
+
       for (let i = 0; i < currentRoom.players.length; i++) {
         const currentPlayer = currentRoom.players[i];
         if (currentPlayer.socketId === playerId) {

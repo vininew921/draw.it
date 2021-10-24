@@ -24,26 +24,30 @@ const imgClock = document.querySelector('#img-clock');
 const roomCodeHeader = document.getElementById('roomCodeHeader');
 const playersList = document.getElementById('players');
 const gameHeader = document.getElementById('gameHeader');
-const gameCanvas = document.getElementById('gameCanvas');
+let gameCanvas = document.getElementById('gameCanvas');
 
 /*
  * Control variables
  */
-const context = gameCanvas.getContext('2d');
+let context = gameCanvas.getContext('2d');
 
 const queryString = window.location.search;
 const urlParams = new URLSearchParams(queryString);
 const playerId = urlParams.get('playerId');
 const roomCode = urlParams.get('roomCode');
+const playerNick = urlParams.get('playerNick');
 let player;
 let socket;
 let currentRoom;
 let timerInterval;
-let cont = 120;
+let initialCont = 10;
+let cont = initialCont;
 const currentPos = { color: 'black', x: 0, y: 0 };
 const targetPos = { color: 'black', x: 0, y: 0 };
 let drawing = false;
-
+let isDrawer = false;
+let initialStartGameSeconds = 5;
+let startGameSeconds = initialStartGameSeconds;
 /*
  * Game Functions
  */
@@ -63,20 +67,39 @@ function updatePlayerList() {
   }
 }
 
-const stopTimer = () => {
+const newGame = () => {
+  startGameSeconds = initialStartGameSeconds;
+  startGameTimer = setInterval(() => {
+    if (startGameSeconds === 0) {
+      if(currentRoom.drawer.nickname == playerNick){
+        socket.emit('startNewTurn', roomCode);
+      }
+      clearInterval(startGameTimer);
+    } else {
+      gameHeader.innerHTML = `New Game starting in ${startGameSeconds}`;
+      startGameSeconds--;
+    }
+  }, 1000);
+};
+
+function stopTimer(){
   timer.innerHTML = '0:00';
   imgClock.classList.add('animate');
   wordIpt.value = '';
   wordIpt.disabled = true;
   sendBtn.disabled = true;
+  isDrawer = false;
+  newGame();
   clearInterval(timerInterval);
 };
 
-const initTimer = () => {
+function initTimer(){
   timerInterval = setInterval(() => {
     cont--;
     const time = new Date(cont * 1000).toISOString().substr(15, 4);
     timer.innerHTML = time;
+    wordIpt.disabled = false;
+    sendBtn.disabled = false;
     if (cont <= 0) { stopTimer(); }
   }, 1000);
 };
@@ -112,29 +135,30 @@ function throttle(callback, delay) {
 }
 
 function drawLine(x0, y0, x1, y1, color, emit) {
-  if (!emit) {
-    const rect = gameCanvas.getBoundingClientRect();
-    const widthMultiplier = gameCanvas.width / rect.width;
+  
+  const rect = gameCanvas.getBoundingClientRect();
+  const widthMultiplier = gameCanvas.width / rect.width;
 
-    context.beginPath();
-    context.moveTo((x0 * widthMultiplier), (y0 * widthMultiplier));
-    context.lineTo((x1 * widthMultiplier), (y1 * widthMultiplier));
-    context.strokeStyle = color;
-    context.lineWidth = 2;
-    context.stroke();
-    context.closePath();
-
-    return;
+  context.beginPath();
+  context.moveTo((x0 * widthMultiplier), (y0 * widthMultiplier));
+  context.lineTo((x1 * widthMultiplier), (y1 * widthMultiplier));
+  context.strokeStyle = color;
+  context.lineWidth = 2;
+  context.stroke();
+  context.closePath();
+  
+  if (emit) {
+    socket.emit('gameDrawing', {
+      x0,
+      y0,
+      x1,
+      y1,
+      color,
+    }, player);
   }
-
-  socket.emit('gameDrawing', {
-    x0,
-    y0,
-    x1,
-    y1,
-    color,
-  }, player);
 }
+
+
 
 /*
  * HTML Events Definitions
@@ -151,17 +175,21 @@ function onMouseDown(e) {
 }
 
 function onMouseUp(e) {
-  if (!drawing) { return; }
-  drawing = false;
-  relMouseCoords(e, targetPos);
-  drawLine(currentPos.x, currentPos.y, targetPos.x, targetPos.y, currentPos.color, true);
+  if (isDrawer) {
+    if (!drawing) { return; }
+    drawing = false;
+    relMouseCoords(e, targetPos);
+    drawLine(currentPos.x, currentPos.y, targetPos.x, targetPos.y, currentPos.color, true);
+  }
 }
 
 function onMouseMove(e) {
-  if (!drawing) { return; }
-  relMouseCoords(e, targetPos);
-  drawLine(currentPos.x, currentPos.y, targetPos.x, targetPos.y, currentPos.color, true);
-  relMouseCoords(e, currentPos);
+  if (isDrawer) {
+    if (!drawing) { return; }
+    relMouseCoords(e, targetPos);
+    drawLine(currentPos.x, currentPos.y, targetPos.x, targetPos.y, currentPos.color, true);
+    relMouseCoords(e, currentPos);
+  }
 }
 
 /*
@@ -178,6 +206,7 @@ function onJoinComplete(data) {
   player = currentRoom.mostRecentPlayer;
   roomCodeHeader.innerHTML = `Room ${currentRoom.roomCode}`;
   updatePlayerList();
+  getDrawer();
 }
 
 function onJoinFailed() {
@@ -194,6 +223,18 @@ function onDrawingEvent(data) {
   drawLine(data.x0, data.y0, data.x1, data.y1, data.color, false);
 }
 
+function onEndGame() {
+  gameHeader.innerHTML = 'Game has been ended';
+  setTimeout(() => { window.location.href = '/'; }, 2000);
+}
+
+function onNewGame(data) {
+  cont = initialCont;
+  currentRoom = data;
+  getDrawer();
+  initTimer();
+}
+
 /*
  * Init
  */
@@ -207,6 +248,8 @@ function setupSocket() {
   socket.on('joinFailed', onJoinFailed);
   socket.on('joinFailedMaxPlayers', onJoinFailedMaxPlayers);
   socket.on('playerDrawing', onDrawingEvent);
+  socket.on('newGame', onNewGame);
+  socket.on('endGame', onEndGame);
 }
 
 function initializeClient() {
@@ -220,10 +263,23 @@ function checkParameters() {
   }
 }
 
+function getDrawer(){
+  const rect = gameCanvas.getBoundingClientRect();
+  context = gameCanvas.getContext('2d');
+  if(currentRoom.drawer.nickname == playerNick){
+    gameHeader.innerHTML = `Draw word: '${currentRoom.word}'`;
+    isDrawer=true
+  }
+  else{
+    gameHeader.innerHTML = `'${currentRoom.drawer.nickname}' is drawing`;
+    gameCanvas.style.setProperty('cursor', 'no-drop;');
+    isDrawer=false
+  }
+}
+
 setupSocket();
 checkParameters();
 initializeClient();
-
 initTimer();
 
 /* HTML Events Setup */

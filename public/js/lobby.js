@@ -31,7 +31,7 @@ const readyButton = document.getElementById('lobbyReady');
  * Control variables
  */
 
-const context = lobbyCanvas.getContext('2d');
+let context = lobbyCanvas.getContext('2d');
 
 const queryString = window.location.search;
 const urlParams = new URLSearchParams(queryString);
@@ -55,7 +55,7 @@ function startGame(start) {
   if (start && !startGameTimer) {
     startGameTimer = setInterval(() => {
       if (startGameSeconds === 0) {
-        window.location.href = `/game?roomCode=${currentRoom.roomCode}&playerId=${socket.id}`;
+        window.location.href = `/game?roomCode=${currentRoom.roomCode}&playerId=${socket.id}&playerNick=${nickname}`;
       } else {
         lobbyHeader.innerHTML = `Game starting in ${startGameSeconds}`;
         startGameSeconds--;
@@ -198,6 +198,11 @@ function onJoinComplete(data) {
   updatePlayerList();
 }
 
+function onNickInUse() {
+  lobbyHeader.innerHTML = 'Nickname is already in use';
+  setTimeout(() => { window.location.href = '/'; }, 2000);
+}
+
 function onJoinFailed() {
   lobbyHeader.innerHTML = 'Room not found!';
   setTimeout(() => { window.location.href = '/'; }, 2000);
@@ -229,6 +234,7 @@ function setupSocket() {
   socket.on('playersChanged', onPlayersChanged);
   socket.on('joinFailed', onJoinFailed);
   socket.on('joinFailedMaxPlayers', onJoinFailedMaxPlayers);
+  socket.on('nickInUse', onNickInUse);
   socket.on('playerDrawing', onDrawingEvent);
 }
 
