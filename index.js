@@ -97,6 +97,10 @@ function onConnection(socket) {
   socket.on('startNewTurn', (roomCode) => {
     lobbyController.newTurn(io, roomCode);
   });
+
+  socket.on('guessWord', (player, word) => {
+    lobbyController.guessWord(io, player, word);
+  });
 }
 
 /*

@@ -91,6 +91,23 @@ class LobbyController {
     }
   }
 
+  guessWord(io, player, word){
+    let playerIndex = 0;
+    const currentRoom = this.getRoomByCode(player.roomCode);
+    if(currentRoom.word == word){
+      for (let i = 0; i < currentRoom.players.length; i++) 
+        if (currentRoom.players[i].nickname === player.nickname) {
+          playerIndex = i;
+          break;
+        }
+      currentRoom.players[playerIndex].points+=1;
+      io.to(currentRoom.roomCode).emit('guessedRight', currentRoom, player);
+    }
+    else{
+      io.to(currentRoom.roomCode).emit('guessedWrong', currentRoom, player);
+    }
+  }
+
   drawing(io, player, data) {
     const currentRoom = this.getRoomByCode(player.roomCode);
     io.to(currentRoom.roomCode).emit('playerDrawing', data);

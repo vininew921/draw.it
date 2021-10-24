@@ -39,6 +39,7 @@ const spanBtns = document.getElementsByClassName('cancelModal');
  */
 
 let currentOpenModal = null;
+let whichOpen = null;
 
 /*
  * Functions
@@ -63,6 +64,7 @@ function resetInputValues() {
 function hideModal() {
   currentOpenModal.style.display = 'none';
   resetInputValues();
+  whichOpen = null;
 }
 
 /*
@@ -72,11 +74,13 @@ function hideModal() {
 function onCreateRoomBtnClick() {
   createRoomModal.style.display = 'block';
   currentOpenModal = createRoomModal;
+  whichOpen = 1
 }
 
 function onJoinRoomBtnClick() {
   joinRoomModal.style.display = 'block';
   currentOpenModal = joinRoomModal;
+  whichOpen = 2
 }
 
 function onConfirmCreateRoomBtnClick() {
@@ -98,6 +102,18 @@ createRoomBtn.onclick = onCreateRoomBtnClick;
 joinRoomBtn.onclick = onJoinRoomBtnClick;
 confirmCreateModalBtn.onclick = onConfirmCreateRoomBtnClick;
 confirmJoinModalBtn.onclick = onConfirmJoinRoomBtnClick;
+
+document.addEventListener('keydown', (event) => {
+  if (event.key === 'Escape') {
+    hideModal();
+  }
+  if (event.key === 'Enter') {
+    if(whichOpen == 1)
+      onConfirmCreateRoomBtnClick();
+    else if(whichOpen == 2)
+      onConfirmJoinRoomBtnClick();
+  }
+})
 
 window.onclick = (event) => { if (event.target === currentOpenModal) { hideModal(); } };
 
