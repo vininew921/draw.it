@@ -1,6 +1,6 @@
 class Word {
     constructor() {
-        this.actual = null;
+        this.actual = undefined;
         this.list = [
             'Astronauta',
             'Leite',
@@ -30,10 +30,13 @@ class Word {
             'Meia'
         ];
     }
+    randomIndex(min, max) {
+        return Math.floor(Math.random() * (max - min + 1)) + min;
+    }
 
     randomizeWord() {
-        let number = Math.floor(Math.random() * this.list.length);
-        this.actual = this.list[number];
-        this.list.splice(number, 1);
+        let number = this.randomIndex(0,this.list.length);
+        this.actual = this.list.pop(number)
     }
 }
+module.exports = Word;
