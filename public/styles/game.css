@@ -110,6 +110,7 @@ canvas {
   background-color: #e4e4e4;
   padding: 1rem;
   border: 2px solid black;
+  margin-left: -1px;
 }
 
 #footer {
@@ -128,15 +129,6 @@ canvas {
 
 #gameCanvas {
   margin: 0 auto 0;
-}
-
-#imgPlay {
-  position: absolute;
-  margin-top: -40px;
-  width: 60px;
-  height: 60px;
-  bottom: 0;
-  right: 0;
 }
 
 #wordIpt {
