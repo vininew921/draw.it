@@ -1,4 +1,5 @@
-/*
+html {
+  /*
   Draw.it
   Copyright (C) 2021  Various Authors
 
@@ -15,15 +16,13 @@
   You should have received a copy of the GNU General Public License
   along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
-
-html{
   height: 100%;
   margin: 0;
   padding: 0;
 }
 
-body{
-  background-color: #01BEFE;
+body {
+  background-color: #01befe;
   height: auto;
   width: auto;
   min-height: 100vh;
@@ -31,7 +30,7 @@ body{
   padding: 0;
 }
 
-*{
+* {
   font-family: cursive;
   font-weight: bolder;
   box-sizing: border-box;
@@ -46,34 +45,37 @@ canvas {
   touch-action: none;
 }
 
-.row{
+.row {
   height: 100%;
   margin: 0;
 }
 
-.column{
+.column {
   float: left;
 }
 
-.columnLeft{
+.columnLeft {
   position: relative;
   width: 30%;
   height: 100vh;
 }
 
-.columnRight{
+.columnRight {
   width: 70%;
   height: 100vh;
 }
 
-.header{
-  color: #8F00FF;
+.header {
+  color: #8f00ff;
   text-align: center;
   margin: auto;
   width: 50%;
   font-size: xx-large;
   display: flex;
   justify-content: center;
+}
+
+.footer {
 }
 
 #header {
@@ -83,36 +85,32 @@ canvas {
   font-size: xx-large;
 }
 
-#playerList{
+#playerList {
   width: 80%;
   margin: auto;
   margin-left: 2vh;
   font-size: x-large;
 }
 
-#playersHeader{
+#playersHeader {
   text-decoration: underline;
 }
 
-#players{
+#players {
   column-count: auto;
   max-width: 100%;
 }
 
-#box-game {
-  width: 100%;
+#boxInputText {
   display: flex;
+  width: 800px;
+  flex-direction: row;
   align-items: center;
-  position: absolute;
-  bottom: 0;
-}
-
-#content-box {
-  width: 100%;
-  display: flex;
+  justify-content: space-between;
   background-color: #e4e4e4;
-  flex-direction: column;
-  justify-content: center;
+  padding: 1rem;
+  border: 2px solid black;
+  margin-left: -1px;
 }
 
 #footer {
@@ -122,9 +120,15 @@ canvas {
   justify-content: space-around;
 }
 
-#gameCanvas{
+#canvasDiv {
+  width: 800px;
   background-color: white;
-  margin: 1rem auto;
+  border: 1px solid black;
+  margin: auto;
+}
+
+#gameCanvas {
+  margin: 0 auto 0;
 }
 
 #wordIpt {
@@ -162,7 +166,7 @@ canvas {
   margin-left: 30px;
 }
 
-#img-clock {
+#imgClock {
   width: 40px;
   margin-left: 10px;
 }
