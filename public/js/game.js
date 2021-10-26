@@ -94,6 +94,7 @@ function stopTimer(){
 };
 
 <<<<<<< HEAD
+<<<<<<< HEAD
 function initTimer(){
   timerInterval = setInterval(() => {
     cont--;
@@ -299,6 +300,8 @@ gameCanvas.addEventListener('touchend', onMouseUp, false);
 gameCanvas.addEventListener('touchcancel', onMouseUp, false);
 gameCanvas.addEventListener('touchmove', throttle(onMouseMove, 10), false);
 =======
+=======
+>>>>>>> ad6573f178d2c9451bb7f7f2f42edd89f9235c98
 function _(selector){
   return document.querySelector(selector);
 }
@@ -325,4 +328,7 @@ function mouseDragged(){
 _("#reset-canvas").addEventListener("click", function(){
   background(255);
 });
+<<<<<<< HEAD
 >>>>>>> ad6573f (tools for drawing)
+=======
+>>>>>>> ad6573f178d2c9451bb7f7f2f42edd89f9235c98
