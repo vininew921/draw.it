@@ -53,6 +53,11 @@ let startGameSeconds = 5;
 /*                               Lobby Functions                              */
 /* ---------------------------------------------------------------------------*/
 
+/**
+ * Starts a timer to redirect to the game page.
+ *
+ * @param {boolean} start whether to start the timer or cancel it.
+ */
 function startGame(start) {
   if (start && !startGameTimer) {
     startGameTimer = setInterval(() => {
@@ -71,6 +76,9 @@ function startGame(start) {
   }
 }
 
+/**
+ * Updates the player list with the current room's players metadata.
+ */
 function updatePlayerList() {
   if (!currentRoom.gameStarted) {
     playersList.innerHTML = '';
@@ -105,6 +113,12 @@ function updatePlayerList() {
 /*                              Canvas Functions                              */
 /* ---------------------------------------------------------------------------*/
 
+/**
+ * Gets the mouse coordinates relative to the canvas.
+ *
+ * @param {Object} e the event
+ * @param {Object} position the position object to update
+ */
 function relMouseCoords(e, position) {
   let totalOffsetX = 0;
   let totalOffsetY = 0;
@@ -120,6 +134,13 @@ function relMouseCoords(e, position) {
   position.y = (e.pageY || e.touches[0].pageY) - totalOffsetY;
 }
 
+/**
+ * Simple throttle function.
+ *
+ * @param {callback} callback the function to throttle
+ * @param {number} delay the delay in milliseconds
+ * @returns the throttled function
+ */
 function throttle(callback, delay) {
   let previousCall = new Date().getTime();
   return (...args) => {
@@ -131,6 +152,16 @@ function throttle(callback, delay) {
   };
 }
 
+/**
+ * Draws a line between the current position and the target position.
+ *
+ * @param {number} x0 the current x position
+ * @param {number} y0 the current y position
+ * @param {number} x1 the target x position
+ * @param {number} y1 the target y position
+ * @param {string} color the color of the line
+ * @param {boolean} emit whether to emit the line to the server
+ */
 function drawLine(x0, y0, x1, y1, color, emit) {
   if (!emit) {
     const rect = lobbyCanvas.getBoundingClientRect();
@@ -160,6 +191,9 @@ function drawLine(x0, y0, x1, y1, color, emit) {
 /*                                 HTML Events                                */
 /* ---------------------------------------------------------------------------*/
 
+/**
+ * Updates the current player's status and toggles the ready button.
+ */
 function onReadyClick() {
   if (readyButton.className === 'readyButton ready') {
     readyButton.className = 'readyButton cancel';
@@ -174,11 +208,22 @@ function onReadyClick() {
   }
 }
 
+/**
+ * Updates the current mouse or touch position.
+ *
+ * @param {Object} e the mouse down or touch start event
+ */
 function onMouseDown(e) {
   drawing = true;
   relMouseCoords(e, currentPos);
 }
 
+/**
+ * Updates the current mouse or touch position and draws a line between the
+ * current position and the target position.
+ *
+ * @param {Object} e the mouse up or touch end event
+ */
 function onMouseUp(e) {
   if (!drawing) { return; }
   drawing = false;
@@ -186,6 +231,12 @@ function onMouseUp(e) {
   drawLine(currentPos.x, currentPos.y, targetPos.x, targetPos.y, currentPos.color, true);
 }
 
+/**
+ * Updates the current mouse or touch position, draws a line between the current
+ * position and the target position, and updates the current position.
+ *
+ * @param {Object} e the mouse move or touch move event
+ */
 function onMouseMove(e) {
   if (!drawing) { return; }
   relMouseCoords(e, targetPos);
@@ -197,32 +248,56 @@ function onMouseMove(e) {
 /*                                Socket Events                               */
 /* ---------------------------------------------------------------------------*/
 
+/**
+ * Updates the room data and the new connected player page.
+ *
+ * @param {Object} data the updated room
+ */
 function onJoinComplete(data) {
   currentRoom = data;
   roomCodeHeader.innerHTML = `Room ${currentRoom.roomCode}`;
   updatePlayerList();
 }
 
+/**
+ * Shows a nickanme already in use failure message and redirects to the home page.
+ */
 function onNickInUse() {
   lobbyHeader.innerHTML = 'Nickname is already in use';
   setTimeout(() => { window.location.href = '/'; }, 2000);
 }
 
+/**
+ * Shows a failed join message and redirects to the home page.
+ */
 function onJoinFailed() {
   lobbyHeader.innerHTML = 'Room not found!';
   setTimeout(() => { window.location.href = '/'; }, 2000);
 }
 
+/**
+ * Shows a failed due to full room message and redirects to the home page.
+ */
 function onJoinFailedMaxPlayers() {
   lobbyHeader.innerHTML = 'Room is full!';
   setTimeout(() => { window.location.href = '/'; }, 2000);
 }
 
+/**
+ * Updates the room data and the players list.
+ *
+ * @param {Object} data the updated room
+ */
 function onPlayersChanged(data) {
   currentRoom = data;
   updatePlayerList();
 }
 
+/**
+ * Draws a line with the data incoming from the server.
+ *
+ * @param {Object} data the drawing input
+ */
 function onDrawingEvent(data) {
   drawLine(data.x0, data.y0, data.x1, data.y1, data.color, false);
 }
@@ -231,6 +306,9 @@ function onDrawingEvent(data) {
 /*                                    Init                                    */
 /* ---------------------------------------------------------------------------*/
 
+/**
+ * Sets up the socket listeners.
+ */
 function setupSocket() {
   socket = io.connect('/');
 
@@ -243,12 +321,18 @@ function setupSocket() {
   socket.on('playerDrawing', onDrawingEvent);
 }
 
+/**
+ * Checks the URL for the lobby type, nickname and room code.
+ */
 function checkParameters() {
   if (!lobbyType || !nickname || !roomCode) {
     window.location.href = '/';
   }
 }
 
+/**
+ * Sets up the client with the URL parameters.
+ */
 function initializeClient() {
   player = new Player(nickname, roomCode);
 
