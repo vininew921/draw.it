@@ -16,7 +16,10 @@
  *  along with this program. If not, see <https://www.gnu.org/licenses/>.
  */
 
-// HTML Elements
+/* ---------------------------------------------------------------------------*/
+/*                                HTML Elements                               */
+/* ---------------------------------------------------------------------------*/
+
 const wordIpt = document.querySelector('#wordIpt');
 const sendBtn = document.querySelector('#sendBtn');
 const timer = document.querySelector('#timer');
@@ -26,36 +29,54 @@ const playersList = document.getElementById('players');
 const gameHeader = document.getElementById('gameHeader');
 const gameCanvas = document.getElementById('gameCanvas');
 
-/*
- * Control variables
- */
-let context = gameCanvas.getContext('2d');
+/* ---------------------------------------------------------------------------*/
+/*                              Control Variables                             */
+/* ---------------------------------------------------------------------------*/
+
+/* global io */
+
+let socket;
+let player;
+let currentRoom;
+
+/* url params */
 
 const queryString = window.location.search;
 const urlParams = new URLSearchParams(queryString);
 const playerId = urlParams.get('playerId');
 const roomCode = urlParams.get('roomCode');
 const playerNick = urlParams.get('playerNick');
-let player;
-let socket;
-let currentRoom;
+
+/* timers */
+
 let timerInterval;
+
 const initialCont = 10;
 let cont = initialCont;
-const currentPos = { color: 'black', x: 0, y: 0 };
-const targetPos = { color: 'black', x: 0, y: 0 };
-let drawing = false;
-let isDrawer = false;
+
 const initialStartGameSeconds = 5;
 let startGameSeconds = initialStartGameSeconds;
-/*
- * Game Functions
- */
+
+/* canvas */
+
+let context = gameCanvas.getContext('2d');
+
+let drawing = false;
+let isDrawer = false;
+
+const currentPos = { color: 'black', x: 0, y: 0 };
+const targetPos = { color: 'black', x: 0, y: 0 };
+
+/* ---------------------------------------------------------------------------*/
+/*                               Game Functions                               */
+/* ---------------------------------------------------------------------------*/
 
 function updatePlayerList() {
   playersList.innerHTML = '';
+
   for (let i = 0; i < currentRoom.maxPlayers; i++) {
     const p = document.createElement('p');
+
     if (currentRoom.players[i]) {
       p.className = 'player joined';
       p.innerHTML = currentRoom.players[i].nickname;
@@ -63,6 +84,7 @@ function updatePlayerList() {
       p.className = 'player empty';
       p.innerHTML = 'Empty';
     }
+
     playersList.appendChild(p);
   }
 }
@@ -81,6 +103,20 @@ const newGame = () => {
     }
   }, 1000);
 };
+
+function getDrawer() {
+  const rect = gameCanvas.getBoundingClientRect();
+  context = gameCanvas.getContext('2d');
+
+  if (currentRoom.drawer.nickname == playerNick) {
+    gameHeader.innerHTML = `Draw word: '${currentRoom.word}'`;
+    isDrawer = true;
+  } else {
+    gameHeader.innerHTML = `'${currentRoom.drawer.nickname}' is drawing`;
+    gameCanvas.style.setProperty('cursor', 'no-drop;');
+    isDrawer = false;
+  }
+}
 
 function stopTimer() {
   timer.innerHTML = '0:00';
@@ -104,9 +140,9 @@ function initTimer() {
   }, 1000);
 }
 
-/*
- * Canvas Functions
- */
+/* ---------------------------------------------------------------------------*/
+/*                              Canvas Functions                              */
+/* ---------------------------------------------------------------------------*/
 
 function relMouseCoords(e, position) {
   let totalOffsetX = 0;
@@ -157,9 +193,9 @@ function drawLine(x0, y0, x1, y1, color, emit) {
   }
 }
 
-/*
- * HTML Events Definitions
- */
+/* ---------------------------------------------------------------------------*/
+/*                                 HTML Events                                */
+/* ---------------------------------------------------------------------------*/
 
 function onSubmitBtnClick() {
   const text = wordIpt.value;
@@ -189,9 +225,9 @@ function onMouseMove(e) {
   }
 }
 
-/*
- * Socket Events
- */
+/* ---------------------------------------------------------------------------*/
+/*                                Socket Events                               */
+/* ---------------------------------------------------------------------------*/
 
 function onPlayersChanged(data) {
   currentRoom = data;
@@ -232,26 +268,22 @@ function onNewGame(data) {
   initTimer();
 }
 
-/*
- * Init
- */
+/* ---------------------------------------------------------------------------*/
+/*                                    Init                                    */
+/* ---------------------------------------------------------------------------*/
 
 function setupSocket() {
-  // eslint-disable-next-line no-undef
   socket = io.connect('/');
 
   socket.on('joinComplete', onJoinComplete);
-  socket.on('playersChanged', onPlayersChanged);
   socket.on('joinFailed', onJoinFailed);
   socket.on('joinFailedMaxPlayers', onJoinFailedMaxPlayers);
+
+  socket.on('playersChanged', onPlayersChanged);
   socket.on('playerDrawing', onDrawingEvent);
+
   socket.on('newGame', onNewGame);
   socket.on('endGame', onEndGame);
-}
-
-function initializeClient() {
-  const gameOptions = { playerId, roomCode };
-  socket.emit('joinGame', gameOptions);
 }
 
 function checkParameters() {
@@ -260,17 +292,9 @@ function checkParameters() {
   }
 }
 
-function getDrawer() {
-  const rect = gameCanvas.getBoundingClientRect();
-  context = gameCanvas.getContext('2d');
-  if (currentRoom.drawer.nickname == playerNick) {
-    gameHeader.innerHTML = `Draw word: '${currentRoom.word}'`;
-    isDrawer = true;
-  } else {
-    gameHeader.innerHTML = `'${currentRoom.drawer.nickname}' is drawing`;
-    gameCanvas.style.setProperty('cursor', 'no-drop;');
-    isDrawer = false;
-  }
+function initializeClient() {
+  const gameOptions = { playerId, roomCode };
+  socket.emit('joinGame', gameOptions);
 }
 
 setupSocket();
@@ -279,8 +303,6 @@ initializeClient();
 initTimer();
 
 /* HTML Events Setup */
-
-// HTML Events Definition
 
 sendBtn.onclick = onSubmitBtnClick;
 gameCanvas.addEventListener('mousedown', onMouseDown, false);

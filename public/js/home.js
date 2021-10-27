@@ -16,9 +16,9 @@
  *  along with this program. If not, see <https://www.gnu.org/licenses/>.
  */
 
-/*
- * HTML Elements
- */
+/* ---------------------------------------------------------------------------*/
+/*                                HTML Elements                               */
+/* ---------------------------------------------------------------------------*/
 
 const joinRoomBtn = document.getElementById('joinBtn');
 const createRoomBtn = document.getElementById('createBtn');
@@ -34,15 +34,15 @@ const confirmCreateModalBtn = document.getElementById('confirmCreateModalBtn');
 
 const spanBtns = document.getElementsByClassName('cancelModal');
 
-/*
- * Control variables
- */
+/* ---------------------------------------------------------------------------*/
+/*                              Control Variables                             */
+/* ---------------------------------------------------------------------------*/
 
 let currentOpenModal = null;
 
-/*
- * Functions
- */
+/* ---------------------------------------------------------------------------*/
+/*                               Home Functions                               */
+/* ---------------------------------------------------------------------------*/
 
 function generateRoomCode(roomCodeLength) {
   let result = '';
@@ -65,9 +65,9 @@ function hideModal() {
   resetInputValues();
 }
 
-/*
- * Event Definitions
- */
+/* ---------------------------------------------------------------------------*/
+/*                                 HTML Events                                */
+/* ---------------------------------------------------------------------------*/
 
 function onCreateRoomBtnClick() {
   createRoomModal.style.display = 'block';
@@ -90,9 +90,11 @@ function onConfirmJoinRoomBtnClick() {
   window.location.href = `/lobby?type=join&nickname=${nickname}&roomCode=${roomCode}`;
 }
 
-/*
- * Init
- */
+/* ---------------------------------------------------------------------------*/
+/*                                    Init                                    */
+/* ---------------------------------------------------------------------------*/
+
+/* HTML Events Setup */
 
 createRoomBtn.onclick = onCreateRoomBtnClick;
 joinRoomBtn.onclick = onJoinRoomBtnClick;
