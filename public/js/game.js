@@ -1,20 +1,20 @@
 /*
-  Draw.it
-  Copyright (C) 2021  Various Authors
-
-  This program is free software: you can redistribute it and/or modify
-  it under the terms of the GNU General Public License as published by
-  the Free Software Foundation, either version 3 of the License, or
-  (at your option) any later version.
-
-  This program is distributed in the hope that it will be useful,
-  but WITHOUT ANY WARRANTY; without even the implied warranty of
-  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-  GNU General Public License for more details.
-
-  You should have received a copy of the GNU General Public License
-  along with this program.  If not, see <https://www.gnu.org/licenses/>.
-*/
+ *  Draw.it
+ *  Copyright (C) 2021 Various Authors
+ *
+ *  This program is free software: you can redistribute it and/or modify
+ *  it under the terms of the GNU General Public License as published by
+ *  the Free Software Foundation, either version 3 of the License, or
+ *  (at your option) any later version.
+ *
+ *  This program is distributed in the hope that it will be useful,
+ *  but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ *  GNU General Public License for more details.
+ *
+ *  You should have received a copy of the GNU General Public License
+ *  along with this program. If not, see <https://www.gnu.org/licenses/>.
+ */
 
 // HTML Elements
 const wordIpt = document.querySelector('#wordIpt');
@@ -24,7 +24,7 @@ const imgClock = document.querySelector('#img-clock');
 const roomCodeHeader = document.getElementById('roomCodeHeader');
 const playersList = document.getElementById('players');
 const gameHeader = document.getElementById('gameHeader');
-let gameCanvas = document.getElementById('gameCanvas');
+const gameCanvas = document.getElementById('gameCanvas');
 
 /*
  * Control variables
@@ -40,13 +40,13 @@ let player;
 let socket;
 let currentRoom;
 let timerInterval;
-let initialCont = 10;
+const initialCont = 10;
 let cont = initialCont;
 const currentPos = { color: 'black', x: 0, y: 0 };
 const targetPos = { color: 'black', x: 0, y: 0 };
 let drawing = false;
 let isDrawer = false;
-let initialStartGameSeconds = 5;
+const initialStartGameSeconds = 5;
 let startGameSeconds = initialStartGameSeconds;
 /*
  * Game Functions
@@ -71,7 +71,7 @@ const newGame = () => {
   startGameSeconds = initialStartGameSeconds;
   startGameTimer = setInterval(() => {
     if (startGameSeconds === 0) {
-      if(currentRoom.drawer.nickname == playerNick){
+      if (currentRoom.drawer.nickname == playerNick) {
         socket.emit('startNewTurn', roomCode);
       }
       clearInterval(startGameTimer);
@@ -82,7 +82,7 @@ const newGame = () => {
   }, 1000);
 };
 
-function stopTimer(){
+function stopTimer() {
   timer.innerHTML = '0:00';
   imgClock.classList.add('animate');
   wordIpt.value = '';
@@ -91,9 +91,9 @@ function stopTimer(){
   isDrawer = false;
   newGame();
   clearInterval(timerInterval);
-};
+}
 
-function initTimer(){
+function initTimer() {
   timerInterval = setInterval(() => {
     cont--;
     const time = new Date(cont * 1000).toISOString().substr(15, 4);
@@ -102,7 +102,7 @@ function initTimer(){
     sendBtn.disabled = false;
     if (cont <= 0) { stopTimer(); }
   }, 1000);
-};
+}
 
 /*
  * Canvas Functions
@@ -135,7 +135,6 @@ function throttle(callback, delay) {
 }
 
 function drawLine(x0, y0, x1, y1, color, emit) {
-  
   const rect = gameCanvas.getBoundingClientRect();
   const widthMultiplier = gameCanvas.width / rect.width;
 
@@ -146,7 +145,7 @@ function drawLine(x0, y0, x1, y1, color, emit) {
   context.lineWidth = 2;
   context.stroke();
   context.closePath();
-  
+
   if (emit) {
     socket.emit('gameDrawing', {
       x0,
@@ -157,8 +156,6 @@ function drawLine(x0, y0, x1, y1, color, emit) {
     }, player);
   }
 }
-
-
 
 /*
  * HTML Events Definitions
@@ -263,17 +260,16 @@ function checkParameters() {
   }
 }
 
-function getDrawer(){
+function getDrawer() {
   const rect = gameCanvas.getBoundingClientRect();
   context = gameCanvas.getContext('2d');
-  if(currentRoom.drawer.nickname == playerNick){
+  if (currentRoom.drawer.nickname == playerNick) {
     gameHeader.innerHTML = `Draw word: '${currentRoom.word}'`;
-    isDrawer=true
-  }
-  else{
+    isDrawer = true;
+  } else {
     gameHeader.innerHTML = `'${currentRoom.drawer.nickname}' is drawing`;
     gameCanvas.style.setProperty('cursor', 'no-drop;');
-    isDrawer=false
+    isDrawer = false;
   }
 }
 
