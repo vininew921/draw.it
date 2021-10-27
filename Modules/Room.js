@@ -62,6 +62,11 @@ class Room {
   /*                                  Player                                  */
   /* -------------------------------------------------------------------------*/
 
+  /**
+   * Adds the given player to the players list.
+   *
+   * @param {Object} player
+   */
   addPlayer(player) {
     this.players.push(player);
     this.mostRecentPlayer = player;
@@ -75,6 +80,11 @@ class Room {
     this.availableDrawers = [...this.players];
   }
 
+  /**
+   * Checks if all the players are ready.
+   *
+   * @returns if all the players are ready
+   */
   checkEveryoneReady() {
     for (let i = 0; i < this.players.length; i++) {
       if (!this.players[i].ready) {
@@ -90,11 +100,19 @@ class Room {
   /*                                   Game                                   */
   /* -------------------------------------------------------------------------*/
 
+  /**
+   * Setter
+   * Sets a new random player as drawer.
+   */
   chooseDrawer() {
     const drawerIndex = this.randomIndex(0, this.players.length);
     this.drawer = this.availableDrawers.pop(drawerIndex);
   }
 
+  /**
+   * Setter
+   * Sets a new random word.
+   */
   chooseWord() {
     const wordIndex = this.randomIndex(0, this.words.length);
     this.word = this.words.pop(wordIndex);
@@ -104,6 +122,13 @@ class Room {
   /*                                 Utility                                  */
   /* -------------------------------------------------------------------------*/
 
+  /**
+   * Returns a random index between min (inclusive) and max (exclusive).
+   *
+   * @param {number} min the minimum index value
+   * @param {number} max the maximum index value
+   * @returns the random index
+   */
   randomIndex(min, max) {
     return Math.floor(Math.random() * (max - min + 1)) + min;
   }
