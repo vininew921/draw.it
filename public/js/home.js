@@ -44,6 +44,12 @@ let currentOpenModal = null;
 /*                               Home Functions                               */
 /* ---------------------------------------------------------------------------*/
 
+/**
+ * Generates a random room hash code of a given length.
+ *
+ * @param {number} roomCodeLength the length of the room code
+ * @returns {string} the room code
+ */
 function generateRoomCode(roomCodeLength) {
   let result = '';
   const characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
@@ -54,12 +60,18 @@ function generateRoomCode(roomCodeLength) {
   return result;
 }
 
+/**
+ * Resets the input values of the modal.
+ */
 function resetInputValues() {
   joinNicknameIpt.value = '';
   createNicknameIpt.value = '';
   roomCodeIpt.value = '';
 }
 
+/**
+ * Hides the current open modal.
+ */
 function hideModal() {
   currentOpenModal.style.display = 'none';
   resetInputValues();
@@ -69,21 +81,33 @@ function hideModal() {
 /*                                 HTML Events                                */
 /* ---------------------------------------------------------------------------*/
 
+/**
+ * Displays the create room modal.
+ */
 function onCreateRoomBtnClick() {
   createRoomModal.style.display = 'block';
   currentOpenModal = createRoomModal;
 }
 
+/**
+ * Displays the join room modal.
+ */
 function onJoinRoomBtnClick() {
   joinRoomModal.style.display = 'block';
   currentOpenModal = joinRoomModal;
 }
 
+/**
+ * Redirects to the lobby page with create room parameters.
+ */
 function onConfirmCreateRoomBtnClick() {
   const nickname = createNicknameIpt.value;
   window.location.href = `/lobby?type=create&nickname=${nickname}&roomCode=${generateRoomCode(6)}`;
 }
 
+/**
+ * Redirects to the lobby page with join room parameters.
+ */
 function onConfirmJoinRoomBtnClick() {
   const nickname = joinNicknameIpt.value;
   const roomCode = roomCodeIpt.value;
