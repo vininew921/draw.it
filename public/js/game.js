@@ -71,6 +71,9 @@ const targetPos = { color: 'black', x: 0, y: 0 };
 /*                               Game Functions                               */
 /* ---------------------------------------------------------------------------*/
 
+/**
+ * Updates the player list with the current room's players metadata.
+ */
 function updatePlayerList() {
   playersList.innerHTML = '';
 
@@ -89,6 +92,9 @@ function updatePlayerList() {
   }
 }
 
+/**
+ * Starts a timer to start a new game.
+ */
 const newGame = () => {
   startGameSeconds = initialStartGameSeconds;
   startGameTimer = setInterval(() => {
@@ -104,6 +110,9 @@ const newGame = () => {
   }, 1000);
 };
 
+/**
+ * Updates the player's page with the current drawer data.
+ */
 function getDrawer() {
   const rect = gameCanvas.getBoundingClientRect();
   context = gameCanvas.getContext('2d');
@@ -118,6 +127,9 @@ function getDrawer() {
   }
 }
 
+/**
+ * Stops the round timer and updates the game header.
+ */
 function stopTimer() {
   timer.innerHTML = '0:00';
   imgClock.classList.add('animate');
@@ -129,6 +141,9 @@ function stopTimer() {
   clearInterval(timerInterval);
 }
 
+/**
+ * Starts the round timer.
+ */
 function initTimer() {
   timerInterval = setInterval(() => {
     cont--;
@@ -144,6 +159,12 @@ function initTimer() {
 /*                              Canvas Functions                              */
 /* ---------------------------------------------------------------------------*/
 
+/**
+ * Gets the mouse coordinates relative to the canvas.
+ *
+ * @param {Object} e the event
+ * @param {Object} position the position object to update
+ */
 function relMouseCoords(e, position) {
   let totalOffsetX = 0;
   let totalOffsetY = 0;
@@ -159,6 +180,13 @@ function relMouseCoords(e, position) {
   position.y = (e.pageY || e.touches[0].pageY) - totalOffsetY;
 }
 
+/**
+ * Simple throttle function.
+ *
+ * @param {callback} callback the function to throttle
+ * @param {number} delay the delay in milliseconds
+ * @returns the throttled function
+ */
 function throttle(callback, delay) {
   let previousCall = new Date().getTime();
   return (...args) => {
@@ -170,6 +198,16 @@ function throttle(callback, delay) {
   };
 }
 
+/**
+ * Draws a line between the current position and the target position.
+ *
+ * @param {number} x0 the current x position
+ * @param {number} y0 the current y position
+ * @param {number} x1 the target x position
+ * @param {number} y1 the target y position
+ * @param {string} color the color of the line
+ * @param {boolean} emit whether to emit the line to the server
+ */
 function drawLine(x0, y0, x1, y1, color, emit) {
   const rect = gameCanvas.getBoundingClientRect();
   const widthMultiplier = gameCanvas.width / rect.width;
@@ -197,16 +235,30 @@ function drawLine(x0, y0, x1, y1, color, emit) {
 /*                                 HTML Events                                */
 /* ---------------------------------------------------------------------------*/
 
+/**
+ * Submits the word guess.
+ */
 function onSubmitBtnClick() {
   const text = wordIpt.value;
   if (text) { console.log(text); }
 }
 
+/**
+ * Updates the current mouse or touch position.
+ *
+ * @param {Object} e the mouse down or touch start event
+ */
 function onMouseDown(e) {
   drawing = true;
   relMouseCoords(e, currentPos);
 }
 
+/**
+ * Updates the current mouse or touch position and draws a line between the
+ * current position and the target position.
+ *
+ * @param {Object} e the mouse up or touch end event
+ */
 function onMouseUp(e) {
   if (isDrawer) {
     if (!drawing) { return; }
@@ -216,6 +268,12 @@ function onMouseUp(e) {
   }
 }
 
+/**
+ * Updates the current mouse or touch position, draws a line between the current
+ * position and the target position, and updates the current position.
+ *
+ * @param {Object} e the mouse move or touch move event
+ */
 function onMouseMove(e) {
   if (isDrawer) {
     if (!drawing) { return; }
@@ -229,11 +287,21 @@ function onMouseMove(e) {
 /*                                Socket Events                               */
 /* ---------------------------------------------------------------------------*/
 
+/**
+ * Updates the room data and the players list.
+ *
+ * @param {Object} data the updated room
+ */
 function onPlayersChanged(data) {
   currentRoom = data;
   updatePlayerList();
 }
 
+/**
+ * Updates the room data and the new connected player page.
+ *
+ * @param {Object} data the updated room
+ */
 function onJoinComplete(data) {
   currentRoom = data;
   player = currentRoom.mostRecentPlayer;
@@ -242,25 +310,44 @@ function onJoinComplete(data) {
   getDrawer();
 }
 
+/**
+ * Shows a failed join message and redirects to the home page.
+ */
 function onJoinFailed() {
   gameHeader.innerHTML = 'Room not found!';
   setTimeout(() => { window.location.href = '/'; }, 2000);
 }
 
+/**
+ * Shows a failed due to full room message and redirects to the home page.
+ */
 function onJoinFailedMaxPlayers() {
   gameHeader.innerHTML = 'Room is full!';
   setTimeout(() => { window.location.href = '/'; }, 2000);
 }
 
+/**
+ * Draws a line with the data incoming from the server.
+ *
+ * @param {Object} data the drawing input
+ */
 function onDrawingEvent(data) {
   drawLine(data.x0, data.y0, data.x1, data.y1, data.color, false);
 }
 
+/**
+ * Shows a end game message and redirects to the home page.
+ */
 function onEndGame() {
   gameHeader.innerHTML = 'Game has been ended';
   setTimeout(() => { window.location.href = '/'; }, 2000);
 }
 
+/**
+ * Updates the page with the room's new game data.
+ *
+ * @param {Object} data the updated room
+ */
 function onNewGame(data) {
   cont = initialCont;
   currentRoom = data;
@@ -272,6 +359,9 @@ function onNewGame(data) {
 /*                                    Init                                    */
 /* ---------------------------------------------------------------------------*/
 
+/**
+ * Sets up the socket listeners.
+ */
 function setupSocket() {
   socket = io.connect('/');
 
@@ -286,12 +376,18 @@ function setupSocket() {
   socket.on('endGame', onEndGame);
 }
 
+/**
+ * Checks the URL for the room code and player ID.
+ */
 function checkParameters() {
   if (!playerId || !roomCode) {
     window.location.href = '/';
   }
 }
 
+/**
+ * Sets up the client with the URL parameters.
+ */
 function initializeClient() {
   const gameOptions = { playerId, roomCode };
   socket.emit('joinGame', gameOptions);
