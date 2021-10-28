@@ -18,38 +18,50 @@
 
 <!DOCTYPE html>
 <html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <link rel="stylesheet" href="../styles/lobby.css">
-    <link rel="stylesheet" href="../styles/modal.css">
-    <title>Draw.it</title>
-  </head>
-  <body>
-    <div class="row">
-      <div class="column columnLeft">
-        <div class="header">
-          <h3 id="roomCodeHeader"></h3>
-        </div>
-        <div id="playerList">
-          <h3 id="playersHeader"></h3>
-          <div id="players">
-          </div>
-          <button class="readyButton ready" id="lobbyReady">Ready</button>
-        </div>
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <link rel="stylesheet" href="../styles/lobby.css">
+  <link rel="stylesheet" href="../styles/modal.css">
+  <title>Draw.it</title>
+</head>
+
+<body>
+  <div class="row">
+    <div class="column columnLeft">
+      <div class="header">
+        <h3 id="roomCodeHeader"></h3>
       </div>
-      <div class="column columnRight">
-        <div class="header">
-          <h1 id="lobbyHeader">Waiting Room</h1>
+      <div id="playerList">
+        <h3 id="playersHeader"></h3>
+        <div id="players">
         </div>
-        <div id="canvasDiv">
-          <canvas class="lobbyCanvas" id="lobbyCanvas" width="800" height="600">
-          </canvas>
-        </div>
+        <button class="readyButton ready" id="lobbyReady">Ready</button>
       </div>
     </div>
-    <script src="/scripts/socket.io.min.js"></script>
-    <script src="../models/Player.js"></script>
-    <script src="../js/lobby.js"></script>
-  </body>
+    <div class="column columnRight">
+      <div class="header">
+        <h1 id="lobbyHeader">Waiting Room</h1>
+      </div>
+      <div class="canvasDiv" id="canvasDiv">
+        <div class="controls">
+          <div class="color">
+            <label for="pen-color">Color</label>
+            <input type="color" id="pen-color" value="#000">
+          </div>
+          <div class="actions">
+            <button id="reset-canvas">Reset</button>
+          </div>
+        </div>
+        <canvas class="lobbyCanvas" id="lobbyCanvas" width="800" height="600">
+        </canvas>
+      </div>
+    </div>
+  </div>
+  <script src="/scripts/socket.io.min.js"></script>
+  <script src="../models/Player.js"></script>
+  <script src="../js/lobby.js"></script>
+</body>
+
 </html>

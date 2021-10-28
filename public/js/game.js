@@ -19,12 +19,13 @@
 // HTML Elements
 const wordIpt = document.querySelector('#wordIpt');
 const sendBtn = document.querySelector('#sendBtn');
+const resetCanvaBtn = document.querySelector('#reset-canvas');
 const timer = document.querySelector('#timer');
 const imgClock = document.querySelector('#img-clock');
 const roomCodeHeader = document.getElementById('roomCodeHeader');
 const playersList = document.getElementById('players');
 const gameHeader = document.getElementById('gameHeader');
-let gameCanvas = document.getElementById('gameCanvas');
+const gameCanvas = document.getElementById('gameCanvas');
 
 /*
  * Control variables
@@ -40,13 +41,13 @@ let player;
 let socket;
 let currentRoom;
 let timerInterval;
-let initialCont = 10;
+const initialCont = 10;
 let cont = initialCont;
 const currentPos = { color: 'black', x: 0, y: 0 };
 const targetPos = { color: 'black', x: 0, y: 0 };
 let drawing = false;
 let isDrawer = false;
-let initialStartGameSeconds = 5;
+const initialStartGameSeconds = 5;
 let startGameSeconds = initialStartGameSeconds;
 /*
  * Game Functions
@@ -69,9 +70,9 @@ function updatePlayerList() {
 
 const newGame = () => {
   startGameSeconds = initialStartGameSeconds;
-  startGameTimer = setInterval(() => {
+  const startGameTimer = setInterval(() => {
     if (startGameSeconds === 0) {
-      if(currentRoom.drawer.nickname == playerNick){
+      if (currentRoom.drawer.nickname === playerNick) {
         socket.emit('startNewTurn', roomCode);
       }
       clearInterval(startGameTimer);
@@ -82,7 +83,7 @@ const newGame = () => {
   }, 1000);
 };
 
-function stopTimer(){
+function stopTimer() {
   timer.innerHTML = '0:00';
   imgClock.classList.add('animate');
   wordIpt.value = '';
@@ -91,9 +92,9 @@ function stopTimer(){
   isDrawer = false;
   newGame();
   clearInterval(timerInterval);
-};
+}
 
-function initTimer(){
+function initTimer() {
   timerInterval = setInterval(() => {
     cont--;
     const time = new Date(cont * 1000).toISOString().substr(15, 4);
@@ -102,7 +103,7 @@ function initTimer(){
     sendBtn.disabled = false;
     if (cont <= 0) { stopTimer(); }
   }, 1000);
-};
+}
 
 /*
  * Canvas Functions
@@ -135,7 +136,6 @@ function throttle(callback, delay) {
 }
 
 function drawLine(x0, y0, x1, y1, color, emit) {
-  
   const rect = gameCanvas.getBoundingClientRect();
   const widthMultiplier = gameCanvas.width / rect.width;
 
@@ -146,7 +146,7 @@ function drawLine(x0, y0, x1, y1, color, emit) {
   context.lineWidth = 2;
   context.stroke();
   context.closePath();
-  
+
   if (emit) {
     socket.emit('gameDrawing', {
       x0,
@@ -158,8 +158,6 @@ function drawLine(x0, y0, x1, y1, color, emit) {
   }
 }
 
-
-
 /*
  * HTML Events Definitions
  */
@@ -169,8 +167,24 @@ function onSubmitBtnClick() {
   if (text) { console.log(text); }
 }
 
+function onResetBtnClick() {
+  context.clearRect(0, 0, gameCanvas.width, gameCanvas.height);
+}
+
+function changeColor(event) {
+  currentPos.color = event.target.value;
+}
+
+function selectColor() {
+  const penColor = document.querySelector('#pen-color');
+  penColor.value = currentPos.color;
+  penColor.addEventListener('input', changeColor, false);
+  penColor.select();
+}
+
 function onMouseDown(e) {
   drawing = true;
+  selectColor();
   relMouseCoords(e, currentPos);
 }
 
@@ -195,6 +209,19 @@ function onMouseMove(e) {
 /*
  * Socket Events
  */
+
+function getDrawer() {
+  // const rect = gameCanvas.getBoundingClientRect();
+  context = gameCanvas.getContext('2d');
+  if (currentRoom.drawer.nickname === playerNick) {
+    gameHeader.innerHTML = `Draw word: '${currentRoom.word}'`;
+    isDrawer = true;
+  } else {
+    gameHeader.innerHTML = `'${currentRoom.drawer.nickname}' is drawing`;
+    gameCanvas.style.setProperty('cursor', 'no-drop;');
+    isDrawer = false;
+  }
+}
 
 function onPlayersChanged(data) {
   currentRoom = data;
@@ -263,20 +290,6 @@ function checkParameters() {
   }
 }
 
-function getDrawer(){
-  const rect = gameCanvas.getBoundingClientRect();
-  context = gameCanvas.getContext('2d');
-  if(currentRoom.drawer.nickname == playerNick){
-    gameHeader.innerHTML = `Draw word: '${currentRoom.word}'`;
-    isDrawer=true
-  }
-  else{
-    gameHeader.innerHTML = `'${currentRoom.drawer.nickname}' is drawing`;
-    gameCanvas.style.setProperty('cursor', 'no-drop;');
-    isDrawer=false
-  }
-}
-
 setupSocket();
 checkParameters();
 initializeClient();
@@ -287,6 +300,7 @@ initTimer();
 // HTML Events Definition
 
 sendBtn.onclick = onSubmitBtnClick;
+resetCanvaBtn.onclick = onResetBtnClick;
 gameCanvas.addEventListener('mousedown', onMouseDown, false);
 gameCanvas.addEventListener('mouseup', onMouseUp, false);
 gameCanvas.addEventListener('mouseout', onMouseUp, false);
