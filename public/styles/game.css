@@ -203,7 +203,7 @@ canvas {
 
 .controls {
   height:50px;
-  display:flex;
+  display:none;
   align-items:center;
   background:#ddd;
   padding:0px 10px;

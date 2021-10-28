@@ -182,6 +182,11 @@ function selectColor() {
   penColor.select();
 }
 
+function showToolBar() {
+  const control = document.getElementById('controls');
+  control.style.display = 'flex';
+}
+
 function onMouseDown(e) {
   drawing = true;
   selectColor();
@@ -216,6 +221,7 @@ function getDrawer() {
   if (currentRoom.drawer.nickname === playerNick) {
     gameHeader.innerHTML = `Draw word: '${currentRoom.word}'`;
     isDrawer = true;
+    showToolBar();
   } else {
     gameHeader.innerHTML = `'${currentRoom.drawer.nickname}' is drawing`;
     gameCanvas.style.setProperty('cursor', 'no-drop;');
