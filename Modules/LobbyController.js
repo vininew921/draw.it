@@ -90,6 +90,29 @@ class LobbyController {
       socket.emit('joinFailed');
     }
   }
+  
+  guessWord(io, player, word){
+    let playerIndex = 0;
+    const currentRoom = this.getRoomByCode(player.roomCode);
+    if(currentRoom.word == word && !player.alreadyPointed){
+      for (let i = 0; i < currentRoom.players.length; i++) 
+        if (currentRoom.players[i].nickname === player.nickname) {
+          playerIndex = i;
+          break;
+        }
+      currentRoom.players[playerIndex].points+=1;
+      currentRoom.players[playerIndex].alreadyPointed=true;
+      io.to(currentRoom.roomCode).emit('guessedRight', currentRoom, player);
+    }
+    else{
+      io.to(currentRoom.roomCode).emit('guessedWrong', currentRoom, player);
+    }
+  }
+
+  clearBoard(io, player){
+    const currentRoom = this.getRoomByCode(player.roomCode);
+    io.to(currentRoom.roomCode).emit('resetBoard');
+  }
 
   drawing(io, player, data) {
     const currentRoom = this.getRoomByCode(player.roomCode);
@@ -99,8 +122,9 @@ class LobbyController {
   changePlayerReady(io, socket, player) {
     const iterator = socket.rooms.values();
     let roomCode = iterator.next()?.value;
+    let currentRoom = undefined;
     while (roomCode) {
-      const currentRoom = this.getRoomByCode(roomCode);
+      currentRoom = this.getRoomByCode(roomCode);
       if (currentRoom) {
         for (let i = 0; i < currentRoom.players.length; i++) {
           if (currentRoom.players[i].nickname === player.nickname) {
@@ -110,8 +134,17 @@ class LobbyController {
         }
         currentRoom.checkEveryoneReady();
         currentRoom.setupAvaialbleDrawers();
-        this.setupTurn(roomCode);
+        if(currentRoom.everyoneReady){
+          this.setupTurn(roomCode);
+        }
         io.to(currentRoom.roomCode).emit('playersChanged', currentRoom);
+      }
+      
+      if(currentRoom != undefined){
+        if(currentRoom.everyoneReady)
+          for (let i = 0; i < currentRoom.players.length; i++) {
+            currentRoom.players[i].ready = false;
+          }
       }
 
       roomCode = iterator.next()?.value;
@@ -122,13 +155,31 @@ class LobbyController {
     const currentRoom = this.getRoomByCode(roomCode);
     currentRoom.chooseDrawer()
     currentRoom.chooseWord()
+
     return currentRoom;
+  }
+
+  endTurn(io, player) {
+    let currentRoom = this.getRoomByCode(player.roomCode);
+
+    for (let i = 0; i < currentRoom.players.length; i++) {
+      if (currentRoom.players[i].nickname === player.nickname) {
+        currentRoom.players[i].ready = true;
+        break;
+      }
+    }
+    currentRoom.checkEveryoneReady();
+    io.to(currentRoom.roomCode).emit('wordWas', "A palavra era: "+currentRoom.word);
+    if(currentRoom.everyoneReady)
+      this.newTurn(io,player.roomCode)
+    return;
   }
 
   newTurn(io, roomCode) {
     let currentRoom = this.getRoomByCode(roomCode);
     if(currentRoom.availableDrawers.length == 0){
       io.to(currentRoom.roomCode).emit('endGame', currentRoom);
+      return;
     }
     currentRoom = this.setupTurn(roomCode);
     io.to(currentRoom.roomCode).emit('newGame', currentRoom);
