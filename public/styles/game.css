@@ -200,3 +200,22 @@ canvas {
     transform: rotate3d(0, 0, 1, -20deg);
   }
 }
+
+.controls {
+  height:50px;
+  display:none;
+  align-items:center;
+  background:#ddd;
+  padding:0px 10px;
+}
+.controls .color {
+  margin: 0px 10px;
+}
+.controls .actions {
+  flex:1;
+  text-align:right;
+}
+.controls .actions button {
+  padding:5px 10px;
+  cursor:pointer;
+}

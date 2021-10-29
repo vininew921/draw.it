@@ -23,5 +23,7 @@ class Player {
     this.nickname = nickname;
     this.roomCode = roomCode;
     this.ready = false;
+    this.points = 0;
+    this.alreadyPointed = false;
   }
 }

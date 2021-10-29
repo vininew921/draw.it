@@ -16,77 +16,77 @@
   along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
 
-html{
-    height: 100%;
-    margin: 0;
-    padding: 0;
+html {
+  height: 100%;
+  margin: 0;
+  padding: 0;
 }
 
-body{
-    background-color: #01BEFE;
-    height: auto;
-    width: auto;
-    min-height: 100vh;
-    margin: 0;
-    padding: 0;
+body {
+  background-color: #01BEFE;
+  height: auto;
+  width: auto;
+  min-height: 100vh;
+  margin: 0;
+  padding: 0;
 }
 
-*{
-    font-family: cursive;
-    font-weight: bolder;
-    box-sizing: border-box;
+* {
+  font-family: cursive;
+  font-weight: bolder;
+  box-sizing: border-box;
 }
 
-.row{
-    height: 100%;
-    margin: 0;
+.row {
+  height: 100%;
+  margin: 0;
 }
 
-.column{
-    float: left;
+.column {
+  float: left;
 }
 
-.columnLeft{
-    width: 25%;
-    height: 100vh;
-    background-color: #01BEFE;
+.columnLeft {
+  width: 25%;
+  height: 100vh;
+  background-color: #01BEFE;
 }
 
-.columnRight{
-    width: 75%;
-    height: 100vh;
+.columnRight {
+  width: 75%;
+  height: 100vh;
 }
 
-.header{
-    background-color: #01BEFE;
-    color: #8F00FF;
-    text-align: center;
-    margin: auto;
-    font-size: xx-large;
-    display: flex;
-    justify-content: center;
+.header {
+  background-color: #01BEFE;
+  color: #8F00FF;
+  text-align: center;
+  margin: auto;
+  font-size: xx-large;
+  display: flex;
+  justify-content: center;
 }
 
-.readyButton{
-    margin-top: 10%;
-    width: 100%;
-    font-size: 30px;
-    border: 3px solid #000;
-    border-radius: 5px;
+.readyButton {
+  margin-top: 10%;
+  width: 100%;
+  font-size: 30px;
+  border: 3px solid #000;
+  border-radius: 5px;
 }
 
-.readyButton:hover{
-    background-color: black;
-    color: white;
-    cursor: pointer;
+.readyButton:hover {
+  background-color: black;
+  color: white;
+  cursor: pointer;
 }
 
-.ready{
-    background-color: #ADFF02;
+.ready {
+  background-color: #ADFF02;
 }
 
-.cancel{
-    background-color: #FF7D00;
+.cancel {
+  background-color: #FF7D00;
 }
 
 canvas {
@@ -98,37 +98,64 @@ canvas {
   touch-action: none;
 }
 
-#lobbyCanvas{
-    background-color: white;
-    margin: 1rem auto;
+#lobbyCanvas {
+  background-color: white;
+  /* margin: 1rem auto; */
 }
 
-#roomCodeHeader{
-    color: #8F00FF;
-    display: flex;
+#roomCodeHeader {
+  color: #8F00FF;
+  display: flex;
 }
 
-#playerList{
-    width: 80%;
+#playerList {
+  width: 80%;
+  margin: auto;
+  margin-left: 2vh;
+  font-size: x-large;
+}
+
+#playersHeader {
+  text-decoration: underline;
+}
+
+#players {
+  column-count: auto;
+  max-width: 100%;
+}
+
+.player {
+  margin-bottom: 5px;
+  color: #ff006d;
+}
+
+.empty {
+  color: black;
+}
+
+.controls {
+  height: 50px;
+  display: flex;
+  align-items: center;
+  background: #ddd;
+  padding: 0px 10px;
+}
+
+.canvasDiv {
+    width: 800px;
     margin: auto;
-    margin-left: 2vh;
-    font-size: x-large;
 }
 
-#playersHeader{
-    text-decoration: underline;
+.controls .color {
+  margin: 0px 10px;
 }
 
-#players{
-    column-count: auto;
-    max-width: 100%;
+.controls .actions {
+  flex: 1;
+  text-align: right;
 }
 
-.player{
-    margin-bottom: 5px;
-    color: #ff006d;
-}
-
-.empty{
-    color: black;
+.controls .actions button {
+  padding: 5px 10px;
+  cursor: pointer;
 }

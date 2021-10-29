@@ -26,12 +26,13 @@ const playersList = document.getElementById('players');
 const lobbyHeader = document.getElementById('lobbyHeader');
 const lobbyCanvas = document.getElementById('lobbyCanvas');
 const readyButton = document.getElementById('lobbyReady');
+const resetCanvaBtn = document.querySelector('#reset-canvas');
 
 /*
  * Control variables
  */
 
-let context = lobbyCanvas.getContext('2d');
+const context = lobbyCanvas.getContext('2d');
 
 const queryString = window.location.search;
 const urlParams = new URLSearchParams(queryString);
@@ -169,8 +170,24 @@ function onReadyClick() {
   }
 }
 
+function onResetBtnClick() {
+  context.clearRect(0, 0, lobbyCanvas.width, lobbyCanvas.height);
+}
+
+function changeColor(event) {
+  currentPos.color = event.target.value;
+}
+
+function selectColor() {
+  const penColor = document.querySelector('#pen-color');
+  penColor.value = currentPos.color;
+  penColor.addEventListener('input', changeColor, false);
+  penColor.select();
+}
+
 function onMouseDown(e) {
   drawing = true;
+  selectColor();
   relMouseCoords(e, currentPos);
 }
 
@@ -262,6 +279,7 @@ initializeClient();
 /* HTML Events Setup */
 
 readyButton.onclick = onReadyClick;
+resetCanvaBtn.onclick = onResetBtnClick;
 lobbyCanvas.addEventListener('mousedown', onMouseDown, false);
 lobbyCanvas.addEventListener('mouseup', onMouseUp, false);
 lobbyCanvas.addEventListener('mouseout', onMouseUp, false);
