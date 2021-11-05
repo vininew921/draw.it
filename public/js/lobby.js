@@ -1,20 +1,20 @@
 /*
-  Draw.it
-  Copyright (C) 2021  Various Authors
-
-  This program is free software: you can redistribute it and/or modify
-  it under the terms of the GNU General Public License as published by
-  the Free Software Foundation, either version 3 of the License, or
-  (at your option) any later version.
-
-  This program is distributed in the hope that it will be useful,
-  but WITHOUT ANY WARRANTY; without even the implied warranty of
-  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-  GNU General Public License for more details.
-
-  You should have received a copy of the GNU General Public License
-  along with this program.  If not, see <https://www.gnu.org/licenses/>.
-*/
+ *  Draw.it
+ *  Copyright (C) 2021 Various Authors
+ *
+ *  This program is free software: you can redistribute it and/or modify
+ *  it under the terms of the GNU General Public License as published by
+ *  the Free Software Foundation, either version 3 of the License, or
+ *  (at your option) any later version.
+ *
+ *  This program is distributed in the hope that it will be useful,
+ *  but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ *  GNU General Public License for more details.
+ *
+ *  You should have received a copy of the GNU General Public License
+ *  along with this program. If not, see <https://www.gnu.org/licenses/>.
+ */
 
 /*
  * HTML Elements
@@ -53,9 +53,9 @@ let startGameSeconds = 5;
  */
 
 function startGame(start) {
-  if (start && !startGameTimer) {
+ if (start && !startGameTimer) {
     startGameTimer = setInterval(() => {
-      if (startGameSeconds === 0) {
+     if (startGameSeconds === 0) {
         window.location.href = `/game?roomCode=${currentRoom.roomCode}&playerId=${socket.id}&playerNick=${nickname}`;
       } else {
         lobbyHeader.innerHTML = `Game starting in ${startGameSeconds}`;
@@ -71,15 +71,15 @@ function startGame(start) {
 }
 
 function updatePlayerList() {
-  if (!currentRoom.gameStarted) {
+ if (!currentRoom.gameStarted) {
     playersList.innerHTML = '';
     playersHeader.innerHTML = `Players - ${currentRoom.players.length}/${currentRoom.maxPlayers}`;
     for (let i = 0; i < currentRoom.maxPlayers; i++) {
       const p = document.createElement('p');
-      if (currentRoom.players[i]) {
+     if (currentRoom.players[i]) {
         p.className = 'player joined';
         p.innerHTML = currentRoom.players[i].nickname;
-        if (currentRoom.players[i].ready) {
+       if (currentRoom.players[i].ready) {
           p.innerHTML += ' 👍';
         }
       } else {
@@ -89,7 +89,7 @@ function updatePlayerList() {
       playersList.appendChild(p);
     }
 
-    if (currentRoom.everyoneReady) {
+   if (currentRoom.everyoneReady) {
       startGame(true);
     } else {
       startGame(false);
@@ -120,7 +120,7 @@ function throttle(callback, delay) {
   let previousCall = new Date().getTime();
   return (...args) => {
     const time = new Date().getTime();
-    if ((time - previousCall) >= delay) {
+   if ((time - previousCall) >= delay) {
       previousCall = time;
       callback.apply(null, args);
     }
@@ -128,7 +128,7 @@ function throttle(callback, delay) {
 }
 
 function drawLine(x0, y0, x1, y1, color, emit) {
-  if (!emit) {
+ if (!emit) {
     const rect = lobbyCanvas.getBoundingClientRect();
     const widthMultiplier = lobbyCanvas.width / rect.width;
 
@@ -157,7 +157,7 @@ function drawLine(x0, y0, x1, y1, color, emit) {
  */
 
 function onReadyClick() {
-  if (readyButton.className === 'readyButton ready') {
+ if (readyButton.className === 'readyButton ready') {
     readyButton.className = 'readyButton cancel';
     readyButton.innerHTML = 'Cancel';
     player.ready = true;
@@ -192,14 +192,14 @@ function onMouseDown(e) {
 }
 
 function onMouseUp(e) {
-  if (!drawing) { return; }
+ if (!drawing) { return; }
   drawing = false;
   relMouseCoords(e, targetPos);
   drawLine(currentPos.x, currentPos.y, targetPos.x, targetPos.y, currentPos.color, true);
 }
 
 function onMouseMove(e) {
-  if (!drawing) { return; }
+ if (!drawing) { return; }
   relMouseCoords(e, targetPos);
   drawLine(currentPos.x, currentPos.y, targetPos.x, targetPos.y, currentPos.color, true);
   relMouseCoords(e, currentPos);
@@ -259,7 +259,7 @@ function initializeClient() {
   // eslint-disable-next-line no-undef
   player = new Player(nickname, roomCode);
 
-  if (lobbyType === 'create') {
+ if (lobbyType === 'create') {
     socket.emit('createRoom', player);
   } else {
     socket.emit('joinRoom', player);
@@ -267,7 +267,7 @@ function initializeClient() {
 }
 
 function checkParameters() {
-  if (!lobbyType || !nickname || !roomCode) {
+ if (!lobbyType || !nickname || !roomCode) {
     window.location.href = '/';
   }
 }

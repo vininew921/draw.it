@@ -1,20 +1,20 @@
 /*
-  Draw.it
-  Copyright (C) 2021  Various Authors
-
-  This program is free software: you can redistribute it and/or modify
-  it under the terms of the GNU General Public License as published by
-  the Free Software Foundation, either version 3 of the License, or
-  (at your option) any later version.
-
-  This program is distributed in the hope that it will be useful,
-  but WITHOUT ANY WARRANTY; without even the implied warranty of
-  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-  GNU General Public License for more details.
-
-  You should have received a copy of the GNU General Public License
-  along with this program.  If not, see <https://www.gnu.org/licenses/>.
-*/
+ *  Draw.it
+ *  Copyright (C) 2021 Various Authors
+ *
+ *  This program is free software: you can redistribute it and/or modify
+ *  it under the terms of the GNU General Public License as published by
+ *  the Free Software Foundation, either version 3 of the License, or
+ *  (at your option) any later version.
+ *
+ *  This program is distributed in the hope that it will be useful,
+ *  but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ *  GNU General Public License for more details.
+ *
+ *  You should have received a copy of the GNU General Public License
+ *  along with this program. If not, see <https://www.gnu.org/licenses/>.
+ */
 
 // HTML Elements
 const wordIpt = document.querySelector('#wordIpt');
@@ -51,7 +51,7 @@ let drawing = false;
 let isDrawer = false;
 const initialStartGameSeconds = 5;
 let startGameSeconds = initialStartGameSeconds;
-let rightWordwas="";
+let rightWordwas = '';
 /*
  * Game Functions
  */
@@ -62,7 +62,7 @@ function updatePlayerList() {
     const p = document.createElement('p');
     if (currentRoom.players[i]) {
       p.className = 'player joined';
-      p.innerHTML = currentRoom.players[i].nickname +'-'+currentRoom.players[i].points;
+      p.innerHTML = `${currentRoom.players[i].nickname}-${currentRoom.players[i].points}`;
     } else {
       p.className = 'player empty';
       p.innerHTML = 'Empty';
@@ -71,20 +71,20 @@ function updatePlayerList() {
   }
 }
 
-function stopTimer(){
+function stopTimer() {
   timer.innerHTML = '0:00';
   imgClock.classList.add('animate');
   wordIpt.value = '';
-  wordIpt.style.display='none'
-  sendBtn.style.display='none'
+  wordIpt.style.display = 'none';
+  sendBtn.style.display = 'none';
   isDrawer = false;
   socket.emit('endTurn', player);
   clearInterval(timerInterval);
-};
+}
 
 function initTimer() {
-  rightWord.innerHTML = "";
-  rightWord.style.display='none'
+  rightWord.innerHTML = '';
+  rightWord.style.display = 'none';
   timerInterval = setInterval(() => {
     cont--;
     const time = new Date(cont * 1000).toISOString().substr(15, 4);
@@ -93,20 +93,20 @@ function initTimer() {
   }, 1000);
 }
 
-function guessedRight(){
-  wordIpt.style.display='none'
-  sendBtn.style.display='none'
-  rightWord.innerHTML=wordIpt.value
-  rightWord.style.display='block'
-  rightWord.style.color='green'
+function guessedRight() {
+  wordIpt.style.display = 'none';
+  sendBtn.style.display = 'none';
+  rightWord.innerHTML = wordIpt.value;
+  rightWord.style.display = 'block';
+  rightWord.style.color = 'green';
 }
 
-function changeColorInput(){
+function changeColorInput() {
   wordIpt.style.color = 'black';
 }
 
-function guessedWrong(){
-  wordIpt.value = "";
+function guessedWrong() {
+  wordIpt.value = '';
   wordIpt.style.color = 'red';
 }
 /*
@@ -224,9 +224,9 @@ function onMouseMove(e) {
   }
 }
 
-function guessEnter(e){
+function guessEnter(e) {
   if (e.key === 'Enter') {
-    onSubmitBtnClick()
+    onSubmitBtnClick();
   }
 }
 
@@ -240,15 +240,15 @@ function getDrawer() {
   if (currentRoom.drawer.nickname === playerNick) {
     gameHeader.innerHTML = `Draw word: '${currentRoom.word}'`;
     isDrawer = true;
-    wordIpt.style.display='none'
-    sendBtn.style.display='none'
+    wordIpt.style.display = 'none';
+    sendBtn.style.display = 'none';
     showToolBar();
   } else {
     gameHeader.innerHTML = `'${currentRoom.drawer.nickname}' is drawing`;
     gameCanvas.style.setProperty('cursor', 'no-drop;');
     isDrawer = false;
-    wordIpt.style.display='block'
-    sendBtn.style.display='block'
+    wordIpt.style.display = 'block';
+    sendBtn.style.display = 'block';
     hideToolBar();
   }
 }
@@ -297,12 +297,12 @@ function onNewGame(data) {
       initTimer();
     } else {
       gameHeader.innerHTML = `New Game starting in ${startGameSeconds}`;
-      if(wordIpt.value!=rightWordwas){
-        rightWord.innerHTML=rightWordwas
-        rightWord.style.display='block'
-        rightWord.style.color='black'
+      if (wordIpt.value != rightWordwas) {
+        rightWord.innerHTML = rightWordwas;
+        rightWord.style.display = 'block';
+        rightWord.style.color = 'black';
       }
-      rightWord.style.display='block'
+      rightWord.style.display = 'block';
       startGameSeconds--;
     }
   }, 1000);
@@ -310,19 +310,19 @@ function onNewGame(data) {
 
 function onGuessedRight(data, playerRight) {
   currentRoom = data;
-  if(player.nickname==playerRight.nickname){
+  if (player.nickname == playerRight.nickname) {
     guessedRight();
   }
   updatePlayerList();
 }
 
 function onGuessedWrong(currentRoom, playerWrong) {
-  if(player.nickname==playerWrong.nickname){
+  if (player.nickname == playerWrong.nickname) {
     guessedWrong();
   }
 }
 
-function onWordWas(wordWas){
+function onWordWas(wordWas) {
   rightWordwas = wordWas;
 }
 /*
