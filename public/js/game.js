@@ -16,7 +16,10 @@
  *  along with this program. If not, see <https://www.gnu.org/licenses/>.
  */
 
-// HTML Elements
+/* ---------------------------------------------------------------------------*/
+/*                                HTML Elements                               */
+/* ---------------------------------------------------------------------------*/
+
 const wordIpt = document.querySelector('#wordIpt');
 const sendBtn = document.querySelector('#sendBtn');
 const resetCanvaBtn = document.querySelector('#reset-canvas');
@@ -25,41 +28,57 @@ const imgClock = document.querySelector('#img-clock');
 const roomCodeHeader = document.getElementById('roomCodeHeader');
 const playersList = document.getElementById('players');
 const gameHeader = document.getElementById('gameHeader');
-const boxGuess = document.getElementById('box-game');
 const rightWord = document.getElementById('rightWord');
 const gameCanvas = document.getElementById('gameCanvas');
 
-/*
- * Control variables
- */
-let context = gameCanvas.getContext('2d');
+/* ---------------------------------------------------------------------------*/
+/*                              Control Variables                             */
+/* ---------------------------------------------------------------------------*/
+
+/* global io */
+
+let socket;
+let player;
+let currentRoom;
+
+/* url params */
 
 const queryString = window.location.search;
 const urlParams = new URLSearchParams(queryString);
 const playerId = urlParams.get('playerId');
 const roomCode = urlParams.get('roomCode');
 const playerNick = urlParams.get('playerNick');
-let player;
-let socket;
-let currentRoom;
+
+/* timers */
+
 let timerInterval;
 const initialCont = 120;
 let cont = initialCont;
-const currentPos = { color: 'black', x: 0, y: 0 };
-const targetPos = { color: 'black', x: 0, y: 0 };
-let drawing = false;
-let isDrawer = false;
+
 const initialStartGameSeconds = 5;
 let startGameSeconds = initialStartGameSeconds;
 let rightWordwas = '';
-/*
- * Game Functions
- */
+
+/* canvas */
+
+let context = gameCanvas.getContext('2d');
+
+let drawing = false;
+let isDrawer = false;
+
+const currentPos = { color: 'black', x: 0, y: 0 };
+const targetPos = { color: 'black', x: 0, y: 0 };
+
+/* ---------------------------------------------------------------------------*/
+/*                               Game Functions                               */
+/* ---------------------------------------------------------------------------*/
 
 function updatePlayerList() {
   playersList.innerHTML = '';
+
   for (let i = 0; i < currentRoom.maxPlayers; i++) {
     const p = document.createElement('p');
+
     if (currentRoom.players[i]) {
       p.className = 'player joined';
       p.innerHTML = `${currentRoom.players[i].nickname}-${currentRoom.players[i].points}`;
@@ -67,7 +86,40 @@ function updatePlayerList() {
       p.className = 'player empty';
       p.innerHTML = 'Empty';
     }
+
     playersList.appendChild(p);
+  }
+}
+
+function hideToolBar() {
+  const control = document.getElementById('controls');
+  control.style.display = 'none';
+}
+
+function showToolBar() {
+  const control = document.getElementById('controls');
+  control.style.display = 'flex';
+}
+
+function changeColorInput() {
+  wordIpt.style.color = 'black';
+}
+
+function getDrawer() {
+  context = gameCanvas.getContext('2d');
+  if (currentRoom.drawer.nickname === playerNick) {
+    gameHeader.innerHTML = `Draw word: '${currentRoom.word}'`;
+    isDrawer = true;
+    wordIpt.style.display = 'none';
+    sendBtn.style.display = 'none';
+    showToolBar();
+  } else {
+    gameHeader.innerHTML = `'${currentRoom.drawer.nickname}' is drawing`;
+    gameCanvas.style.setProperty('cursor', 'no-drop;');
+    isDrawer = false;
+    wordIpt.style.display = 'block';
+    sendBtn.style.display = 'block';
+    hideToolBar();
   }
 }
 
@@ -101,17 +153,14 @@ function guessedRight() {
   rightWord.style.color = 'green';
 }
 
-function changeColorInput() {
-  wordIpt.style.color = 'black';
-}
-
 function guessedWrong() {
   wordIpt.value = '';
   wordIpt.style.color = 'red';
 }
-/*
- * Canvas Functions
- */
+
+/* ---------------------------------------------------------------------------*/
+/*                              Canvas Functions                              */
+/* ---------------------------------------------------------------------------*/
 
 function relMouseCoords(e, position) {
   let totalOffsetX = 0;
@@ -162,9 +211,9 @@ function drawLine(x0, y0, x1, y1, color, emit) {
   }
 }
 
-/*
- * HTML Events Definitions
- */
+/* ---------------------------------------------------------------------------*/
+/*                                 HTML Events                                */
+/* ---------------------------------------------------------------------------*/
 
 function onSubmitBtnClick() {
   const text = wordIpt.value;
@@ -188,16 +237,6 @@ function selectColor() {
   penColor.value = currentPos.color;
   penColor.addEventListener('input', changeColor, false);
   penColor.select();
-}
-
-function showToolBar() {
-  const control = document.getElementById('controls');
-  control.style.display = 'flex';
-}
-
-function hideToolBar() {
-  const control = document.getElementById('controls');
-  control.style.display = 'none';
 }
 
 function onMouseDown(e) {
@@ -230,28 +269,9 @@ function guessEnter(e) {
   }
 }
 
-/*
- * Socket Events
- */
-
-function getDrawer() {
-  const rect = gameCanvas.getBoundingClientRect();
-  context = gameCanvas.getContext('2d');
-  if (currentRoom.drawer.nickname === playerNick) {
-    gameHeader.innerHTML = `Draw word: '${currentRoom.word}'`;
-    isDrawer = true;
-    wordIpt.style.display = 'none';
-    sendBtn.style.display = 'none';
-    showToolBar();
-  } else {
-    gameHeader.innerHTML = `'${currentRoom.drawer.nickname}' is drawing`;
-    gameCanvas.style.setProperty('cursor', 'no-drop;');
-    isDrawer = false;
-    wordIpt.style.display = 'block';
-    sendBtn.style.display = 'block';
-    hideToolBar();
-  }
-}
+/* ---------------------------------------------------------------------------*/
+/*                                Socket Events                               */
+/* ---------------------------------------------------------------------------*/
 
 function onPlayersChanged(data) {
   currentRoom = data;
@@ -297,7 +317,7 @@ function onNewGame(data) {
       initTimer();
     } else {
       gameHeader.innerHTML = `New Game starting in ${startGameSeconds}`;
-      if (wordIpt.value != rightWordwas) {
+      if (wordIpt.value !== rightWordwas) {
         rightWord.innerHTML = rightWordwas;
         rightWord.style.display = 'block';
         rightWord.style.color = 'black';
@@ -310,14 +330,14 @@ function onNewGame(data) {
 
 function onGuessedRight(data, playerRight) {
   currentRoom = data;
-  if (player.nickname == playerRight.nickname) {
+  if (player.nickname === playerRight.nickname) {
     guessedRight();
   }
   updatePlayerList();
 }
 
 function onGuessedWrong(currentRoom, playerWrong) {
-  if (player.nickname == playerWrong.nickname) {
+  if (player.nickname === playerWrong.nickname) {
     guessedWrong();
   }
 }
@@ -325,30 +345,29 @@ function onGuessedWrong(currentRoom, playerWrong) {
 function onWordWas(wordWas) {
   rightWordwas = wordWas;
 }
-/*
- * Init
- */
+
+/* ---------------------------------------------------------------------------*/
+/*                                    Init                                    */
+/* ---------------------------------------------------------------------------*/
 
 function setupSocket() {
-  // eslint-disable-next-line no-undef
   socket = io.connect('/');
 
   socket.on('joinComplete', onJoinComplete);
-  socket.on('playersChanged', onPlayersChanged);
   socket.on('joinFailed', onJoinFailed);
   socket.on('joinFailedMaxPlayers', onJoinFailedMaxPlayers);
+
+  socket.on('playersChanged', onPlayersChanged);
   socket.on('playerDrawing', onDrawingEvent);
+
   socket.on('newGame', onNewGame);
   socket.on('endGame', onEndGame);
+
   socket.on('guessedRight', onGuessedRight);
   socket.on('guessedWrong', onGuessedWrong);
   socket.on('wordWas', onWordWas);
-  socket.on('resetBoard', onClearBoard);
-}
 
-function initializeClient() {
-  const gameOptions = { playerId, roomCode };
-  socket.emit('joinGame', gameOptions);
+  socket.on('resetBoard', onClearBoard);
 }
 
 function checkParameters() {
@@ -357,14 +376,18 @@ function checkParameters() {
   }
 }
 
+function initializeClient() {
+  const gameOptions = { playerId, roomCode };
+  socket.emit('joinGame', gameOptions);
+  changeColorInput();
+}
+
 setupSocket();
 checkParameters();
 initializeClient();
 initTimer();
 
 /* HTML Events Setup */
-
-// HTML Events Definition
 
 sendBtn.onclick = onSubmitBtnClick;
 resetCanvaBtn.onclick = onResetBtnClick;

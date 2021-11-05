@@ -58,10 +58,18 @@ class Room {
     this.word = undefined;
   }
 
+  /* -------------------------------------------------------------------------*/
+  /*                                  Player                                  */
+  /* -------------------------------------------------------------------------*/
+
   addPlayer(player) {
     this.players.push(player);
     this.mostRecentPlayer = player;
   }
+
+  /* -------------------------------------------------------------------------*/
+  /*                                  Lobby                                   */
+  /* -------------------------------------------------------------------------*/
 
   setupAvaialbleDrawers() {
     this.availableDrawers = [...this.players];
@@ -78,9 +86,9 @@ class Room {
     this.everyoneReady = true;
   }
 
-  randomIndex(min, max) {
-    return Math.floor(Math.random() * (max - min + 1)) + min;
-  }
+  /* -------------------------------------------------------------------------*/
+  /*                                   Game                                   */
+  /* -------------------------------------------------------------------------*/
 
   chooseDrawer() {
     const drawerIndex = this.randomIndex(0, this.players.length);
@@ -90,6 +98,14 @@ class Room {
   chooseWord() {
     const wordIndex = this.randomIndex(0, this.words.length);
     this.word = this.words.pop(wordIndex);
+  }
+
+  /* -------------------------------------------------------------------------*/
+  /*                                 Utility                                  */
+  /* -------------------------------------------------------------------------*/
+
+  randomIndex(min, max) {
+    return Math.floor(Math.random() * (max - min + 1)) + min;
   }
 }
 

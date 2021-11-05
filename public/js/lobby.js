@@ -16,9 +16,9 @@
  *  along with this program. If not, see <https://www.gnu.org/licenses/>.
  */
 
-/*
- * HTML Elements
-*/
+/* ---------------------------------------------------------------------------*/
+/*                                HTML Elements                               */
+/* ---------------------------------------------------------------------------*/
 
 const roomCodeHeader = document.getElementById('roomCodeHeader');
 const playersHeader = document.getElementById('playersHeader');
@@ -28,9 +28,11 @@ const lobbyCanvas = document.getElementById('lobbyCanvas');
 const readyButton = document.getElementById('lobbyReady');
 const resetCanvaBtn = document.querySelector('#reset-canvas');
 
-/*
- * Control variables
- */
+/* ---------------------------------------------------------------------------*/
+/*                              Control Variables                             */
+/* ---------------------------------------------------------------------------*/
+
+/* global Player, io */
 
 const context = lobbyCanvas.getContext('2d');
 
@@ -48,14 +50,14 @@ let drawing = false;
 let startGameTimer;
 let startGameSeconds = 5;
 
-/*
- * Lobby Functions
- */
+/* ---------------------------------------------------------------------------*/
+/*                               Lobby Functions                              */
+/* ---------------------------------------------------------------------------*/
 
 function startGame(start) {
- if (start && !startGameTimer) {
+  if (start && !startGameTimer) {
     startGameTimer = setInterval(() => {
-     if (startGameSeconds === 0) {
+      if (startGameSeconds === 0) {
         window.location.href = `/game?roomCode=${currentRoom.roomCode}&playerId=${socket.id}&playerNick=${nickname}`;
       } else {
         lobbyHeader.innerHTML = `Game starting in ${startGameSeconds}`;
@@ -71,25 +73,28 @@ function startGame(start) {
 }
 
 function updatePlayerList() {
- if (!currentRoom.gameStarted) {
+  if (!currentRoom.gameStarted) {
     playersList.innerHTML = '';
     playersHeader.innerHTML = `Players - ${currentRoom.players.length}/${currentRoom.maxPlayers}`;
+
     for (let i = 0; i < currentRoom.maxPlayers; i++) {
       const p = document.createElement('p');
-     if (currentRoom.players[i]) {
+
+      if (currentRoom.players[i]) {
         p.className = 'player joined';
         p.innerHTML = currentRoom.players[i].nickname;
-       if (currentRoom.players[i].ready) {
+        if (currentRoom.players[i].ready) {
           p.innerHTML += ' 👍';
         }
       } else {
         p.className = 'player empty';
         p.innerHTML = 'Empty';
       }
+
       playersList.appendChild(p);
     }
 
-   if (currentRoom.everyoneReady) {
+    if (currentRoom.everyoneReady) {
       startGame(true);
     } else {
       startGame(false);
@@ -97,9 +102,9 @@ function updatePlayerList() {
   }
 }
 
-/*
- * Canvas Functions
- */
+/* ---------------------------------------------------------------------------*/
+/*                              Canvas Functions                              */
+/* ---------------------------------------------------------------------------*/
 
 function relMouseCoords(e, position) {
   let totalOffsetX = 0;
@@ -120,7 +125,7 @@ function throttle(callback, delay) {
   let previousCall = new Date().getTime();
   return (...args) => {
     const time = new Date().getTime();
-   if ((time - previousCall) >= delay) {
+    if ((time - previousCall) >= delay) {
       previousCall = time;
       callback.apply(null, args);
     }
@@ -128,7 +133,7 @@ function throttle(callback, delay) {
 }
 
 function drawLine(x0, y0, x1, y1, color, emit) {
- if (!emit) {
+  if (!emit) {
     const rect = lobbyCanvas.getBoundingClientRect();
     const widthMultiplier = lobbyCanvas.width / rect.width;
 
@@ -152,12 +157,12 @@ function drawLine(x0, y0, x1, y1, color, emit) {
   }, player);
 }
 
-/*
- * HTML Events Definitions
- */
+/* ---------------------------------------------------------------------------*/
+/*                                 HTML Events                                */
+/* ---------------------------------------------------------------------------*/
 
 function onReadyClick() {
- if (readyButton.className === 'readyButton ready') {
+  if (readyButton.className === 'readyButton ready') {
     readyButton.className = 'readyButton cancel';
     readyButton.innerHTML = 'Cancel';
     player.ready = true;
@@ -192,22 +197,22 @@ function onMouseDown(e) {
 }
 
 function onMouseUp(e) {
- if (!drawing) { return; }
+  if (!drawing) { return; }
   drawing = false;
   relMouseCoords(e, targetPos);
   drawLine(currentPos.x, currentPos.y, targetPos.x, targetPos.y, currentPos.color, true);
 }
 
 function onMouseMove(e) {
- if (!drawing) { return; }
+  if (!drawing) { return; }
   relMouseCoords(e, targetPos);
   drawLine(currentPos.x, currentPos.y, targetPos.x, targetPos.y, currentPos.color, true);
   relMouseCoords(e, currentPos);
 }
 
-/*
- * Socket Events
- */
+/* ---------------------------------------------------------------------------*/
+/*                                Socket Events                               */
+/* ---------------------------------------------------------------------------*/
 
 function onJoinComplete(data) {
   currentRoom = data;
@@ -239,36 +244,35 @@ function onDrawingEvent(data) {
   drawLine(data.x0, data.y0, data.x1, data.y1, data.color, false);
 }
 
-/*
- * Init
- */
+/* ---------------------------------------------------------------------------*/
+/*                                    Init                                    */
+/* ---------------------------------------------------------------------------*/
 
 function setupSocket() {
-  // eslint-disable-next-line no-undef
   socket = io.connect('/');
 
   socket.on('joinComplete', onJoinComplete);
-  socket.on('playersChanged', onPlayersChanged);
   socket.on('joinFailed', onJoinFailed);
   socket.on('joinFailedMaxPlayers', onJoinFailedMaxPlayers);
   socket.on('nickInUse', onNickInUse);
+
+  socket.on('playersChanged', onPlayersChanged);
   socket.on('playerDrawing', onDrawingEvent);
 }
 
-function initializeClient() {
-  // eslint-disable-next-line no-undef
-  player = new Player(nickname, roomCode);
-
- if (lobbyType === 'create') {
-    socket.emit('createRoom', player);
-  } else {
-    socket.emit('joinRoom', player);
+function checkParameters() {
+  if (!lobbyType || !nickname || !roomCode) {
+    window.location.href = '/';
   }
 }
 
-function checkParameters() {
- if (!lobbyType || !nickname || !roomCode) {
-    window.location.href = '/';
+function initializeClient() {
+  player = new Player(nickname, roomCode);
+
+  if (lobbyType === 'create') {
+    socket.emit('createRoom', player);
+  } else {
+    socket.emit('joinRoom', player);
   }
 }
 
