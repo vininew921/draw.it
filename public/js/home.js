@@ -1,24 +1,24 @@
 /*
-  Draw.it
-  Copyright (C) 2021  Various Authors
-
-  This program is free software: you can redistribute it and/or modify
-  it under the terms of the GNU General Public License as published by
-  the Free Software Foundation, either version 3 of the License, or
-  (at your option) any later version.
-
-  This program is distributed in the hope that it will be useful,
-  but WITHOUT ANY WARRANTY; without even the implied warranty of
-  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-  GNU General Public License for more details.
-
-  You should have received a copy of the GNU General Public License
-  along with this program.  If not, see <https://www.gnu.org/licenses/>.
-*/
-
-/*
- * HTML Elements
+ *  Draw.it
+ *  Copyright (C) 2021 Various Authors
+ *
+ *  This program is free software: you can redistribute it and/or modify
+ *  it under the terms of the GNU General Public License as published by
+ *  the Free Software Foundation, either version 3 of the License, or
+ *  (at your option) any later version.
+ *
+ *  This program is distributed in the hope that it will be useful,
+ *  but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ *  GNU General Public License for more details.
+ *
+ *  You should have received a copy of the GNU General Public License
+ *  along with this program. If not, see <https://www.gnu.org/licenses/>.
  */
+
+/* ---------------------------------------------------------------------------*/
+/*                                HTML Elements                               */
+/* ---------------------------------------------------------------------------*/
 
 const joinRoomBtn = document.getElementById('joinBtn');
 const createRoomBtn = document.getElementById('createBtn');
@@ -34,16 +34,16 @@ const confirmCreateModalBtn = document.getElementById('confirmCreateModalBtn');
 
 const spanBtns = document.getElementsByClassName('cancelModal');
 
-/*
- * Control variables
- */
+/* ---------------------------------------------------------------------------*/
+/*                              Control Variables                             */
+/* ---------------------------------------------------------------------------*/
 
 let currentOpenModal = null;
 let whichOpen = null;
 
-/*
- * Functions
- */
+/* ---------------------------------------------------------------------------*/
+/*                               Home Functions                               */
+/* ---------------------------------------------------------------------------*/
 
 function generateRoomCode(roomCodeLength) {
   let result = '';
@@ -67,20 +67,20 @@ function hideModal() {
   whichOpen = null;
 }
 
-/*
- * Event Definitions
- */
+/* ---------------------------------------------------------------------------*/
+/*                                 HTML Events                                */
+/* ---------------------------------------------------------------------------*/
 
 function onCreateRoomBtnClick() {
   createRoomModal.style.display = 'block';
   currentOpenModal = createRoomModal;
-  whichOpen = 1
+  whichOpen = 1;
 }
 
 function onJoinRoomBtnClick() {
   joinRoomModal.style.display = 'block';
   currentOpenModal = joinRoomModal;
-  whichOpen = 2
+  whichOpen = 2;
 }
 
 function onConfirmCreateRoomBtnClick() {
@@ -94,9 +94,11 @@ function onConfirmJoinRoomBtnClick() {
   window.location.href = `/lobby?type=join&nickname=${nickname}&roomCode=${roomCode}`;
 }
 
-/*
- * Init
- */
+/* ---------------------------------------------------------------------------*/
+/*                                    Init                                    */
+/* ---------------------------------------------------------------------------*/
+
+/* HTML Events Setup */
 
 createRoomBtn.onclick = onCreateRoomBtnClick;
 joinRoomBtn.onclick = onJoinRoomBtnClick;
@@ -108,12 +110,13 @@ document.addEventListener('keydown', (event) => {
     hideModal();
   }
   if (event.key === 'Enter') {
-    if(whichOpen == 1)
+    if (whichOpen === 1) {
       onConfirmCreateRoomBtnClick();
-    else if(whichOpen == 2)
+    } else if (whichOpen === 2) {
       onConfirmJoinRoomBtnClick();
+    }
   }
-})
+});
 
 window.onclick = (event) => { if (event.target === currentOpenModal) { hideModal(); } };
 

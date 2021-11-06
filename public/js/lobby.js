@@ -1,24 +1,24 @@
 /*
-  Draw.it
-  Copyright (C) 2021  Various Authors
+ *  Draw.it
+ *  Copyright (C) 2021 Various Authors
+ *
+ *  This program is free software: you can redistribute it and/or modify
+ *  it under the terms of the GNU General Public License as published by
+ *  the Free Software Foundation, either version 3 of the License, or
+ *  (at your option) any later version.
+ *
+ *  This program is distributed in the hope that it will be useful,
+ *  but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ *  GNU General Public License for more details.
+ *
+ *  You should have received a copy of the GNU General Public License
+ *  along with this program. If not, see <https://www.gnu.org/licenses/>.
+ */
 
-  This program is free software: you can redistribute it and/or modify
-  it under the terms of the GNU General Public License as published by
-  the Free Software Foundation, either version 3 of the License, or
-  (at your option) any later version.
-
-  This program is distributed in the hope that it will be useful,
-  but WITHOUT ANY WARRANTY; without even the implied warranty of
-  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-  GNU General Public License for more details.
-
-  You should have received a copy of the GNU General Public License
-  along with this program.  If not, see <https://www.gnu.org/licenses/>.
-*/
-
-/*
- * HTML Elements
-*/
+/* ---------------------------------------------------------------------------*/
+/*                                HTML Elements                               */
+/* ---------------------------------------------------------------------------*/
 
 const roomCodeHeader = document.getElementById('roomCodeHeader');
 const playersHeader = document.getElementById('playersHeader');
@@ -28,9 +28,11 @@ const lobbyCanvas = document.getElementById('lobbyCanvas');
 const readyButton = document.getElementById('lobbyReady');
 const resetCanvaBtn = document.querySelector('#reset-canvas');
 
-/*
- * Control variables
- */
+/* ---------------------------------------------------------------------------*/
+/*                              Control Variables                             */
+/* ---------------------------------------------------------------------------*/
+
+/* global Player, io */
 
 const context = lobbyCanvas.getContext('2d');
 
@@ -48,9 +50,9 @@ let drawing = false;
 let startGameTimer;
 let startGameSeconds = 5;
 
-/*
- * Lobby Functions
- */
+/* ---------------------------------------------------------------------------*/
+/*                               Lobby Functions                              */
+/* ---------------------------------------------------------------------------*/
 
 function startGame(start) {
   if (start && !startGameTimer) {
@@ -74,8 +76,10 @@ function updatePlayerList() {
   if (!currentRoom.gameStarted) {
     playersList.innerHTML = '';
     playersHeader.innerHTML = `Players - ${currentRoom.players.length}/${currentRoom.maxPlayers}`;
+
     for (let i = 0; i < currentRoom.maxPlayers; i++) {
       const p = document.createElement('p');
+
       if (currentRoom.players[i]) {
         p.className = 'player joined';
         p.innerHTML = currentRoom.players[i].nickname;
@@ -86,6 +90,7 @@ function updatePlayerList() {
         p.className = 'player empty';
         p.innerHTML = 'Empty';
       }
+
       playersList.appendChild(p);
     }
 
@@ -97,9 +102,9 @@ function updatePlayerList() {
   }
 }
 
-/*
- * Canvas Functions
- */
+/* ---------------------------------------------------------------------------*/
+/*                              Canvas Functions                              */
+/* ---------------------------------------------------------------------------*/
 
 function relMouseCoords(e, position) {
   let totalOffsetX = 0;
@@ -152,9 +157,9 @@ function drawLine(x0, y0, x1, y1, color, emit) {
   }, player);
 }
 
-/*
- * HTML Events Definitions
- */
+/* ---------------------------------------------------------------------------*/
+/*                                 HTML Events                                */
+/* ---------------------------------------------------------------------------*/
 
 function onReadyClick() {
   if (readyButton.className === 'readyButton ready') {
@@ -205,9 +210,9 @@ function onMouseMove(e) {
   relMouseCoords(e, currentPos);
 }
 
-/*
- * Socket Events
- */
+/* ---------------------------------------------------------------------------*/
+/*                                Socket Events                               */
+/* ---------------------------------------------------------------------------*/
 
 function onJoinComplete(data) {
   currentRoom = data;
@@ -239,36 +244,35 @@ function onDrawingEvent(data) {
   drawLine(data.x0, data.y0, data.x1, data.y1, data.color, false);
 }
 
-/*
- * Init
- */
+/* ---------------------------------------------------------------------------*/
+/*                                    Init                                    */
+/* ---------------------------------------------------------------------------*/
 
 function setupSocket() {
-  // eslint-disable-next-line no-undef
   socket = io.connect('/');
 
   socket.on('joinComplete', onJoinComplete);
-  socket.on('playersChanged', onPlayersChanged);
   socket.on('joinFailed', onJoinFailed);
   socket.on('joinFailedMaxPlayers', onJoinFailedMaxPlayers);
   socket.on('nickInUse', onNickInUse);
+
+  socket.on('playersChanged', onPlayersChanged);
   socket.on('playerDrawing', onDrawingEvent);
 }
 
+function checkParameters() {
+  if (!lobbyType || !nickname || !roomCode) {
+    window.location.href = '/';
+  }
+}
+
 function initializeClient() {
-  // eslint-disable-next-line no-undef
   player = new Player(nickname, roomCode);
 
   if (lobbyType === 'create') {
     socket.emit('createRoom', player);
   } else {
     socket.emit('joinRoom', player);
-  }
-}
-
-function checkParameters() {
-  if (!lobbyType || !nickname || !roomCode) {
-    window.location.href = '/';
   }
 }
 

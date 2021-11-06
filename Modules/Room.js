@@ -1,20 +1,20 @@
 /*
-  Draw.it
-  Copyright (C) 2021  Various Authors
-
-  This program is free software: you can redistribute it and/or modify
-  it under the terms of the GNU General Public License as published by
-  the Free Software Foundation, either version 3 of the License, or
-  (at your option) any later version.
-
-  This program is distributed in the hope that it will be useful,
-  but WITHOUT ANY WARRANTY; without even the implied warranty of
-  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-  GNU General Public License for more details.
-
-  You should have received a copy of the GNU General Public License
-  along with this program.  If not, see <https://www.gnu.org/licenses/>.
-*/
+ *  Draw.it
+ *  Copyright (C) 2021 Various Authors
+ *
+ *  This program is free software: you can redistribute it and/or modify
+ *  it under the terms of the GNU General Public License as published by
+ *  the Free Software Foundation, either version 3 of the License, or
+ *  (at your option) any later version.
+ *
+ *  This program is distributed in the hope that it will be useful,
+ *  but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ *  GNU General Public License for more details.
+ *
+ *  You should have received a copy of the GNU General Public License
+ *  along with this program. If not, see <https://www.gnu.org/licenses/>.
+ */
 
 class Room {
   constructor(maxPlayers, roomCode) {
@@ -53,17 +53,25 @@ class Room {
       'Tempestade',
       'Salto',
       'Ouro',
-      'Meia'
+      'Meia',
     ];
-    this.word = undefined
+    this.word = undefined;
   }
+
+  /* -------------------------------------------------------------------------*/
+  /*                                  Player                                  */
+  /* -------------------------------------------------------------------------*/
 
   addPlayer(player) {
     this.players.push(player);
     this.mostRecentPlayer = player;
   }
 
-  setupAvaialbleDrawers(){
+  /* -------------------------------------------------------------------------*/
+  /*                                  Lobby                                   */
+  /* -------------------------------------------------------------------------*/
+
+  setupAvaialbleDrawers() {
     this.availableDrawers = [...this.players];
   }
 
@@ -78,18 +86,26 @@ class Room {
     this.everyoneReady = true;
   }
 
+  /* -------------------------------------------------------------------------*/
+  /*                                   Game                                   */
+  /* -------------------------------------------------------------------------*/
+
+  chooseDrawer() {
+    const drawerIndex = this.randomIndex(0, this.players.length);
+    this.drawer = this.availableDrawers.pop(drawerIndex);
+  }
+
+  chooseWord() {
+    const wordIndex = this.randomIndex(0, this.words.length);
+    this.word = this.words.pop(wordIndex);
+  }
+
+  /* -------------------------------------------------------------------------*/
+  /*                                 Utility                                  */
+  /* -------------------------------------------------------------------------*/
+
   randomIndex(min, max) {
     return Math.floor(Math.random() * (max - min + 1)) + min;
-  }
-
-  chooseDrawer(){
-    let drawerIndex = this.randomIndex(0,this.players.length)
-    this.drawer = this.availableDrawers.pop(drawerIndex)
-  }
-
-  chooseWord(){
-    let wordIndex = this.randomIndex(0,this.words.length)
-    this.word = this.words.pop(wordIndex)
   }
 }
 
