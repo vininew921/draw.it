@@ -17,6 +17,7 @@
  */
 
 const Room = require('./Room');
+const RoomUtils = require('./RoomUtils');
 
 class LobbyController {
   constructor() {
@@ -92,7 +93,7 @@ class LobbyController {
         return;
       }
 
-      if (!this.checkRepeatedNicknames(player, currentRoom.players)) {
+      if (!RoomUtils.checkRepeatedNicknames(player, currentRoom.players)) {
         socket.emit('nickInUse');
         return;
       }
@@ -326,40 +327,10 @@ class LobbyController {
   /* -------------------------------------------------------------------------*/
 
   /**
-   * Checks for the existence of a player with the same nickname in the given
-   * players list.
-   *
-   * TODO: Move to an Utilities class and make it static
-   *
-   * @param {Object} player the player with the nickname to check
-   * @param {Object}[]} players the players list to check
-   * @returns
-   */
-  checkRepeatedNicknames(player, players) {
-    for (let i = 0; i < players.length; i++) {
-      if (players[i].nickname === player.nickname) return false;
-    }
-    return true;
-  }
-
-  /**
-   * Returns a random index between min (inclusive) and max (exclusive).
-   *
-   * TODO: Move to an Utilities class and make it static
-   *
-   * @param {number} min the minimum index value
-   * @param {number} max the maximum index value
-   * @returns the random index
-   */
-  randomIndex(min, max) {
-    return Math.floor(Math.random() * (max - min + 1)) + min;
-  }
-
-  /**
    * Returns a random word from the list of available words.
    */
   randomizeWord() {
-    const number = this.randomIndex(0, this.words.length);
+    const number = RoomUtils.randomIndex(0, this.words.length);
     this.word = this.list.pop(number);
   }
 }
