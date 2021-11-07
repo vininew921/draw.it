@@ -41,6 +41,8 @@ let socket;
 let player;
 let currentRoom;
 
+let rightWordwas = '';
+
 /* url params */
 
 const queryString = window.location.search;
@@ -52,16 +54,16 @@ const playerNick = urlParams.get('playerNick');
 /* timers */
 
 let timerInterval;
+
 const initialCont = 120;
 let cont = initialCont;
 
 const initialStartGameSeconds = 5;
 let startGameSeconds = initialStartGameSeconds;
-let rightWordwas = '';
 
 /* canvas */
 
-let context = gameCanvas.getContext('2d');
+const context = gameCanvas.getContext('2d');
 
 let drawing = false;
 let isDrawer = false;
@@ -73,6 +75,9 @@ const targetPos = { color: 'black', x: 0, y: 0 };
 /*                               Game Functions                               */
 /* ---------------------------------------------------------------------------*/
 
+/**
+ * Updates the player list with the current room's players metadata.
+ */
 function updatePlayerList() {
   playersList.innerHTML = '';
 
@@ -91,22 +96,26 @@ function updatePlayerList() {
   }
 }
 
+/**
+ * Hides the the tools for drawing.
+ */
 function hideToolBar() {
   const control = document.getElementById('controls');
   control.style.display = 'none';
 }
 
+/**
+ * Displays the the tools for drawing.
+ */
 function showToolBar() {
   const control = document.getElementById('controls');
   control.style.display = 'flex';
 }
 
-function changeColorInput() {
-  wordIpt.style.color = 'black';
-}
-
+/**
+ * Updates the player's page with the current drawer data.
+ */
 function getDrawer() {
-  context = gameCanvas.getContext('2d');
   if (currentRoom.drawer.nickname === playerNick) {
     gameHeader.innerHTML = `Draw word: '${currentRoom.word}'`;
     isDrawer = true;
@@ -123,6 +132,9 @@ function getDrawer() {
   }
 }
 
+/**
+ * Stops the round timer and updates the game header.
+ */
 function stopTimer() {
   timer.innerHTML = '0:00';
   imgClock.classList.add('animate');
@@ -130,10 +142,13 @@ function stopTimer() {
   wordIpt.style.display = 'none';
   sendBtn.style.display = 'none';
   isDrawer = false;
-  socket.emit('endTurn', player);
+  socket.emit('endRound', player);
   clearInterval(timerInterval);
 }
 
+/**
+ * Starts the round timer.
+ */
 function initTimer() {
   rightWord.innerHTML = '';
   rightWord.style.display = 'none';
@@ -145,6 +160,9 @@ function initTimer() {
   }, 1000);
 }
 
+/**
+ * Hides the guess input and displays the right word.
+ */
 function guessedRight() {
   wordIpt.style.display = 'none';
   sendBtn.style.display = 'none';
@@ -153,6 +171,9 @@ function guessedRight() {
   rightWord.style.color = 'green';
 }
 
+/**
+ * Clears the guess input.
+ */
 function guessedWrong() {
   wordIpt.value = '';
   wordIpt.style.color = 'red';
@@ -162,6 +183,30 @@ function guessedWrong() {
 /*                              Canvas Functions                              */
 /* ---------------------------------------------------------------------------*/
 
+/**
+ * Simple throttle function.
+ *
+ * @param {callback} callback the function to throttle
+ * @param {number} delay the delay in milliseconds
+ * @returns the throttled function
+ */
+function throttle(callback, delay) {
+  let previousCall = new Date().getTime();
+  return (...args) => {
+    const time = new Date().getTime();
+    if ((time - previousCall) >= delay) {
+      previousCall = time;
+      callback.apply(null, args);
+    }
+  };
+}
+
+/**
+ * Gets the mouse coordinates relative to the canvas.
+ *
+ * @param {Object} e the event
+ * @param {Object} position the position object to update
+ */
 function relMouseCoords(e, position) {
   let totalOffsetX = 0;
   let totalOffsetY = 0;
@@ -177,17 +222,16 @@ function relMouseCoords(e, position) {
   position.y = (e.pageY || e.touches[0].pageY) - totalOffsetY;
 }
 
-function throttle(callback, delay) {
-  let previousCall = new Date().getTime();
-  return (...args) => {
-    const time = new Date().getTime();
-    if ((time - previousCall) >= delay) {
-      previousCall = time;
-      callback.apply(null, args);
-    }
-  };
-}
-
+/**
+ * Draws a line between the current position and the target position.
+ *
+ * @param {number} x0 the current x position
+ * @param {number} y0 the current y position
+ * @param {number} x1 the target x position
+ * @param {number} y1 the target y position
+ * @param {string} color the color of the line
+ * @param {boolean} emit whether to emit the drawing input to the server
+ */
 function drawLine(x0, y0, x1, y1, color, emit) {
   const rect = gameCanvas.getBoundingClientRect();
   const widthMultiplier = gameCanvas.width / rect.width;
@@ -215,23 +259,33 @@ function drawLine(x0, y0, x1, y1, color, emit) {
 /*                                 HTML Events                                */
 /* ---------------------------------------------------------------------------*/
 
+/**
+ * Submits the word guess.
+ */
 function onSubmitBtnClick() {
   const text = wordIpt.value;
   if (text) { socket.emit('guessWord', player, text); }
 }
 
-function onClearBoard() {
-  context.clearRect(0, 0, gameCanvas.width, gameCanvas.height);
-}
-
+/**
+ * Emits to the socket that the canvas should be cleared.
+ */
 function onResetBtnClick() {
   socket.emit('clearBoard', player);
 }
 
+/**
+ * Updates the canvas input data object with client's selected color.
+ *
+ * @param {*} event the color input event.
+ */
 function changeColor(event) {
   currentPos.color = event.target.value;
 }
 
+/**
+ * Setups the color change event listener and selects the new color.
+ */
 function selectColor() {
   const penColor = document.querySelector('#pen-color');
   penColor.value = currentPos.color;
@@ -239,12 +293,23 @@ function selectColor() {
   penColor.select();
 }
 
+/**
+ * Updates the current mouse or touch position.
+ *
+ * @param {Object} e the mouse down or touch start event
+ */
 function onMouseDown(e) {
   drawing = true;
   selectColor();
   relMouseCoords(e, currentPos);
 }
 
+/**
+ * Updates the current mouse or touch position and draws a line between the
+ * current position and the target position.
+ *
+ * @param {Object} e the mouse up or touch end event
+ */
 function onMouseUp(e) {
   if (isDrawer) {
     if (!drawing) { return; }
@@ -254,6 +319,12 @@ function onMouseUp(e) {
   }
 }
 
+/**
+ * Updates the current mouse or touch position, draws a line between the current
+ * position and the target position, and updates the current position.
+ *
+ * @param {Object} e the mouse move or touch move event
+ */
 function onMouseMove(e) {
   if (isDrawer) {
     if (!drawing) { return; }
@@ -263,6 +334,7 @@ function onMouseMove(e) {
   }
 }
 
+// TODO: This could be an one liner
 function guessEnter(e) {
   if (e.key === 'Enter') {
     onSubmitBtnClick();
@@ -273,11 +345,21 @@ function guessEnter(e) {
 /*                                Socket Events                               */
 /* ---------------------------------------------------------------------------*/
 
+/**
+ * Updates the room data and the players list.
+ *
+ * @param {Object} data the updated room
+ */
 function onPlayersChanged(data) {
   currentRoom = data;
   updatePlayerList();
 }
 
+/**
+ * Updates the room data and the new connected player page.
+ *
+ * @param {Object} data the updated room
+ */
 function onJoinComplete(data) {
   currentRoom = data;
   player = currentRoom.mostRecentPlayer;
@@ -286,25 +368,43 @@ function onJoinComplete(data) {
   getDrawer();
 }
 
+/**
+ * Shows a failed join message and redirects to the home page.
+ */
 function onJoinFailed() {
   gameHeader.innerHTML = 'Room not found!';
   setTimeout(() => { window.location.href = '/'; }, 2000);
 }
 
+/**
+ * Shows a failed due to full room message and redirects to the home page.
+ */
 function onJoinFailedMaxPlayers() {
   gameHeader.innerHTML = 'Room is full!';
   setTimeout(() => { window.location.href = '/'; }, 2000);
 }
 
+/**
+ * Draws a line with the data incoming from the server.
+ *
+ * @param {Object} data the drawing input
+ */
 function onDrawingEvent(data) {
   drawLine(data.x0, data.y0, data.x1, data.y1, data.color, false);
 }
 
-function onEndGame() {
-  gameHeader.innerHTML = 'Game has been ended';
-  setTimeout(() => { window.location.href = '/'; }, 2000);
+/**
+ * Clears the canvas content.
+ */
+function onClearBoard() {
+  context.clearRect(0, 0, gameCanvas.width, gameCanvas.height);
 }
 
+/**
+ * Updates the page with the room's new game data.
+ *
+ * @param {Object} data the updated room
+ */
 function onNewGame(data) {
   startGameSeconds = initialStartGameSeconds;
   const startGameTimer = setInterval(() => {
@@ -328,20 +428,44 @@ function onNewGame(data) {
   }, 1000);
 }
 
-function onGuessedRight(data, playerRight) {
-  currentRoom = data;
+/**
+ * Shows a end game message and redirects to the home page.
+ */
+function onEndGame() {
+  gameHeader.innerHTML = 'Game has been ended';
+  setTimeout(() => { window.location.href = '/'; }, 2000);
+}
+
+/**
+ *
+ * @param {Object} updatedRoom the updated room
+ * @param {Object} playerRight the player who guessed right
+ */
+function onGuessedRight(updatedRoom, playerRight) {
+  currentRoom = updatedRoom;
   if (player.nickname === playerRight.nickname) {
     guessedRight();
   }
   updatePlayerList();
 }
 
-function onGuessedWrong(currentRoom, playerWrong) {
+/**
+ * Clears the guess input
+ *
+ * @param {Object} updatedRoom the updated room
+ * @param {Object} playerRight the player who guessed wrong
+ */
+function onGuessedWrong(updatedRoom, playerWrong) {
   if (player.nickname === playerWrong.nickname) {
     guessedWrong();
   }
 }
 
+/**
+ * Updates the word that was supposed to be guessed.
+ *
+ * @param {string} wordWas the word that was supposed to be guessed
+ */
 function onWordWas(wordWas) {
   rightWordwas = wordWas;
 }
@@ -350,6 +474,9 @@ function onWordWas(wordWas) {
 /*                                    Init                                    */
 /* ---------------------------------------------------------------------------*/
 
+/**
+ * Sets up the socket listeners.
+ */
 function setupSocket() {
   socket = io.connect('/');
 
@@ -370,16 +497,21 @@ function setupSocket() {
   socket.on('resetBoard', onClearBoard);
 }
 
+/**
+ * Checks the URL for the room code and player ID.
+ */
 function checkParameters() {
   if (!playerId || !roomCode) {
     window.location.href = '/';
   }
 }
 
+/**
+ * Sets up the client with the URL parameters.
+ */
 function initializeClient() {
   const gameOptions = { playerId, roomCode };
   socket.emit('joinGame', gameOptions);
-  changeColorInput();
 }
 
 setupSocket();
@@ -387,17 +519,23 @@ checkParameters();
 initializeClient();
 initTimer();
 
-/* HTML Events Setup */
+/* ---------------------------------------------------------------------------*/
+/*                              HTML Events Setup                             */
+/* ---------------------------------------------------------------------------*/
 
-sendBtn.onclick = onSubmitBtnClick;
 resetCanvaBtn.onclick = onResetBtnClick;
+sendBtn.onclick = onSubmitBtnClick;
 wordIpt.onkeydown = guessEnter;
+
+/* Canvas */
+
+// mouse events
 gameCanvas.addEventListener('mousedown', onMouseDown, false);
 gameCanvas.addEventListener('mouseup', onMouseUp, false);
 gameCanvas.addEventListener('mouseout', onMouseUp, false);
 gameCanvas.addEventListener('mousemove', throttle(onMouseMove, 10), false);
 
-// touch support for mobile devices
+// touch events
 gameCanvas.addEventListener('touchstart', onMouseDown, false);
 gameCanvas.addEventListener('touchend', onMouseUp, false);
 gameCanvas.addEventListener('touchcancel', onMouseUp, false);

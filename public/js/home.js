@@ -45,6 +45,12 @@ let whichOpen = null;
 /*                               Home Functions                               */
 /* ---------------------------------------------------------------------------*/
 
+/**
+ * Generates a random room hash code of given length.
+ *
+ * @param {number} roomCodeLength the length of the room code
+ * @returns {string} the room code
+ */
 function generateRoomCode(roomCodeLength) {
   let result = '';
   const characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
@@ -55,12 +61,18 @@ function generateRoomCode(roomCodeLength) {
   return result;
 }
 
+/**
+ * Resets the all input values.
+ */
 function resetInputValues() {
   joinNicknameIpt.value = '';
   createNicknameIpt.value = '';
   roomCodeIpt.value = '';
 }
 
+/**
+ * Hides the current open modal.
+ */
 function hideModal() {
   currentOpenModal.style.display = 'none';
   resetInputValues();
@@ -71,23 +83,35 @@ function hideModal() {
 /*                                 HTML Events                                */
 /* ---------------------------------------------------------------------------*/
 
+/**
+ * Displays the create room modal.
+ */
 function onCreateRoomBtnClick() {
   createRoomModal.style.display = 'block';
   currentOpenModal = createRoomModal;
   whichOpen = 1;
 }
 
+/**
+ * Displays the join room modal.
+ */
 function onJoinRoomBtnClick() {
   joinRoomModal.style.display = 'block';
   currentOpenModal = joinRoomModal;
   whichOpen = 2;
 }
 
+/**
+ * Redirects to the lobby page with 'create room' parameters.
+ */
 function onConfirmCreateRoomBtnClick() {
   const nickname = createNicknameIpt.value;
   window.location.href = `/lobby?type=create&nickname=${nickname}&roomCode=${generateRoomCode(6)}`;
 }
 
+/**
+ * Redirects to the lobby page with 'join room' parameters.
+ */
 function onConfirmJoinRoomBtnClick() {
   const nickname = joinNicknameIpt.value;
   const roomCode = roomCodeIpt.value;
@@ -100,8 +124,11 @@ function onConfirmJoinRoomBtnClick() {
 
 /* HTML Events Setup */
 
+// main menu
 createRoomBtn.onclick = onCreateRoomBtnClick;
 joinRoomBtn.onclick = onJoinRoomBtnClick;
+
+// modal menus
 confirmCreateModalBtn.onclick = onConfirmCreateRoomBtnClick;
 confirmJoinModalBtn.onclick = onConfirmJoinRoomBtnClick;
 
