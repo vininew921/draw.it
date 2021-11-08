@@ -18,71 +18,84 @@
 
 <!DOCTYPE html>
 <html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="stylesheet" href="../styles/home.css" />
+    <link rel="stylesheet" href="../styles/modal.css" />
+    <title>Draw.it</title>
+  </head>
 
-<head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <link rel="stylesheet" href="../styles/home.css">
-  <link rel="stylesheet" href="../styles/modal.css">
-  <title>Draw.it</title>
-</head>
-
-<body>
-  <div id="header">
-    <h1>Draw.IT</h1>
-  </div>
-  <div class="options">
-    <div class="roomOptions">
-      <button class="roomBtn" id="joinBtn">Join Room</button>
-      <button class="roomBtn" id="createBtn">Create Room</button>
+  <body>
+    <div id="header">
+      <h1>Draw.IT</h1>
     </div>
-  </div>
-
-  <div id="joinRoomModal" class="modal">
-    <div class="modal-content">
-      <div class="modal-header">
-        <span style="background-color:#8F00FF" class="close cancelModal">&times;</span>
-        <h2>Join Room</h2>
-      </div>
-      <div class="modal-body">
-        <label for="nicknameIpt">Nickname</label>
-        <input type="text" class="modalInput" id="joinNicknameIpt">
-        <label for="roomCodeIpt">Room Code</label>
-        <input type="text" class="modalInput" id="roomCodeIpt">
-      </div>
-      <div class="modal-footer">
-        <button class="modalBtn confirmModal" id="confirmJoinModalBtn">OK</button>
-        <button class="modalBtn cancelModal" id="cancelModalBtn">Cancel</button>
+    <div class="options">
+      <div class="roomOptions">
+        <button class="roomBtn" id="joinBtn">Join Room</button>
+        <button class="roomBtn" id="createBtn">Create Room</button>
       </div>
     </div>
-  </div>
 
-  <div id="createRoomModal" class="modal">
-    <div class="modal-content">
-      <div class="modal-header">
-        <span style="background-color:#8F00FF" class="close cancelModal">&times;</span>
-        <h2>Create Room</h2>
-      </div>
-      <div class="modal-body">
-        <label for="nicknameIpt">Nickname</label>
-        <input type="text" class="modalInput" id="createNicknameIpt">
-      </div>
-      <div class="modal-footer">
-        <button class="modalBtn confirmModal" id="confirmCreateModalBtn">OK</button>
-        <button class="modalBtn cancelModal" id="cancelModalBtn">Cancel</button>
+    <div id="joinRoomModal" class="modal">
+      <div class="modal-content">
+        <div class="modal-header">
+          <span style="background-color: #8f00ff" class="close cancelModal"
+            >&times;</span
+          >
+          <h2>Join Room</h2>
+        </div>
+        <div class="modal-body">
+          <label for="nicknameIpt">Nickname</label>
+          <input type="text" class="modalInput" id="joinNicknameIpt" />
+          <label for="roomCodeIpt">Room Code</label>
+          <input type="text" class="modalInput" id="roomCodeIpt" />
+        </div>
+        <div class="modal-footer">
+          <button class="modalBtn confirmModal" id="confirmJoinModalBtn">
+            OK
+          </button>
+          <button class="modalBtn cancelModal" id="cancelModalBtn">
+            Cancel
+          </button>
+        </div>
       </div>
     </div>
-  </div>
 
-  <div id="copyright">
-    <p> Copyright (c) 2021
-      <br> Draw.it , Various Authors
-      <br> This project is under the GNU GPL License
-      <br> Please, see this <a href="https://www.gnu.org/licenses/gpl-3.0.pt-br.html">link</a> for more details
-    </p>
-  </div>
+    <div id="createRoomModal" class="modal">
+      <div class="modal-content">
+        <div class="modal-header">
+          <span style="background-color: #8f00ff" class="close cancelModal"
+            >&times;</span
+          >
+          <h2>Create Room</h2>
+        </div>
+        <div class="modal-body">
+          <label for="nicknameIpt">Nickname</label>
+          <input type="text" class="modalInput" id="createNicknameIpt" />
+        </div>
+        <div class="modal-footer">
+          <button class="modalBtn confirmModal" id="confirmCreateModalBtn">
+            OK
+          </button>
+          <button class="modalBtn cancelModal" id="cancelModalBtn">
+            Cancel
+          </button>
+        </div>
+      </div>
+    </div>
 
-  <script src="../js/home.js"></script>
-</body>
+    <div id="copyright">
+      <p>
+        Copyright (c) 2021 <br />
+        Draw.it , Various Authors <br />
+        This project is under the GNU GPL License <br />
+        Please, see this
+        <a href="https://www.gnu.org/licenses/gpl-3.0.pt-br.html">link</a> for
+        more details
+      </p>
+    </div>
 
+    <script src="../js/home.js"></script>
+  </body>
 </html>

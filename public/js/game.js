@@ -17,97 +17,100 @@
 */
 
 // HTML Elements
-const wordIpt = document.querySelector('#wordIpt');
-const sendBtn = document.querySelector('#sendBtn');
-const resetCanvaBtn = document.querySelector('#reset-canvas');
-const timer = document.querySelector('#timer');
-const imgClock = document.querySelector('#img-clock');
-const roomCodeHeader = document.getElementById('roomCodeHeader');
-const playersList = document.getElementById('players');
-const gameHeader = document.getElementById('gameHeader');
-const boxGuess = document.getElementById('box-game');
-const rightWord = document.getElementById('rightWord');
-const gameCanvas = document.getElementById('gameCanvas');
+const wordIpt = document.querySelector("#wordIpt");
+const sendBtn = document.querySelector("#sendBtn");
+const resetCanvaBtn = document.querySelector("#reset-canvas");
+const timer = document.querySelector("#timer");
+const imgClock = document.querySelector("#img-clock");
+const roomCodeHeader = document.getElementById("roomCodeHeader");
+const playersList = document.getElementById("players");
+const gameHeader = document.getElementById("gameHeader");
+const boxGuess = document.getElementById("box-game");
+const rightWord = document.getElementById("rightWord");
+const gameCanvas = document.getElementById("gameCanvas");
 
 /*
  * Control variables
  */
-let context = gameCanvas.getContext('2d');
+let context = gameCanvas.getContext("2d");
 
 const queryString = window.location.search;
 const urlParams = new URLSearchParams(queryString);
-const playerId = urlParams.get('playerId');
-const roomCode = urlParams.get('roomCode');
-const playerNick = urlParams.get('playerNick');
+const playerId = urlParams.get("playerId");
+const roomCode = urlParams.get("roomCode");
+const playerNick = urlParams.get("playerNick");
 let player;
 let socket;
 let currentRoom;
 let timerInterval;
 const initialCont = 120;
 let cont = initialCont;
-const currentPos = { color: 'black', x: 0, y: 0 };
-const targetPos = { color: 'black', x: 0, y: 0 };
+const currentPos = { color: "black", x: 0, y: 0 };
+const targetPos = { color: "black", x: 0, y: 0 };
 let drawing = false;
 let isDrawer = false;
 const initialStartGameSeconds = 5;
 let startGameSeconds = initialStartGameSeconds;
-let rightWordwas="";
+let rightWordwas = "";
 /*
  * Game Functions
  */
 
 function updatePlayerList() {
-  playersList.innerHTML = '';
+  playersList.innerHTML = "";
   for (let i = 0; i < currentRoom.maxPlayers; i++) {
-    const p = document.createElement('p');
+    const p = document.createElement("p");
     if (currentRoom.players[i]) {
-      p.className = 'player joined';
-      p.innerHTML = currentRoom.players[i].nickname +'-'+currentRoom.players[i].points;
+      p.className = "player joined";
+      p.innerHTML =
+        currentRoom.players[i].nickname + "-" + currentRoom.players[i].points;
     } else {
-      p.className = 'player empty';
-      p.innerHTML = 'Empty';
+      p.className = "player empty";
+      p.innerHTML = "Empty";
     }
     playersList.appendChild(p);
   }
 }
 
-function stopTimer(){
-  timer.innerHTML = '0:00';
-  imgClock.classList.add('animate');
-  wordIpt.value = '';
-  wordIpt.style.display='none'
-  sendBtn.style.display='none'
+function stopTimer() {
+  timer.innerHTML = "0:00";
+  imgClock.classList.add("animate");
+  wordIpt.value = "";
+  wordIpt.style.display = "none";
+  sendBtn.style.display = "none";
   isDrawer = false;
-  socket.emit('endTurn', player);
+  socket.emit("endTurn", player);
   clearInterval(timerInterval);
-};
+}
 
 function initTimer() {
   rightWord.innerHTML = "";
-  rightWord.style.display='none'
+  rightWord.style.display = "none";
   timerInterval = setInterval(() => {
     cont--;
     const time = new Date(cont * 1000).toISOString().substr(15, 4);
     timer.innerHTML = time;
-    if (cont <= 0) { stopTimer(); }
+    if (cont <= 0) {
+      stopTimer();
+    }
   }, 1000);
 }
 
-function guessedRight(){
-  wordIpt.style.display='none'
-  sendBtn.style.display='none'
-  rightWord.innerHTML=wordIpt.value
-  rightWord.style.display='block'
-  rightWord.style.color='green'
+function guessedRight() {
+  wordIpt.style.display = "none";
+  sendBtn.style.display = "none";
+  rightWord.innerHTML = wordIpt.value;
+  rightWord.style.display = "block";
+  rightWord.style.color = "green";
 }
 
-function changeColorInput(){
-  wordIpt.style.color = 'black';
+function changeColorInput() {
+  wordIpt.style.color = "black";
 }
 
-function guessedWrong(){
+function guessedWrong() {
   wordIpt.value = "";
-  wordIpt.style.color = 'red';
+  wordIpt.style.color = "red";
 }
 /*
  * Canvas Functions
@@ -132,7 +135,7 @@ function throttle(callback, delay) {
   let previousCall = new Date().getTime();
   return (...args) => {
     const time = new Date().getTime();
-    if ((time - previousCall) >= delay) {
+    if (time - previousCall >= delay) {
       previousCall = time;
       callback.apply(null, args);
     }
@@ -144,21 +147,25 @@ function drawLine(x0, y0, x1, y1, color, emit) {
   const widthMultiplier = gameCanvas.width / rect.width;
 
   context.beginPath();
-  context.moveTo((x0 * widthMultiplier), (y0 * widthMultiplier));
-  context.lineTo((x1 * widthMultiplier), (y1 * widthMultiplier));
+  context.moveTo(x0 * widthMultiplier, y0 * widthMultiplier);
+  context.lineTo(x1 * widthMultiplier, y1 * widthMultiplier);
   context.strokeStyle = color;
   context.lineWidth = 2;
   context.stroke();
   context.closePath();
 
   if (emit) {
-    socket.emit('gameDrawing', {
-      x0,
-      y0,
-      x1,
-      y1,
-      color,
-    }, player);
+    socket.emit(
+      "gameDrawing",
+      {
+        x0,
+        y0,
+        x1,
+        y1,
+        color,
+      },
+      player
+    );
   }
 }
 
@@ -168,7 +175,9 @@ function drawLine(x0, y0, x1, y1, color, emit) {
 
 function onSubmitBtnClick() {
   const text = wordIpt.value;
-  if (text) { socket.emit('guessWord', player, text); }
+  if (text) {
+    socket.emit("guessWord", player, text);
+  }
 }
 
 function onClearBoard() {
@@ -176,7 +185,7 @@ function onClearBoard() {
 }
 
 function onResetBtnClick() {
-  socket.emit('clearBoard', player);
+  socket.emit("clearBoard", player);
 }
 
 function changeColor(event) {
@@ -184,20 +193,20 @@ function changeColor(event) {
 }
 
 function selectColor() {
-  const penColor = document.querySelector('#pen-color');
+  const penColor = document.querySelector("#pen-color");
   penColor.value = currentPos.color;
-  penColor.addEventListener('input', changeColor, false);
+  penColor.addEventListener("input", changeColor, false);
   penColor.select();
 }
 
 function showToolBar() {
-  const control = document.getElementById('controls');
-  control.style.display = 'flex';
+  const control = document.getElementById("controls");
+  control.style.display = "flex";
 }
 
 function hideToolBar() {
-  const control = document.getElementById('controls');
-  control.style.display = 'none';
+  const control = document.getElementById("controls");
+  control.style.display = "none";
 }
 
 function onMouseDown(e) {
@@ -208,25 +217,43 @@ function onMouseDown(e) {
 
 function onMouseUp(e) {
   if (isDrawer) {
-    if (!drawing) { return; }
+    if (!drawing) {
+      return;
+    }
     drawing = false;
     relMouseCoords(e, targetPos);
-    drawLine(currentPos.x, currentPos.y, targetPos.x, targetPos.y, currentPos.color, true);
+    drawLine(
+      currentPos.x,
+      currentPos.y,
+      targetPos.x,
+      targetPos.y,
+      currentPos.color,
+      true
+    );
   }
 }
 
 function onMouseMove(e) {
   if (isDrawer) {
-    if (!drawing) { return; }
+    if (!drawing) {
+      return;
+    }
     relMouseCoords(e, targetPos);
-    drawLine(currentPos.x, currentPos.y, targetPos.x, targetPos.y, currentPos.color, true);
+    drawLine(
+      currentPos.x,
+      currentPos.y,
+      targetPos.x,
+      targetPos.y,
+      currentPos.color,
+      true
+    );
     relMouseCoords(e, currentPos);
   }
 }
 
-function guessEnter(e){
-  if (e.key === 'Enter') {
-    onSubmitBtnClick()
+function guessEnter(e) {
+  if (e.key === "Enter") {
+    onSubmitBtnClick();
   }
 }
 
@@ -236,19 +263,19 @@ function guessEnter(e){
 
 function getDrawer() {
   const rect = gameCanvas.getBoundingClientRect();
-  context = gameCanvas.getContext('2d');
+  context = gameCanvas.getContext("2d");
   if (currentRoom.drawer.nickname === playerNick) {
     gameHeader.innerHTML = `Draw word: '${currentRoom.word}'`;
     isDrawer = true;
-    wordIpt.style.display='none'
-    sendBtn.style.display='none'
+    wordIpt.style.display = "none";
+    sendBtn.style.display = "none";
     showToolBar();
   } else {
     gameHeader.innerHTML = `'${currentRoom.drawer.nickname}' is drawing`;
-    gameCanvas.style.setProperty('cursor', 'no-drop;');
+    gameCanvas.style.setProperty("cursor", "no-drop;");
     isDrawer = false;
-    wordIpt.style.display='block'
-    sendBtn.style.display='block'
+    wordIpt.style.display = "block";
+    sendBtn.style.display = "block";
     hideToolBar();
   }
 }
@@ -267,13 +294,17 @@ function onJoinComplete(data) {
 }
 
 function onJoinFailed() {
-  gameHeader.innerHTML = 'Room not found!';
-  setTimeout(() => { window.location.href = '/'; }, 2000);
+  gameHeader.innerHTML = "Room not found!";
+  setTimeout(() => {
+    window.location.href = "/";
+  }, 2000);
 }
 
 function onJoinFailedMaxPlayers() {
-  gameHeader.innerHTML = 'Room is full!';
-  setTimeout(() => { window.location.href = '/'; }, 2000);
+  gameHeader.innerHTML = "Room is full!";
+  setTimeout(() => {
+    window.location.href = "/";
+  }, 2000);
 }
 
 function onDrawingEvent(data) {
@@ -281,8 +312,10 @@ function onDrawingEvent(data) {
 }
 
 function onEndGame() {
-  gameHeader.innerHTML = 'Game has been ended';
-  setTimeout(() => { window.location.href = '/'; }, 2000);
+  gameHeader.innerHTML = "Game has been ended";
+  setTimeout(() => {
+    window.location.href = "/";
+  }, 2000);
 }
 
 function onNewGame(data) {
@@ -297,12 +330,12 @@ function onNewGame(data) {
       initTimer();
     } else {
       gameHeader.innerHTML = `New Game starting in ${startGameSeconds}`;
-      if(wordIpt.value!=rightWordwas){
-        rightWord.innerHTML=rightWordwas
-        rightWord.style.display='block'
-        rightWord.style.color='black'
+      if (wordIpt.value != rightWordwas) {
+        rightWord.innerHTML = rightWordwas;
+        rightWord.style.display = "block";
+        rightWord.style.color = "black";
       }
-      rightWord.style.display='block'
+      rightWord.style.display = "block";
       startGameSeconds--;
     }
   }, 1000);
@@ -310,19 +343,19 @@ function onNewGame(data) {
 
 function onGuessedRight(data, playerRight) {
   currentRoom = data;
-  if(player.nickname==playerRight.nickname){
+  if (player.nickname == playerRight.nickname) {
     guessedRight();
   }
   updatePlayerList();
 }
 
 function onGuessedWrong(currentRoom, playerWrong) {
-  if(player.nickname==playerWrong.nickname){
+  if (player.nickname == playerWrong.nickname) {
     guessedWrong();
   }
 }
 
-function onWordWas(wordWas){
+function onWordWas(wordWas) {
   rightWordwas = wordWas;
 }
 /*
@@ -331,29 +364,29 @@ function onWordWas(wordWas){
 
 function setupSocket() {
   // eslint-disable-next-line no-undef
-  socket = io.connect('/');
+  socket = io.connect("/");
 
-  socket.on('joinComplete', onJoinComplete);
-  socket.on('playersChanged', onPlayersChanged);
-  socket.on('joinFailed', onJoinFailed);
-  socket.on('joinFailedMaxPlayers', onJoinFailedMaxPlayers);
-  socket.on('playerDrawing', onDrawingEvent);
-  socket.on('newGame', onNewGame);
-  socket.on('endGame', onEndGame);
-  socket.on('guessedRight', onGuessedRight);
-  socket.on('guessedWrong', onGuessedWrong);
-  socket.on('wordWas', onWordWas);
-  socket.on('resetBoard', onClearBoard);
+  socket.on("joinComplete", onJoinComplete);
+  socket.on("playersChanged", onPlayersChanged);
+  socket.on("joinFailed", onJoinFailed);
+  socket.on("joinFailedMaxPlayers", onJoinFailedMaxPlayers);
+  socket.on("playerDrawing", onDrawingEvent);
+  socket.on("newGame", onNewGame);
+  socket.on("endGame", onEndGame);
+  socket.on("guessedRight", onGuessedRight);
+  socket.on("guessedWrong", onGuessedWrong);
+  socket.on("wordWas", onWordWas);
+  socket.on("resetBoard", onClearBoard);
 }
 
 function initializeClient() {
   const gameOptions = { playerId, roomCode };
-  socket.emit('joinGame', gameOptions);
+  socket.emit("joinGame", gameOptions);
 }
 
 function checkParameters() {
   if (!playerId || !roomCode) {
-    window.location.href = '/';
+    window.location.href = "/";
   }
 }
 
@@ -369,13 +402,13 @@ initTimer();
 sendBtn.onclick = onSubmitBtnClick;
 resetCanvaBtn.onclick = onResetBtnClick;
 wordIpt.onkeydown = guessEnter;
-gameCanvas.addEventListener('mousedown', onMouseDown, false);
-gameCanvas.addEventListener('mouseup', onMouseUp, false);
-gameCanvas.addEventListener('mouseout', onMouseUp, false);
-gameCanvas.addEventListener('mousemove', throttle(onMouseMove, 10), false);
+gameCanvas.addEventListener("mousedown", onMouseDown, false);
+gameCanvas.addEventListener("mouseup", onMouseUp, false);
+gameCanvas.addEventListener("mouseout", onMouseUp, false);
+gameCanvas.addEventListener("mousemove", throttle(onMouseMove, 10), false);
 
 // touch support for mobile devices
-gameCanvas.addEventListener('touchstart', onMouseDown, false);
-gameCanvas.addEventListener('touchend', onMouseUp, false);
-gameCanvas.addEventListener('touchcancel', onMouseUp, false);
-gameCanvas.addEventListener('touchmove', throttle(onMouseMove, 10), false);
+gameCanvas.addEventListener("touchstart", onMouseDown, false);
+gameCanvas.addEventListener("touchend", onMouseUp, false);
+gameCanvas.addEventListener("touchcancel", onMouseUp, false);
+gameCanvas.addEventListener("touchmove", throttle(onMouseMove, 10), false);

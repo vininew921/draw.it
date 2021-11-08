@@ -16,7 +16,7 @@
   along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
 
-const Room = require('./Room');
+const Room = require("./Room");
 
 class LobbyController {
   constructor() {
@@ -28,8 +28,8 @@ class LobbyController {
   }
 
   randomizeWord() {
-    let number = this.randomIndex(0,this.words.length);
-    this.word = this.list.pop(number)
+    let number = this.randomIndex(0, this.words.length);
+    this.word = this.list.pop(number);
   }
 
   addRoom(room) {
@@ -53,16 +53,15 @@ class LobbyController {
       currentRoom.addPlayer(player);
       this.addRoom(currentRoom);
       socket.join(currentRoom.roomCode);
-      socket.emit('joinComplete', currentRoom);
+      socket.emit("joinComplete", currentRoom);
     } else {
-      socket.emit('joinFailed');
+      socket.emit("joinFailed");
     }
   }
 
-  checkRepeatedNicknames(player, players){
+  checkRepeatedNicknames(player, players) {
     for (let i = 0; i < players.length; i++) {
-      if(players[i].nickname == player.nickname)
-        return false;
+      if (players[i].nickname == player.nickname) return false;
     }
     return true;
   }
@@ -72,51 +71,50 @@ class LobbyController {
     const currentRoom = this.getRoomByCode(player.roomCode);
     if (currentRoom && !currentRoom.gameStarted) {
       if (currentRoom.players.length >= currentRoom.maxPlayers) {
-        socket.emit('joinFailedMaxPlayers');
+        socket.emit("joinFailedMaxPlayers");
         return;
       }
 
-      if(!this.checkRepeatedNicknames(player, currentRoom.players)){
-        socket.emit('nickInUse');
+      if (!this.checkRepeatedNicknames(player, currentRoom.players)) {
+        socket.emit("nickInUse");
         return;
       }
 
       currentRoom.addPlayer(player);
       currentRoom.everyoneReady = false;
-      io.to(currentRoom.roomCode).emit('playersChanged', currentRoom);
+      io.to(currentRoom.roomCode).emit("playersChanged", currentRoom);
       socket.join(currentRoom.roomCode);
-      socket.emit('joinComplete', currentRoom);
+      socket.emit("joinComplete", currentRoom);
     } else {
-      socket.emit('joinFailed');
+      socket.emit("joinFailed");
     }
   }
-  
-  guessWord(io, player, word){
+
+  guessWord(io, player, word) {
     let playerIndex = 0;
     const currentRoom = this.getRoomByCode(player.roomCode);
-    if(currentRoom.word == word && !player.alreadyPointed){
-      for (let i = 0; i < currentRoom.players.length; i++) 
+    if (currentRoom.word == word && !player.alreadyPointed) {
+      for (let i = 0; i < currentRoom.players.length; i++)
         if (currentRoom.players[i].nickname === player.nickname) {
           playerIndex = i;
           break;
         }
-      currentRoom.players[playerIndex].points+=1;
-      currentRoom.players[playerIndex].alreadyPointed=true;
-      io.to(currentRoom.roomCode).emit('guessedRight', currentRoom, player);
-    }
-    else{
-      io.to(currentRoom.roomCode).emit('guessedWrong', currentRoom, player);
+      currentRoom.players[playerIndex].points += 1;
+      currentRoom.players[playerIndex].alreadyPointed = true;
+      io.to(currentRoom.roomCode).emit("guessedRight", currentRoom, player);
+    } else {
+      io.to(currentRoom.roomCode).emit("guessedWrong", currentRoom, player);
     }
   }
 
-  clearBoard(io, player){
+  clearBoard(io, player) {
     const currentRoom = this.getRoomByCode(player.roomCode);
-    io.to(currentRoom.roomCode).emit('resetBoard');
+    io.to(currentRoom.roomCode).emit("resetBoard");
   }
 
   drawing(io, player, data) {
     const currentRoom = this.getRoomByCode(player.roomCode);
-    io.to(currentRoom.roomCode).emit('playerDrawing', data);
+    io.to(currentRoom.roomCode).emit("playerDrawing", data);
   }
 
   changePlayerReady(io, socket, player) {
@@ -134,14 +132,14 @@ class LobbyController {
         }
         currentRoom.checkEveryoneReady();
         currentRoom.setupAvaialbleDrawers();
-        if(currentRoom.everyoneReady){
+        if (currentRoom.everyoneReady) {
           this.setupTurn(roomCode);
         }
-        io.to(currentRoom.roomCode).emit('playersChanged', currentRoom);
+        io.to(currentRoom.roomCode).emit("playersChanged", currentRoom);
       }
-      
-      if(currentRoom != undefined){
-        if(currentRoom.everyoneReady)
+
+      if (currentRoom != undefined) {
+        if (currentRoom.everyoneReady)
           for (let i = 0; i < currentRoom.players.length; i++) {
             currentRoom.players[i].ready = false;
           }
@@ -151,10 +149,10 @@ class LobbyController {
     }
   }
 
-  setupTurn(roomCode){
+  setupTurn(roomCode) {
     const currentRoom = this.getRoomByCode(roomCode);
-    currentRoom.chooseDrawer()
-    currentRoom.chooseWord()
+    currentRoom.chooseDrawer();
+    currentRoom.chooseWord();
 
     return currentRoom;
   }
@@ -169,20 +167,22 @@ class LobbyController {
       }
     }
     currentRoom.checkEveryoneReady();
-    io.to(currentRoom.roomCode).emit('wordWas', "A palavra era: "+currentRoom.word);
-    if(currentRoom.everyoneReady)
-      this.newTurn(io,player.roomCode)
+    io.to(currentRoom.roomCode).emit(
+      "wordWas",
+      "A palavra era: " + currentRoom.word
+    );
+    if (currentRoom.everyoneReady) this.newTurn(io, player.roomCode);
     return;
   }
 
   newTurn(io, roomCode) {
     let currentRoom = this.getRoomByCode(roomCode);
-    if(currentRoom.availableDrawers.length == 0){
-      io.to(currentRoom.roomCode).emit('endGame', currentRoom);
+    if (currentRoom.availableDrawers.length == 0) {
+      io.to(currentRoom.roomCode).emit("endGame", currentRoom);
       return;
     }
     currentRoom = this.setupTurn(roomCode);
-    io.to(currentRoom.roomCode).emit('newGame', currentRoom);
+    io.to(currentRoom.roomCode).emit("newGame", currentRoom);
     return;
   }
 
@@ -201,7 +201,7 @@ class LobbyController {
 
         currentRoom.players = newPlayersList;
         currentRoom.checkEveryoneReady();
-        io.to(currentRoom.roomCode).emit('playersChanged', currentRoom);
+        io.to(currentRoom.roomCode).emit("playersChanged", currentRoom);
       }
 
       roomCode = iterator.next()?.value;
@@ -211,7 +211,6 @@ class LobbyController {
   joinGame(io, socket, playerId, roomCode) {
     const currentRoom = this.getRoomByCode(roomCode);
     if (currentRoom) {
-
       for (let i = 0; i < currentRoom.players.length; i++) {
         const currentPlayer = currentRoom.players[i];
         if (currentPlayer.socketId === playerId) {
@@ -219,15 +218,15 @@ class LobbyController {
           currentPlayer.socketId = socket.id;
           currentRoom.gameStarted = true;
           currentRoom.mostRecentPlayer = currentPlayer;
-          socket.emit('joinComplete', currentRoom);
-          io.to(currentRoom.roomCode).emit('playersChanged', currentRoom);
+          socket.emit("joinComplete", currentRoom);
+          io.to(currentRoom.roomCode).emit("playersChanged", currentRoom);
           return;
         }
       }
 
-      socket.emit('joinFailed');
+      socket.emit("joinFailed");
     } else {
-      socket.emit('joinFailed');
+      socket.emit("joinFailed");
     }
   }
 }

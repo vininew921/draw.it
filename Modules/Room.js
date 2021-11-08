@@ -28,34 +28,34 @@ class Room {
     this.drawerIndex = 0;
     this.drawer = undefined;
     this.words = [
-      'Astronauta',
-      'Leite',
-      'Pescador',
-      'Livro',
-      'Melancia',
-      'Escola',
-      'Macaco',
-      'Palma',
-      'Margarida',
-      'Cérebro',
-      'Lagarto',
-      'Saco',
-      'Saia',
-      'Violão',
-      'Cometa',
-      'Hamburger',
-      'Giz',
-      'Rosa',
-      'Alface',
-      'Vendedor',
-      'Tambor',
-      'Pente',
-      'Tempestade',
-      'Salto',
-      'Ouro',
-      'Meia'
+      "Astronauta",
+      "Leite",
+      "Pescador",
+      "Livro",
+      "Melancia",
+      "Escola",
+      "Macaco",
+      "Palma",
+      "Margarida",
+      "Cérebro",
+      "Lagarto",
+      "Saco",
+      "Saia",
+      "Violão",
+      "Cometa",
+      "Hamburger",
+      "Giz",
+      "Rosa",
+      "Alface",
+      "Vendedor",
+      "Tambor",
+      "Pente",
+      "Tempestade",
+      "Salto",
+      "Ouro",
+      "Meia",
     ];
-    this.word = undefined
+    this.word = undefined;
   }
 
   addPlayer(player) {
@@ -63,7 +63,7 @@ class Room {
     this.mostRecentPlayer = player;
   }
 
-  setupAvaialbleDrawers(){
+  setupAvaialbleDrawers() {
     this.availableDrawers = [...this.players];
   }
 
@@ -82,14 +82,14 @@ class Room {
     return Math.floor(Math.random() * (max - min + 1)) + min;
   }
 
-  chooseDrawer(){
-    let drawerIndex = this.randomIndex(0,this.players.length)
-    this.drawer = this.availableDrawers.pop(drawerIndex)
+  chooseDrawer() {
+    let drawerIndex = this.randomIndex(0, this.players.length);
+    this.drawer = this.availableDrawers.pop(drawerIndex);
   }
 
-  chooseWord(){
-    let wordIndex = this.randomIndex(0,this.words.length)
-    this.word = this.words.pop(wordIndex)
+  chooseWord() {
+    let wordIndex = this.randomIndex(0, this.words.length);
+    this.word = this.words.pop(wordIndex);
   }
 }
 

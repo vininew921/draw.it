@@ -20,19 +20,19 @@
  * HTML Elements
  */
 
-const joinRoomBtn = document.getElementById('joinBtn');
-const createRoomBtn = document.getElementById('createBtn');
+const joinRoomBtn = document.getElementById("joinBtn");
+const createRoomBtn = document.getElementById("createBtn");
 
-const joinRoomModal = document.getElementById('joinRoomModal');
-const roomCodeIpt = document.getElementById('roomCodeIpt');
-const joinNicknameIpt = document.getElementById('joinNicknameIpt');
-const confirmJoinModalBtn = document.getElementById('confirmJoinModalBtn');
+const joinRoomModal = document.getElementById("joinRoomModal");
+const roomCodeIpt = document.getElementById("roomCodeIpt");
+const joinNicknameIpt = document.getElementById("joinNicknameIpt");
+const confirmJoinModalBtn = document.getElementById("confirmJoinModalBtn");
 
-const createRoomModal = document.getElementById('createRoomModal');
-const createNicknameIpt = document.getElementById('createNicknameIpt');
-const confirmCreateModalBtn = document.getElementById('confirmCreateModalBtn');
+const createRoomModal = document.getElementById("createRoomModal");
+const createNicknameIpt = document.getElementById("createNicknameIpt");
+const confirmCreateModalBtn = document.getElementById("confirmCreateModalBtn");
 
-const spanBtns = document.getElementsByClassName('cancelModal');
+const spanBtns = document.getElementsByClassName("cancelModal");
 
 /*
  * Control variables
@@ -46,8 +46,8 @@ let whichOpen = null;
  */
 
 function generateRoomCode(roomCodeLength) {
-  let result = '';
-  const characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
+  let result = "";
+  const characters = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
   const charactersLength = characters.length;
   for (let i = 0; i < roomCodeLength; i++) {
     result += characters.charAt(Math.floor(Math.random() * charactersLength));
@@ -56,13 +56,13 @@ function generateRoomCode(roomCodeLength) {
 }
 
 function resetInputValues() {
-  joinNicknameIpt.value = '';
-  createNicknameIpt.value = '';
-  roomCodeIpt.value = '';
+  joinNicknameIpt.value = "";
+  createNicknameIpt.value = "";
+  roomCodeIpt.value = "";
 }
 
 function hideModal() {
-  currentOpenModal.style.display = 'none';
+  currentOpenModal.style.display = "none";
   resetInputValues();
   whichOpen = null;
 }
@@ -72,20 +72,22 @@ function hideModal() {
  */
 
 function onCreateRoomBtnClick() {
-  createRoomModal.style.display = 'block';
+  createRoomModal.style.display = "block";
   currentOpenModal = createRoomModal;
-  whichOpen = 1
+  whichOpen = 1;
 }
 
 function onJoinRoomBtnClick() {
-  joinRoomModal.style.display = 'block';
+  joinRoomModal.style.display = "block";
   currentOpenModal = joinRoomModal;
-  whichOpen = 2
+  whichOpen = 2;
 }
 
 function onConfirmCreateRoomBtnClick() {
   const nickname = createNicknameIpt.value;
-  window.location.href = `/lobby?type=create&nickname=${nickname}&roomCode=${generateRoomCode(6)}`;
+  window.location.href = `/lobby?type=create&nickname=${nickname}&roomCode=${generateRoomCode(
+    6
+  )}`;
 }
 
 function onConfirmJoinRoomBtnClick() {
@@ -103,18 +105,22 @@ joinRoomBtn.onclick = onJoinRoomBtnClick;
 confirmCreateModalBtn.onclick = onConfirmCreateRoomBtnClick;
 confirmJoinModalBtn.onclick = onConfirmJoinRoomBtnClick;
 
-document.addEventListener('keydown', (event) => {
-  if (event.key === 'Escape') {
+document.addEventListener("keydown", (event) => {
+  if (event.key === "Escape") {
     hideModal();
   }
-  if (event.key === 'Enter') {
-    if(whichOpen == 1)
-      onConfirmCreateRoomBtnClick();
-    else if(whichOpen == 2)
-      onConfirmJoinRoomBtnClick();
+  if (event.key === "Enter") {
+    if (whichOpen == 1) onConfirmCreateRoomBtnClick();
+    else if (whichOpen == 2) onConfirmJoinRoomBtnClick();
   }
-})
+});
 
-window.onclick = (event) => { if (event.target === currentOpenModal) { hideModal(); } };
+window.onclick = (event) => {
+  if (event.target === currentOpenModal) {
+    hideModal();
+  }
+};
 
-Array.from(spanBtns).forEach((spanBtn) => { spanBtn.onclick = hideModal; });
+Array.from(spanBtns).forEach((spanBtn) => {
+  spanBtn.onclick = hideModal;
+});

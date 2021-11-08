@@ -18,66 +18,75 @@
 
 <!DOCTYPE html>
 <html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="stylesheet" href="../styles/game.css" />
+    <title>Draw.it</title>
+  </head>
 
-<head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <link rel="stylesheet" href="../styles/game.css" />
-  <title>Draw.it</title>
-</head>
-
-<body>
-  <div class="row">
-    <div class="column columnLeft">
-      <div class="header">
-        <h3 id="roomCodeHeader"></h3>
-      </div>
-      <div id="playerList">
-        <h3 id="playersHeader">Players</h3>
-        <div id="players"></div>
-      </div>
-    </div>
-    <div class="column columnRight">
-      <div class="header">
-        <h1 id="gameHeader">Player is drawing</h1>
-      </div>
-      <div id="canvasDiv">
-        <div class="controls" id="controls">
-          <div class="color">
-            <label for="pen-color">Color</label>
-            <input type="color" id="pen-color" value="#000">
-          </div>
-          <div class="actions">
-            <button id="reset-canvas">Reset</button>
-          </div>
+  <body>
+    <div class="row">
+      <div class="column columnLeft">
+        <div class="header">
+          <h3 id="roomCodeHeader"></h3>
         </div>
-        <canvas class="gameCanvas" id="gameCanvas" width="800" height="600">
-        </canvas>
-        <div id="boxInputText">
-          <div style="width: 80%;">
-            <div id="boxChat"></div>
-            <div style="width: 50%;float:left">
-              <p style="display: none;" id="rightWord"></p>
-              <input type="text" onkeyup="changeColorInput()" name="word" id="wordIpt" placeholder="Guess!" />
-            </div>
-            <div style="width: 20%;float:left">
-              <button id="sendBtn">Send</button>
-            </div>
-          </div>
-          <div style="width: 10%;">
-            <span id="timer">2:00</span>
-          </div>
-          <div style="width: 10%;">
-            <img src="../img/game/clock.svg" id="img-clock" data-animate="clock" style="width:40px">
-          </div>
+        <div id="playerList">
+          <h3 id="playersHeader">Players</h3>
+          <div id="players"></div>
         </div>
       </div>
-      <div class="footer"></div>
+      <div class="column columnRight">
+        <div class="header">
+          <h1 id="gameHeader">Player is drawing</h1>
+        </div>
+        <div id="canvasDiv">
+          <div class="controls" id="controls">
+            <div class="color">
+              <label for="pen-color">Color</label>
+              <input type="color" id="pen-color" value="#000" />
+            </div>
+            <div class="actions">
+              <button id="reset-canvas">Reset</button>
+            </div>
+          </div>
+          <canvas class="gameCanvas" id="gameCanvas" width="800" height="600">
+          </canvas>
+          <div id="boxInputText">
+            <div style="width: 80%">
+              <div id="boxChat"></div>
+              <div style="width: 50%; float: left">
+                <p style="display: none" id="rightWord"></p>
+                <input
+                  type="text"
+                  onkeyup="changeColorInput()"
+                  name="word"
+                  id="wordIpt"
+                  placeholder="Guess!"
+                />
+              </div>
+              <div style="width: 20%; float: left">
+                <button id="sendBtn">Send</button>
+              </div>
+            </div>
+            <div style="width: 10%">
+              <span id="timer">2:00</span>
+            </div>
+            <div style="width: 10%">
+              <img
+                src="../img/game/clock.svg"
+                id="img-clock"
+                data-animate="clock"
+                style="width: 40px"
+              />
+            </div>
+          </div>
+        </div>
+        <div class="footer"></div>
+      </div>
     </div>
-  </div>
-  <script src="/scripts/socket.io.min.js"></script>
-  <script src="../models/Player.js"></script>
-  <script src="../js/game.js"></script>
-</body>
-
+    <script src="/scripts/socket.io.min.js"></script>
+    <script src="../models/Player.js"></script>
+    <script src="../js/game.js"></script>
+  </body>
 </html>

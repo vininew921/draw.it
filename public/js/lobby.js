@@ -18,32 +18,32 @@
 
 /*
  * HTML Elements
-*/
+ */
 
-const roomCodeHeader = document.getElementById('roomCodeHeader');
-const playersHeader = document.getElementById('playersHeader');
-const playersList = document.getElementById('players');
-const lobbyHeader = document.getElementById('lobbyHeader');
-const lobbyCanvas = document.getElementById('lobbyCanvas');
-const readyButton = document.getElementById('lobbyReady');
-const resetCanvaBtn = document.querySelector('#reset-canvas');
+const roomCodeHeader = document.getElementById("roomCodeHeader");
+const playersHeader = document.getElementById("playersHeader");
+const playersList = document.getElementById("players");
+const lobbyHeader = document.getElementById("lobbyHeader");
+const lobbyCanvas = document.getElementById("lobbyCanvas");
+const readyButton = document.getElementById("lobbyReady");
+const resetCanvaBtn = document.querySelector("#reset-canvas");
 
 /*
  * Control variables
  */
 
-const context = lobbyCanvas.getContext('2d');
+const context = lobbyCanvas.getContext("2d");
 
 const queryString = window.location.search;
 const urlParams = new URLSearchParams(queryString);
-const lobbyType = urlParams.get('type');
-const nickname = urlParams.get('nickname');
-const roomCode = urlParams.get('roomCode');
+const lobbyType = urlParams.get("type");
+const nickname = urlParams.get("nickname");
+const roomCode = urlParams.get("roomCode");
 let player;
 let socket;
 let currentRoom;
-const currentPos = { color: 'black', x: 0, y: 0 };
-const targetPos = { color: 'black', x: 0, y: 0 };
+const currentPos = { color: "black", x: 0, y: 0 };
+const targetPos = { color: "black", x: 0, y: 0 };
 let drawing = false;
 let startGameTimer;
 let startGameSeconds = 5;
@@ -66,25 +66,25 @@ function startGame(start) {
     clearInterval(startGameTimer);
     startGameTimer = undefined;
     startGameSeconds = 5;
-    lobbyHeader.innerHTML = 'Waiting Room';
+    lobbyHeader.innerHTML = "Waiting Room";
   }
 }
 
 function updatePlayerList() {
   if (!currentRoom.gameStarted) {
-    playersList.innerHTML = '';
+    playersList.innerHTML = "";
     playersHeader.innerHTML = `Players - ${currentRoom.players.length}/${currentRoom.maxPlayers}`;
     for (let i = 0; i < currentRoom.maxPlayers; i++) {
-      const p = document.createElement('p');
+      const p = document.createElement("p");
       if (currentRoom.players[i]) {
-        p.className = 'player joined';
+        p.className = "player joined";
         p.innerHTML = currentRoom.players[i].nickname;
         if (currentRoom.players[i].ready) {
-          p.innerHTML += ' 👍';
+          p.innerHTML += " 👍";
         }
       } else {
-        p.className = 'player empty';
-        p.innerHTML = 'Empty';
+        p.className = "player empty";
+        p.innerHTML = "Empty";
       }
       playersList.appendChild(p);
     }
@@ -120,7 +120,7 @@ function throttle(callback, delay) {
   let previousCall = new Date().getTime();
   return (...args) => {
     const time = new Date().getTime();
-    if ((time - previousCall) >= delay) {
+    if (time - previousCall >= delay) {
       previousCall = time;
       callback.apply(null, args);
     }
@@ -133,8 +133,8 @@ function drawLine(x0, y0, x1, y1, color, emit) {
     const widthMultiplier = lobbyCanvas.width / rect.width;
 
     context.beginPath();
-    context.moveTo((x0 * widthMultiplier), (y0 * widthMultiplier));
-    context.lineTo((x1 * widthMultiplier), (y1 * widthMultiplier));
+    context.moveTo(x0 * widthMultiplier, y0 * widthMultiplier);
+    context.lineTo(x1 * widthMultiplier, y1 * widthMultiplier);
     context.strokeStyle = color;
     context.lineWidth = 2;
     context.stroke();
@@ -143,13 +143,17 @@ function drawLine(x0, y0, x1, y1, color, emit) {
     return;
   }
 
-  socket.emit('lobbyDrawing', {
-    x0,
-    y0,
-    x1,
-    y1,
-    color,
-  }, player);
+  socket.emit(
+    "lobbyDrawing",
+    {
+      x0,
+      y0,
+      x1,
+      y1,
+      color,
+    },
+    player
+  );
 }
 
 /*
@@ -157,16 +161,16 @@ function drawLine(x0, y0, x1, y1, color, emit) {
  */
 
 function onReadyClick() {
-  if (readyButton.className === 'readyButton ready') {
-    readyButton.className = 'readyButton cancel';
-    readyButton.innerHTML = 'Cancel';
+  if (readyButton.className === "readyButton ready") {
+    readyButton.className = "readyButton cancel";
+    readyButton.innerHTML = "Cancel";
     player.ready = true;
-    socket.emit('playerReadyChanged', player);
+    socket.emit("playerReadyChanged", player);
   } else {
-    readyButton.className = 'readyButton ready';
-    readyButton.innerHTML = 'Ready';
+    readyButton.className = "readyButton ready";
+    readyButton.innerHTML = "Ready";
     player.ready = false;
-    socket.emit('playerReadyChanged', player);
+    socket.emit("playerReadyChanged", player);
   }
 }
 
@@ -179,9 +183,9 @@ function changeColor(event) {
 }
 
 function selectColor() {
-  const penColor = document.querySelector('#pen-color');
+  const penColor = document.querySelector("#pen-color");
   penColor.value = currentPos.color;
-  penColor.addEventListener('input', changeColor, false);
+  penColor.addEventListener("input", changeColor, false);
   penColor.select();
 }
 
@@ -192,16 +196,34 @@ function onMouseDown(e) {
 }
 
 function onMouseUp(e) {
-  if (!drawing) { return; }
+  if (!drawing) {
+    return;
+  }
   drawing = false;
   relMouseCoords(e, targetPos);
-  drawLine(currentPos.x, currentPos.y, targetPos.x, targetPos.y, currentPos.color, true);
+  drawLine(
+    currentPos.x,
+    currentPos.y,
+    targetPos.x,
+    targetPos.y,
+    currentPos.color,
+    true
+  );
 }
 
 function onMouseMove(e) {
-  if (!drawing) { return; }
+  if (!drawing) {
+    return;
+  }
   relMouseCoords(e, targetPos);
-  drawLine(currentPos.x, currentPos.y, targetPos.x, targetPos.y, currentPos.color, true);
+  drawLine(
+    currentPos.x,
+    currentPos.y,
+    targetPos.x,
+    targetPos.y,
+    currentPos.color,
+    true
+  );
   relMouseCoords(e, currentPos);
 }
 
@@ -216,18 +238,24 @@ function onJoinComplete(data) {
 }
 
 function onNickInUse() {
-  lobbyHeader.innerHTML = 'Nickname is already in use';
-  setTimeout(() => { window.location.href = '/'; }, 2000);
+  lobbyHeader.innerHTML = "Nickname is already in use";
+  setTimeout(() => {
+    window.location.href = "/";
+  }, 2000);
 }
 
 function onJoinFailed() {
-  lobbyHeader.innerHTML = 'Room not found!';
-  setTimeout(() => { window.location.href = '/'; }, 2000);
+  lobbyHeader.innerHTML = "Room not found!";
+  setTimeout(() => {
+    window.location.href = "/";
+  }, 2000);
 }
 
 function onJoinFailedMaxPlayers() {
-  lobbyHeader.innerHTML = 'Room is full!';
-  setTimeout(() => { window.location.href = '/'; }, 2000);
+  lobbyHeader.innerHTML = "Room is full!";
+  setTimeout(() => {
+    window.location.href = "/";
+  }, 2000);
 }
 
 function onPlayersChanged(data) {
@@ -245,30 +273,30 @@ function onDrawingEvent(data) {
 
 function setupSocket() {
   // eslint-disable-next-line no-undef
-  socket = io.connect('/');
+  socket = io.connect("/");
 
-  socket.on('joinComplete', onJoinComplete);
-  socket.on('playersChanged', onPlayersChanged);
-  socket.on('joinFailed', onJoinFailed);
-  socket.on('joinFailedMaxPlayers', onJoinFailedMaxPlayers);
-  socket.on('nickInUse', onNickInUse);
-  socket.on('playerDrawing', onDrawingEvent);
+  socket.on("joinComplete", onJoinComplete);
+  socket.on("playersChanged", onPlayersChanged);
+  socket.on("joinFailed", onJoinFailed);
+  socket.on("joinFailedMaxPlayers", onJoinFailedMaxPlayers);
+  socket.on("nickInUse", onNickInUse);
+  socket.on("playerDrawing", onDrawingEvent);
 }
 
 function initializeClient() {
   // eslint-disable-next-line no-undef
   player = new Player(nickname, roomCode);
 
-  if (lobbyType === 'create') {
-    socket.emit('createRoom', player);
+  if (lobbyType === "create") {
+    socket.emit("createRoom", player);
   } else {
-    socket.emit('joinRoom', player);
+    socket.emit("joinRoom", player);
   }
 }
 
 function checkParameters() {
   if (!lobbyType || !nickname || !roomCode) {
-    window.location.href = '/';
+    window.location.href = "/";
   }
 }
 
@@ -280,13 +308,13 @@ initializeClient();
 
 readyButton.onclick = onReadyClick;
 resetCanvaBtn.onclick = onResetBtnClick;
-lobbyCanvas.addEventListener('mousedown', onMouseDown, false);
-lobbyCanvas.addEventListener('mouseup', onMouseUp, false);
-lobbyCanvas.addEventListener('mouseout', onMouseUp, false);
-lobbyCanvas.addEventListener('mousemove', throttle(onMouseMove, 10), false);
+lobbyCanvas.addEventListener("mousedown", onMouseDown, false);
+lobbyCanvas.addEventListener("mouseup", onMouseUp, false);
+lobbyCanvas.addEventListener("mouseout", onMouseUp, false);
+lobbyCanvas.addEventListener("mousemove", throttle(onMouseMove, 10), false);
 
 // touch support for mobile devices
-lobbyCanvas.addEventListener('touchstart', onMouseDown, false);
-lobbyCanvas.addEventListener('touchend', onMouseUp, false);
-lobbyCanvas.addEventListener('touchcancel', onMouseUp, false);
-lobbyCanvas.addEventListener('touchmove', throttle(onMouseMove, 10), false);
+lobbyCanvas.addEventListener("touchstart", onMouseDown, false);
+lobbyCanvas.addEventListener("touchend", onMouseUp, false);
+lobbyCanvas.addEventListener("touchcancel", onMouseUp, false);
+lobbyCanvas.addEventListener("touchmove", throttle(onMouseMove, 10), false);
