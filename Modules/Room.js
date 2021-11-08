@@ -16,6 +16,8 @@
  *  along with this program. If not, see <https://www.gnu.org/licenses/>.
  */
 
+const RoomUtils = require('./RoomUtils');
+
 class Room {
   constructor(maxPlayers, roomCode) {
     this.maxPlayers = maxPlayers;
@@ -108,7 +110,7 @@ class Room {
    * Sets a new random player as drawer.
    */
   chooseDrawer() {
-    const drawerIndex = this.randomIndex(0, this.players.length);
+    const drawerIndex = RoomUtils.randomIndex(0, this.players.length);
     this.drawer = this.availableDrawers.pop(drawerIndex);
   }
 
@@ -117,25 +119,8 @@ class Room {
    * Sets a new random word.
    */
   chooseWord() {
-    const wordIndex = this.randomIndex(0, this.words.length);
+    const wordIndex = RoomUtils.randomIndex(0, this.words.length);
     this.word = this.words.pop(wordIndex);
-  }
-
-  /* -------------------------------------------------------------------------*/
-  /*                                 Utility                                  */
-  /* -------------------------------------------------------------------------*/
-
-  /**
-   * Returns a random index between min (inclusive) and max (exclusive).
-   *
-   * TODO: Move to an Utilities class and make it static
-   *
-   * @param {number} min the minimum index value
-   * @param {number} max the maximum index value
-   * @returns the random index
-   */
-  randomIndex(min, max) {
-    return Math.floor(Math.random() * (max - min + 1)) + min;
   }
 }
 
