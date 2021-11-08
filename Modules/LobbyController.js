@@ -117,6 +117,11 @@ class LobbyController {
     io.to(currentRoom.roomCode).emit("playerDrawing", data);
   }
 
+  erasing(io, player, data) {
+    const currentRoom = this.getRoomByCode(player.roomCode);
+    io.to(currentRoom.roomCode).emit("playerErasing", data);
+  }
+
   changePlayerReady(io, socket, player) {
     const iterator = socket.rooms.values();
     let roomCode = iterator.next()?.value;

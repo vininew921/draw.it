@@ -28,6 +28,8 @@ const gameHeader = document.getElementById("gameHeader");
 const boxGuess = document.getElementById("box-game");
 const rightWord = document.getElementById("rightWord");
 const gameCanvas = document.getElementById("gameCanvas");
+const eraseBtn = document.getElementById("btn-erase");
+const penBtn = document.getElementById("btn-pen");
 
 /*
  * Control variables
@@ -48,6 +50,7 @@ let cont = initialCont;
 const currentPos = { color: "black", x: 0, y: 0 };
 const targetPos = { color: "black", x: 0, y: 0 };
 let drawing = false;
+let erasing = false;
 let isDrawer = false;
 const initialStartGameSeconds = 5;
 let startGameSeconds = initialStartGameSeconds;
@@ -142,6 +145,26 @@ function throttle(callback, delay) {
   };
 }
 
+function eraseLine(x0, y0, x1, y1, size, emit) {
+  if (!emit) {
+    const rect = gameCanvas.getBoundingClientRect();
+    const widthMultiplier = gameCanvas.width / rect.width;
+    context.clearRect(x1 * widthMultiplier, y1 * widthMultiplier, size, size);
+    return;
+  }
+
+  socket.emit(
+    "gameErasing",
+    {
+      x0,
+      y0,
+      x1,
+      y1,
+    },
+    player
+  );
+}
+
 function drawLine(x0, y0, x1, y1, color, emit) {
   const rect = gameCanvas.getBoundingClientRect();
   const widthMultiplier = gameCanvas.width / rect.width;
@@ -181,6 +204,7 @@ function onSubmitBtnClick() {
 }
 
 function onClearBoard() {
+  erasing = false;
   context.clearRect(0, 0, gameCanvas.width, gameCanvas.height);
 }
 
@@ -188,7 +212,16 @@ function onResetBtnClick() {
   socket.emit("clearBoard", player);
 }
 
+function onEraseBtnClick() {
+  erasing = true;
+}
+
+function onPenBtnClick() {
+  erasing = false;
+}
+
 function changeColor(event) {
+  erasing = false;
   currentPos.color = event.target.value;
 }
 
@@ -222,14 +255,17 @@ function onMouseUp(e) {
     }
     drawing = false;
     relMouseCoords(e, targetPos);
-    drawLine(
-      currentPos.x,
-      currentPos.y,
-      targetPos.x,
-      targetPos.y,
-      currentPos.color,
-      true
-    );
+    if (erasing)
+      eraseLine(currentPos.x, currentPos.y, targetPos.x, targetPos.y, 25, true);
+    else
+      drawLine(
+        currentPos.x,
+        currentPos.y,
+        targetPos.x,
+        targetPos.y,
+        currentPos.color,
+        true
+      );
   }
 }
 
@@ -239,14 +275,17 @@ function onMouseMove(e) {
       return;
     }
     relMouseCoords(e, targetPos);
-    drawLine(
-      currentPos.x,
-      currentPos.y,
-      targetPos.x,
-      targetPos.y,
-      currentPos.color,
-      true
-    );
+    if (erasing)
+      eraseLine(currentPos.x, currentPos.y, targetPos.x, targetPos.y, 25, true);
+    else
+      drawLine(
+        currentPos.x,
+        currentPos.y,
+        targetPos.x,
+        targetPos.y,
+        currentPos.color,
+        true
+      );
     relMouseCoords(e, currentPos);
   }
 }
@@ -311,6 +350,10 @@ function onDrawingEvent(data) {
   drawLine(data.x0, data.y0, data.x1, data.y1, data.color, false);
 }
 
+function onErasingEvent(data) {
+  eraseLine(data.x0, data.y0, data.x1, data.y1, 25, false);
+}
+
 function onEndGame() {
   gameHeader.innerHTML = "Game has been ended";
   setTimeout(() => {
@@ -371,6 +414,7 @@ function setupSocket() {
   socket.on("joinFailed", onJoinFailed);
   socket.on("joinFailedMaxPlayers", onJoinFailedMaxPlayers);
   socket.on("playerDrawing", onDrawingEvent);
+  socket.on("playerErasing", onErasingEvent);
   socket.on("newGame", onNewGame);
   socket.on("endGame", onEndGame);
   socket.on("guessedRight", onGuessedRight);
@@ -401,6 +445,8 @@ initTimer();
 
 sendBtn.onclick = onSubmitBtnClick;
 resetCanvaBtn.onclick = onResetBtnClick;
+eraseBtn.onclick = onEraseBtnClick;
+penBtn.onclick = onPenBtnClick;
 wordIpt.onkeydown = guessEnter;
 gameCanvas.addEventListener("mousedown", onMouseDown, false);
 gameCanvas.addEventListener("mouseup", onMouseUp, false);

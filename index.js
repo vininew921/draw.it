@@ -99,6 +99,14 @@ function onConnection(socket) {
     lobbyController.drawing(io, player, data);
   });
 
+  socket.on("lobbyErasing", (data, player) => {
+    lobbyController.erasing(io, player, data);
+  });
+
+  socket.on("gameErasing", (data, player) => {
+    lobbyController.erasing(io, player, data);
+  });
+
   socket.on("startNewTurn", (roomCode) => {
     lobbyController.newTurn(io, roomCode);
   });

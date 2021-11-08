@@ -27,6 +27,8 @@ const lobbyHeader = document.getElementById("lobbyHeader");
 const lobbyCanvas = document.getElementById("lobbyCanvas");
 const readyButton = document.getElementById("lobbyReady");
 const resetCanvaBtn = document.querySelector("#reset-canvas");
+const eraseBtn = document.querySelector("#btn-erase");
+const penBtn = document.querySelector("#btn-pen");
 
 /*
  * Control variables
@@ -45,6 +47,7 @@ let currentRoom;
 const currentPos = { color: "black", x: 0, y: 0 };
 const targetPos = { color: "black", x: 0, y: 0 };
 let drawing = false;
+let erasing = false;
 let startGameTimer;
 let startGameSeconds = 5;
 
@@ -127,6 +130,26 @@ function throttle(callback, delay) {
   };
 }
 
+function eraseLine(x0, y0, x1, y1, size, emit) {
+  if (!emit) {
+    const rect = lobbyCanvas.getBoundingClientRect();
+    const widthMultiplier = lobbyCanvas.width / rect.width;
+    context.clearRect(x1 * widthMultiplier, y1 * widthMultiplier, size, size);
+    return;
+  }
+
+  socket.emit(
+    "lobbyErasing",
+    {
+      x0,
+      y0,
+      x1,
+      y1,
+    },
+    player
+  );
+}
+
 function drawLine(x0, y0, x1, y1, color, emit) {
   if (!emit) {
     const rect = lobbyCanvas.getBoundingClientRect();
@@ -175,10 +198,20 @@ function onReadyClick() {
 }
 
 function onResetBtnClick() {
+  erasing = false;
   context.clearRect(0, 0, lobbyCanvas.width, lobbyCanvas.height);
 }
 
+function onEraseBtnClick() {
+  erasing = true;
+}
+
+function onPenBtnClick() {
+  erasing = false;
+}
+
 function changeColor(event) {
+  erasing = false;
   currentPos.color = event.target.value;
 }
 
@@ -201,14 +234,17 @@ function onMouseUp(e) {
   }
   drawing = false;
   relMouseCoords(e, targetPos);
-  drawLine(
-    currentPos.x,
-    currentPos.y,
-    targetPos.x,
-    targetPos.y,
-    currentPos.color,
-    true
-  );
+  if (erasing)
+    eraseLine(currentPos.x, currentPos.y, targetPos.x, targetPos.y, 25, true);
+  else
+    drawLine(
+      currentPos.x,
+      currentPos.y,
+      targetPos.x,
+      targetPos.y,
+      currentPos.color,
+      true
+    );
 }
 
 function onMouseMove(e) {
@@ -216,14 +252,18 @@ function onMouseMove(e) {
     return;
   }
   relMouseCoords(e, targetPos);
-  drawLine(
-    currentPos.x,
-    currentPos.y,
-    targetPos.x,
-    targetPos.y,
-    currentPos.color,
-    true
-  );
+
+  if (erasing)
+    eraseLine(currentPos.x, currentPos.y, targetPos.x, targetPos.y, 25, true);
+  else
+    drawLine(
+      currentPos.x,
+      currentPos.y,
+      targetPos.x,
+      targetPos.y,
+      currentPos.color,
+      true
+    );
   relMouseCoords(e, currentPos);
 }
 
@@ -267,6 +307,10 @@ function onDrawingEvent(data) {
   drawLine(data.x0, data.y0, data.x1, data.y1, data.color, false);
 }
 
+function onErasingEvent(data) {
+  eraseLine(data.x0, data.y0, data.x1, data.y1, 25, false);
+}
+
 /*
  * Init
  */
@@ -281,6 +325,7 @@ function setupSocket() {
   socket.on("joinFailedMaxPlayers", onJoinFailedMaxPlayers);
   socket.on("nickInUse", onNickInUse);
   socket.on("playerDrawing", onDrawingEvent);
+  socket.on("playerErasing", onErasingEvent);
 }
 
 function initializeClient() {
@@ -308,6 +353,9 @@ initializeClient();
 
 readyButton.onclick = onReadyClick;
 resetCanvaBtn.onclick = onResetBtnClick;
+eraseBtn.onclick = onEraseBtnClick;
+penBtn.onclick = onPenBtnClick;
+
 lobbyCanvas.addEventListener("mousedown", onMouseDown, false);
 lobbyCanvas.addEventListener("mouseup", onMouseUp, false);
 lobbyCanvas.addEventListener("mouseout", onMouseUp, false);
