@@ -34,26 +34,44 @@ const resetCanvaBtn = document.querySelector('#reset-canvas');
 
 /* global Player, io */
 
-const context = lobbyCanvas.getContext('2d');
-
-const queryString = window.location.search;
-const urlParams = new URLSearchParams(queryString);
-const lobbyType = urlParams.get('type');
-const nickname = urlParams.get('nickname');
-const roomCode = urlParams.get('roomCode');
 let player;
 let socket;
 let currentRoom;
-const currentPos = { color: 'black', x: 0, y: 0 };
-const targetPos = { color: 'black', x: 0, y: 0 };
-let drawing = false;
+
+/* url paramas */
+
+const queryString = window.location.search;
+const urlParams = new URLSearchParams(queryString);
+
+const lobbyType = urlParams.get('type');
+const nickname = urlParams.get('nickname');
+const roomCode = urlParams.get('roomCode');
+
+/* timers */
+
 let startGameTimer;
-let startGameSeconds = 5;
+
+const initialCont = 5;
+let startGameSeconds = initialCont;
+
+/* canvas */
+
+const context = lobbyCanvas.getContext('2d');
+
+let drawing = false;
+
+const currentCanvasPosition = { color: 'black', x: 0, y: 0 };
+const targetCanvasPosition = { color: 'black', x: 0, y: 0 };
 
 /* ---------------------------------------------------------------------------*/
 /*                               Lobby Functions                              */
 /* ---------------------------------------------------------------------------*/
 
+/**
+ * Starts a timer to redirect to the game page.
+ *
+ * @param {boolean} start whether to start the timer or cancel it.
+ */
 function startGame(start) {
   if (start && !startGameTimer) {
     startGameTimer = setInterval(() => {
@@ -72,6 +90,9 @@ function startGame(start) {
   }
 }
 
+/**
+ * Updates the player list with the current room's players metadata.
+ */
 function updatePlayerList() {
   if (!currentRoom.gameStarted) {
     playersList.innerHTML = '';
@@ -106,10 +127,35 @@ function updatePlayerList() {
 /*                              Canvas Functions                              */
 /* ---------------------------------------------------------------------------*/
 
-function relMouseCoords(e, position) {
+/**
+ * Simple throttle function.
+ *
+ * @param {callback} callback the function to throttle
+ * @param {number} delay the delay in milliseconds
+ * @returns the throttled function
+ */
+function throttle(callback, delay) {
+  let previousCall = new Date().getTime();
+  return (...args) => {
+    const time = new Date().getTime();
+    if (time - previousCall >= delay) {
+      previousCall = time;
+      callback.apply(null, args);
+    }
+  };
+}
+
+/**
+ * Updates the given canvas position object with the mouse or touch coordinates
+ * relative to the canvas.
+ *
+ * @param {Object} event the mouse or touch event
+ * @param {Object} position the position object to update
+ */
+function relMouseCoords(event, position) {
   let totalOffsetX = 0;
   let totalOffsetY = 0;
-  let currentElement = e.target;
+  let currentElement = event.target;
 
   do {
     totalOffsetX += currentElement.offsetLeft - currentElement.scrollLeft;
@@ -117,29 +163,28 @@ function relMouseCoords(e, position) {
     currentElement = currentElement.offsetParent;
   } while (currentElement);
 
-  position.x = (e.pageX || e.touches[0].pageX) - totalOffsetX;
-  position.y = (e.pageY || e.touches[0].pageY) - totalOffsetY;
+  position.x = (event.pageX || event.touches[0].pageX) - totalOffsetX;
+  position.y = (event.pageY || event.touches[0].pageY) - totalOffsetY;
 }
 
-function throttle(callback, delay) {
-  let previousCall = new Date().getTime();
-  return (...args) => {
-    const time = new Date().getTime();
-    if ((time - previousCall) >= delay) {
-      previousCall = time;
-      callback.apply(null, args);
-    }
-  };
-}
-
+/**
+ * Draws a line between the current position and the target position.
+ *
+ * @param {number} x0 the current x position
+ * @param {number} y0 the current y position
+ * @param {number} x1 the target x position
+ * @param {number} y1 the target y position
+ * @param {string} color the color of the line
+ * @param {boolean} emit whether to emit the line to the server
+ */
 function drawLine(x0, y0, x1, y1, color, emit) {
   if (!emit) {
     const rect = lobbyCanvas.getBoundingClientRect();
     const widthMultiplier = lobbyCanvas.width / rect.width;
 
     context.beginPath();
-    context.moveTo((x0 * widthMultiplier), (y0 * widthMultiplier));
-    context.lineTo((x1 * widthMultiplier), (y1 * widthMultiplier));
+    context.moveTo(x0 * widthMultiplier, y0 * widthMultiplier);
+    context.lineTo(x1 * widthMultiplier, y1 * widthMultiplier);
     context.strokeStyle = color;
     context.lineWidth = 2;
     context.stroke();
@@ -148,19 +193,46 @@ function drawLine(x0, y0, x1, y1, color, emit) {
     return;
   }
 
-  socket.emit('lobbyDrawing', {
-    x0,
-    y0,
-    x1,
-    y1,
-    color,
-  }, player);
+  socket.emit(
+    'lobbyDrawing', {
+      x0, y0, x1, y1, color,
+    }, player,
+  );
+}
+
+/**
+ * Clears the canvas content.
+ */
+function onResetBtnClick() {
+  context.clearRect(0, 0, lobbyCanvas.width, lobbyCanvas.height);
+}
+
+/**
+ * Updates the canvas input data object with client's selected color.
+ *
+ * @param {*} event the color input event.
+ */
+function changeColor(event) {
+  currentCanvasPosition.color = event.target.value;
+}
+
+/**
+ * Setups the color change event listener and selects the new color.
+ */
+function selectColor() {
+  const penColor = document.querySelector('#pen-color');
+  penColor.value = currentCanvasPosition.color;
+  penColor.addEventListener('input', changeColor, false);
+  penColor.select();
 }
 
 /* ---------------------------------------------------------------------------*/
 /*                                 HTML Events                                */
 /* ---------------------------------------------------------------------------*/
 
+/**
+ * Updates the current player's status and toggles the ready button.
+ */
 function onReadyClick() {
   if (readyButton.className === 'readyButton ready') {
     readyButton.className = 'readyButton cancel';
@@ -175,71 +247,123 @@ function onReadyClick() {
   }
 }
 
-function onResetBtnClick() {
-  context.clearRect(0, 0, lobbyCanvas.width, lobbyCanvas.height);
-}
-
-function changeColor(event) {
-  currentPos.color = event.target.value;
-}
-
-function selectColor() {
-  const penColor = document.querySelector('#pen-color');
-  penColor.value = currentPos.color;
-  penColor.addEventListener('input', changeColor, false);
-  penColor.select();
-}
-
-function onMouseDown(e) {
+/**
+ * Updates the current mouse or touch position on the canvas.
+ *
+ * @param {Object} event the mouse down or touch start event
+ */
+function onMouseDown(event) {
   drawing = true;
   selectColor();
-  relMouseCoords(e, currentPos);
+  relMouseCoords(event, currentCanvasPosition);
 }
 
-function onMouseUp(e) {
-  if (!drawing) { return; }
+/**
+ * Updates the target mouse or touch position on the canvas, and draws a line
+ * between the current position and the target position.
+ *
+ * @param {Object} event the mouse up or touch end event
+ */
+function onMouseUp(event) {
+  if (!drawing) {
+    return;
+  }
   drawing = false;
-  relMouseCoords(e, targetPos);
-  drawLine(currentPos.x, currentPos.y, targetPos.x, targetPos.y, currentPos.color, true);
+  relMouseCoords(event, targetCanvasPosition);
+  drawLine(
+    currentCanvasPosition.x,
+    currentCanvasPosition.y,
+    targetCanvasPosition.x,
+    targetCanvasPosition.y,
+    currentCanvasPosition.color,
+    true,
+  );
 }
 
-function onMouseMove(e) {
-  if (!drawing) { return; }
-  relMouseCoords(e, targetPos);
-  drawLine(currentPos.x, currentPos.y, targetPos.x, targetPos.y, currentPos.color, true);
-  relMouseCoords(e, currentPos);
+/**
+ * Updates the target mouse or touch position on the canvas, draws a line
+ * between the current position and the target position, and updates the current
+ * position.
+ *
+ * @param {Object} event the mouse move or touch move event
+ */
+function onMouseMove(event) {
+  if (!drawing) {
+    return;
+  }
+  relMouseCoords(event, targetCanvasPosition);
+  drawLine(
+    currentCanvasPosition.x,
+    currentCanvasPosition.y,
+    targetCanvasPosition.x,
+    targetCanvasPosition.y,
+    currentCanvasPosition.color,
+    true,
+  );
+  relMouseCoords(event, currentCanvasPosition);
 }
 
 /* ---------------------------------------------------------------------------*/
 /*                                Socket Events                               */
 /* ---------------------------------------------------------------------------*/
 
-function onJoinComplete(data) {
-  currentRoom = data;
+/**
+ * Updates the room data and the new connected player's game page.
+ *
+ * @param {Object} updatedRoom the updated room
+ */
+function onJoinComplete(updatedRoom) {
+  currentRoom = updatedRoom;
   roomCodeHeader.innerHTML = `Room ${currentRoom.roomCode}`;
   updatePlayerList();
 }
 
+/**
+ * Shows a nickanme already in use join failure message and redirects to the
+ * home page.
+ */
 function onNickInUse() {
   lobbyHeader.innerHTML = 'Nickname is already in use';
-  setTimeout(() => { window.location.href = '/'; }, 2000);
+  setTimeout(() => {
+    window.location.href = '/';
+  }, 2000);
 }
 
+/**
+ * Shows a join failure message and redirects to the home page.
+ */
 function onJoinFailed() {
   lobbyHeader.innerHTML = 'Room not found!';
-  setTimeout(() => { window.location.href = '/'; }, 2000);
+  setTimeout(() => {
+    window.location.href = '/';
+  }, 2000);
 }
 
+/**
+ * Shows a join failure due to full room message and redirects to the home page.
+ */
 function onJoinFailedMaxPlayers() {
   lobbyHeader.innerHTML = 'Room is full!';
-  setTimeout(() => { window.location.href = '/'; }, 2000);
+  setTimeout(() => {
+    window.location.href = '/';
+  }, 2000);
 }
 
-function onPlayersChanged(data) {
-  currentRoom = data;
+/**
+ * Updates the room data and the players list.
+ *
+ * @param {Object} updatedRoom the updated room
+ */
+function onPlayersChanged(updatedRoom) {
+  currentRoom = updatedRoom;
   updatePlayerList();
 }
 
+/**
+ * Draws a line with the data incoming from the server.
+ *
+ * @param {Object} data the drawing input
+ */
 function onDrawingEvent(data) {
   drawLine(data.x0, data.y0, data.x1, data.y1, data.color, false);
 }
@@ -248,6 +372,9 @@ function onDrawingEvent(data) {
 /*                                    Init                                    */
 /* ---------------------------------------------------------------------------*/
 
+/**
+ * Sets up the socket listeners.
+ */
 function setupSocket() {
   socket = io.connect('/');
 
@@ -260,12 +387,18 @@ function setupSocket() {
   socket.on('playerDrawing', onDrawingEvent);
 }
 
+/**
+ * Checks the URL for the lobby type, nickname and room code.
+ */
 function checkParameters() {
   if (!lobbyType || !nickname || !roomCode) {
     window.location.href = '/';
   }
 }
 
+/**
+ * Sets up the client with the URL parameters.
+ */
 function initializeClient() {
   player = new Player(nickname, roomCode);
 
@@ -280,16 +413,22 @@ setupSocket();
 checkParameters();
 initializeClient();
 
-/* HTML Events Setup */
+/* ---------------------------------------------------------------------------*/
+/*                              HTML Events Setup                             */
+/* ---------------------------------------------------------------------------*/
 
 readyButton.onclick = onReadyClick;
 resetCanvaBtn.onclick = onResetBtnClick;
+
+/* Canvas */
+
+// mouse events
 lobbyCanvas.addEventListener('mousedown', onMouseDown, false);
 lobbyCanvas.addEventListener('mouseup', onMouseUp, false);
 lobbyCanvas.addEventListener('mouseout', onMouseUp, false);
 lobbyCanvas.addEventListener('mousemove', throttle(onMouseMove, 10), false);
 
-// touch support for mobile devices
+// touch events
 lobbyCanvas.addEventListener('touchstart', onMouseDown, false);
 lobbyCanvas.addEventListener('touchend', onMouseUp, false);
 lobbyCanvas.addEventListener('touchcancel', onMouseUp, false);
