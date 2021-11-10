@@ -62,8 +62,6 @@ let startGameSeconds = initialCont;
 
 const context = lobbyCanvas.getContext('2d');
 
-let drawing = false;
-
 const currentCanvasPosition = { color: 'black', x: 0, y: 0 };
 const targetCanvasPosition = { color: 'black', x: 0, y: 0 };
 

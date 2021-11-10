@@ -579,6 +579,7 @@ function setupSocket() {
 
   socket.on('playersChanged', onPlayersChanged);
   socket.on('playerDrawing', onDrawingEvent);
+  socket.on('playerErasing', onErasingEvent);
 
   socket.on('newGame', onNewGame);
   socket.on('endGame', onEndGame);
