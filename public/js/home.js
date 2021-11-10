@@ -106,7 +106,9 @@ function onJoinRoomBtnClick() {
  */
 function onConfirmCreateRoomBtnClick() {
   const nickname = createNicknameIpt.value;
-  window.location.href = `/lobby?type=create&nickname=${nickname}&roomCode=${generateRoomCode(6)}`;
+  window.location.href = `/lobby?type=create&nickname=${nickname}&roomCode=${generateRoomCode(
+    6
+  )}`;
 }
 
 /**
@@ -145,6 +147,12 @@ document.addEventListener('keydown', (event) => {
   }
 });
 
-window.onclick = (event) => { if (event.target === currentOpenModal) { hideModal(); } };
+window.onclick = (event) => {
+  if (event.target === currentOpenModal) {
+    hideModal();
+  }
+};
 
-Array.from(spanBtns).forEach((spanBtn) => { spanBtn.onclick = hideModal; });
+Array.from(spanBtns).forEach((spanBtn) => {
+  spanBtn.onclick = hideModal;
+});

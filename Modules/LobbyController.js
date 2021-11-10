@@ -264,7 +264,10 @@ class LobbyController {
     }
 
     currentRoom.checkEveryoneReady();
-    io.to(currentRoom.roomCode).emit('wordWas', `A palavra era: ${currentRoom.word}`);
+    io.to(currentRoom.roomCode).emit(
+      'wordWas',
+      `A palavra era: ${currentRoom.word}`
+    );
     if (currentRoom.everyoneReady) this.newRound(io, player.roomCode);
   }
 
@@ -309,6 +312,19 @@ class LobbyController {
   drawing(io, player, data) {
     const currentRoom = this.getRoomByCode(player.roomCode);
     io.to(currentRoom.roomCode).emit('playerDrawing', data);
+  }
+
+  /**
+   * Broadcasts the itens erases from a player to all the other
+   * players in the room.
+   *
+   * @param {Object} io the server
+   * @param {Object} player the player who is emiting the drawing input
+   * @param {Object} data the drawing input metadata
+   */
+  erasing(io, player, data) {
+    const currentRoom = this.getRoomByCode(player.roomCode);
+    io.to(currentRoom.roomCode).emit('playerErasing', data);
   }
 
   /**

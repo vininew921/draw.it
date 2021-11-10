@@ -36,7 +36,11 @@ const publicDirectory = path.join(__dirname, 'public');
 /* ---------------------------------------------------------------------------*/
 
 livereload.watch(publicDirectory);
-livereload.server.once('connection', () => { setTimeout(() => { livereload.refresh('/'); }, 100); });
+livereload.server.once('connection', () => {
+  setTimeout(() => {
+    livereload.refresh('/');
+  }, 100);
+});
 
 /* ---------------------------------------------------------------------------*/
 /*                                Express Setup                               */
@@ -45,14 +49,23 @@ livereload.server.once('connection', () => { setTimeout(() => { livereload.refre
 app.use(connectLivereload());
 app.use(express.static(publicDirectory));
 
-app.get('/', (req, res) => { res.sendFile(`${publicDirectory}/pages/home.html`); });
+app.get('/', (req, res) => {
+  res.sendFile(`${publicDirectory}/pages/home.html`);
+});
 
-app.get('/lobby', (req, res) => { res.sendFile(`${publicDirectory}/pages/lobby.html`); });
+app.get('/lobby', (req, res) => {
+  res.sendFile(`${publicDirectory}/pages/lobby.html`);
+});
 
-app.get('/game', (req, res) => { res.sendFile(`${publicDirectory}/pages/game.html`); });
+app.get('/game', (req, res) => {
+  res.sendFile(`${publicDirectory}/pages/game.html`);
+});
 
 // expose socket.io to client
-app.use('/scripts', express.static(`${__dirname}/node_modules/socket.io/client-dist/`));
+app.use(
+  '/scripts',
+  express.static(`${__dirname}/node_modules/socket.io/client-dist/`)
+);
 
 /* ---------------------------------------------------------------------------*/
 /*                                Socket Setup                                */
@@ -62,27 +75,57 @@ app.use('/scripts', express.static(`${__dirname}/node_modules/socket.io/client-d
  * Sets up the socket listeners.
  */
 function onConnection(socket) {
-  socket.on('createRoom', (player) => { lobbyController.createRoom(socket, player); });
+  socket.on('createRoom', (player) => {
+    lobbyController.createRoom(socket, player);
+  });
 
-  socket.on('joinRoom', (player) => { lobbyController.joinRoom(io, socket, player); });
+  socket.on('joinRoom', (player) => {
+    lobbyController.joinRoom(io, socket, player);
+  });
 
-  socket.on('joinGame', (data) => { lobbyController.joinGame(io, socket, data.playerId, data.roomCode); });
+  socket.on('joinGame', (data) => {
+    lobbyController.joinGame(io, socket, data.playerId, data.roomCode);
+  });
 
-  socket.on('disconnecting', () => { setTimeout(() => lobbyController.removePlayerFromRooms(io, socket), 10000); });
+  socket.on('disconnecting', () => {
+    setTimeout(() => lobbyController.removePlayerFromRooms(io, socket), 10000);
+  });
 
-  socket.on('playerReadyChanged', (player) => { lobbyController.changePlayerReady(io, socket, player); });
+  socket.on('playerReadyChanged', (player) => {
+    lobbyController.changePlayerReady(io, socket, player);
+  });
 
-  socket.on('lobbyDrawing', (data, player) => { lobbyController.drawing(io, player, data); });
+  socket.on('lobbyDrawing', (data, player) => {
+    lobbyController.drawing(io, player, data);
+  });
 
-  socket.on('gameDrawing', (data, player) => { lobbyController.drawing(io, player, data); });
+  socket.on('gameDrawing', (data, player) => {
+    lobbyController.drawing(io, player, data);
+  });
 
-  socket.on('startNewRound', (roomCode) => { lobbyController.newRound(io, roomCode); });
+  socket.on('lobbyErasing', (data, player) => {
+    lobbyController.erasing(io, player, data);
+  });
 
-  socket.on('guessWord', (player, word) => { lobbyController.guessWord(io, player, word); });
+  socket.on('gameErasing', (data, player) => {
+    lobbyController.erasing(io, player, data);
+  });
 
-  socket.on('endRound', (player) => { lobbyController.endRound(io, player); });
+  socket.on('startNewRound', (roomCode) => {
+    lobbyController.newRound(io, roomCode);
+  });
 
-  socket.on('clearBoard', (player) => { lobbyController.clearBoard(io, player); });
+  socket.on('guessWord', (player, word) => {
+    lobbyController.guessWord(io, player, word);
+  });
+
+  socket.on('endRound', (player) => {
+    lobbyController.endRound(io, player);
+  });
+
+  socket.on('clearBoard', (player) => {
+    lobbyController.clearBoard(io, player);
+  });
 }
 
 /* ---------------------------------------------------------------------------*/

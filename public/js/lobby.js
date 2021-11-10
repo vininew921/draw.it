@@ -27,6 +27,8 @@ const lobbyHeader = document.getElementById('lobbyHeader');
 const lobbyCanvas = document.getElementById('lobbyCanvas');
 const readyButton = document.getElementById('lobbyReady');
 const resetCanvaBtn = document.querySelector('#reset-canvas');
+const eraseBtn = document.querySelector('#btn-erase');
+const penBtn = document.querySelector('#btn-pen');
 
 /* ---------------------------------------------------------------------------*/
 /*                              Control Variables                             */
@@ -37,6 +39,8 @@ const resetCanvaBtn = document.querySelector('#reset-canvas');
 let player;
 let socket;
 let currentRoom;
+let drawing = false;
+let erasing = false;
 
 /* url paramas */
 
@@ -57,8 +61,6 @@ let startGameSeconds = initialCont;
 /* canvas */
 
 const context = lobbyCanvas.getContext('2d');
-
-let drawing = false;
 
 const currentCanvasPosition = { color: 'black', x: 0, y: 0 };
 const targetCanvasPosition = { color: 'black', x: 0, y: 0 };
@@ -168,6 +170,36 @@ function relMouseCoords(event, position) {
 }
 
 /**
+ * Erases the itens between the current position and the target position.
+ *
+ * @param {number} x0 the current x position
+ * @param {number} y0 the current y position
+ * @param {number} x1 the target x position
+ * @param {number} y1 the target y position
+ * @param {number} size the size of the line
+ * @param {boolean} emit whether to emit the line to the server
+ */
+function eraseLine(x0, y0, x1, y1, size, emit) {
+  if (!emit) {
+    const rect = lobbyCanvas.getBoundingClientRect();
+    const widthMultiplier = lobbyCanvas.width / rect.width;
+    context.clearRect(x1 * widthMultiplier, y1 * widthMultiplier, size, size);
+    return;
+  }
+
+  socket.emit(
+    'lobbyErasing',
+    {
+      x0,
+      y0,
+      x1,
+      y1,
+    },
+    player
+  );
+}
+
+/**
  * Draws a line between the current position and the target position.
  *
  * @param {number} x0 the current x position
@@ -194,9 +226,15 @@ function drawLine(x0, y0, x1, y1, color, emit) {
   }
 
   socket.emit(
-    'lobbyDrawing', {
-      x0, y0, x1, y1, color,
-    }, player,
+    'lobbyDrawing',
+    {
+      x0,
+      y0,
+      x1,
+      y1,
+      color,
+    },
+    player
   );
 }
 
@@ -208,11 +246,26 @@ function onResetBtnClick() {
 }
 
 /**
+ * Enables the eraser.
+ */
+function onEraseBtnClick() {
+  erasing = true;
+}
+
+/**
+ * Disables the eraser.
+ */
+function onPenBtnClick() {
+  erasing = false;
+}
+
+/**
  * Updates the canvas input data object with client's selected color.
  *
  * @param {*} event the color input event.
  */
 function changeColor(event) {
+  erasing = false;
   currentCanvasPosition.color = event.target.value;
 }
 
@@ -270,14 +323,24 @@ function onMouseUp(event) {
   }
   drawing = false;
   relMouseCoords(event, targetCanvasPosition);
-  drawLine(
-    currentCanvasPosition.x,
-    currentCanvasPosition.y,
-    targetCanvasPosition.x,
-    targetCanvasPosition.y,
-    currentCanvasPosition.color,
-    true,
-  );
+  if (erasing)
+    eraseLine(
+      currentCanvasPosition.x,
+      currentCanvasPosition.y,
+      targetCanvasPosition.x,
+      targetCanvasPosition.y,
+      25,
+      true
+    );
+  else
+    drawLine(
+      currentCanvasPosition.x,
+      currentCanvasPosition.y,
+      targetCanvasPosition.x,
+      targetCanvasPosition.y,
+      currentCanvasPosition.color,
+      true
+    );
 }
 
 /**
@@ -292,14 +355,24 @@ function onMouseMove(event) {
     return;
   }
   relMouseCoords(event, targetCanvasPosition);
-  drawLine(
-    currentCanvasPosition.x,
-    currentCanvasPosition.y,
-    targetCanvasPosition.x,
-    targetCanvasPosition.y,
-    currentCanvasPosition.color,
-    true,
-  );
+  if (erasing)
+    eraseLine(
+      currentCanvasPosition.x,
+      currentCanvasPosition.y,
+      targetCanvasPosition.x,
+      targetCanvasPosition.y,
+      25,
+      true
+    );
+  else
+    drawLine(
+      currentCanvasPosition.x,
+      currentCanvasPosition.y,
+      targetCanvasPosition.x,
+      targetCanvasPosition.y,
+      currentCanvasPosition.color,
+      true
+    );
   relMouseCoords(event, currentCanvasPosition);
 }
 
@@ -368,6 +441,15 @@ function onDrawingEvent(data) {
   drawLine(data.x0, data.y0, data.x1, data.y1, data.color, false);
 }
 
+/**
+ * Erases the lines with the data incoming from the server.
+ *
+ * @param {Object} data the drawing input
+ */
+function onErasingEvent(data) {
+  eraseLine(data.x0, data.y0, data.x1, data.y1, 25, false);
+}
+
 /* ---------------------------------------------------------------------------*/
 /*                                    Init                                    */
 /* ---------------------------------------------------------------------------*/
@@ -385,6 +467,7 @@ function setupSocket() {
 
   socket.on('playersChanged', onPlayersChanged);
   socket.on('playerDrawing', onDrawingEvent);
+  socket.on('playerErasing', onErasingEvent);
 }
 
 /**
@@ -419,6 +502,8 @@ initializeClient();
 
 readyButton.onclick = onReadyClick;
 resetCanvaBtn.onclick = onResetBtnClick;
+eraseBtn.onclick = onEraseBtnClick;
+penBtn.onclick = onPenBtnClick;
 
 /* Canvas */
 

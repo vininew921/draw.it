@@ -30,6 +30,8 @@ const playersList = document.getElementById('players');
 const gameHeader = document.getElementById('gameHeader');
 const rightWord = document.getElementById('rightWord');
 const gameCanvas = document.getElementById('gameCanvas');
+const eraseBtn = document.getElementById('btn-erase');
+const penBtn = document.getElementById('btn-pen');
 
 /* ---------------------------------------------------------------------------*/
 /*                              Control Variables                             */
@@ -58,6 +60,10 @@ let timerInterval;
 const initialCont = 120;
 let cont = initialCont;
 
+/*
+ * Game Functions
+ */
+
 const initialStartGameSeconds = 5;
 let startGameSeconds = initialStartGameSeconds;
 
@@ -66,6 +72,7 @@ let startGameSeconds = initialStartGameSeconds;
 const context = gameCanvas.getContext('2d');
 
 let drawing = false;
+let erasing = false;
 let isDrawer = false;
 
 const currentPos = { color: 'black', x: 0, y: 0 };
@@ -156,7 +163,9 @@ function initTimer() {
     cont--;
     const time = new Date(cont * 1000).toISOString().substr(15, 4);
     timer.innerHTML = time;
-    if (cont <= 0) { stopTimer(); }
+    if (cont <= 0) {
+      stopTimer();
+    }
   }, 1000);
 }
 
@@ -194,7 +203,7 @@ function throttle(callback, delay) {
   let previousCall = new Date().getTime();
   return (...args) => {
     const time = new Date().getTime();
-    if ((time - previousCall) >= delay) {
+    if (time - previousCall >= delay) {
       previousCall = time;
       callback.apply(null, args);
     }
@@ -204,13 +213,13 @@ function throttle(callback, delay) {
 /**
  * Gets the mouse coordinates relative to the canvas.
  *
- * @param {Object} e the event
+ * @param {Object} event the event
  * @param {Object} position the position object to update
  */
-function relMouseCoords(e, position) {
+function relMouseCoords(event, position) {
   let totalOffsetX = 0;
   let totalOffsetY = 0;
-  let currentElement = e.target;
+  let currentElement = event.target;
 
   do {
     totalOffsetX += currentElement.offsetLeft - currentElement.scrollLeft;
@@ -218,8 +227,38 @@ function relMouseCoords(e, position) {
     currentElement = currentElement.offsetParent;
   } while (currentElement);
 
-  position.x = (e.pageX || e.touches[0].pageX) - totalOffsetX;
-  position.y = (e.pageY || e.touches[0].pageY) - totalOffsetY;
+  position.x = (event.pageX || event.touches[0].pageX) - totalOffsetX;
+  position.y = (event.pageY || event.touches[0].pageY) - totalOffsetY;
+}
+
+/**
+ * Erases the itens between the current position and the target position.
+ *
+ * @param {number} x0 the current x position
+ * @param {number} y0 the current y position
+ * @param {number} x1 the target x position
+ * @param {number} y1 the target y position
+ * @param {number} size the color of the line
+ * @param {boolean} emit whether to emit the drawing input to the server
+ */
+function eraseLine(x0, y0, x1, y1, size, emit) {
+  if (!emit) {
+    const rect = gameCanvas.getBoundingClientRect();
+    const widthMultiplier = gameCanvas.width / rect.width;
+    context.clearRect(x1 * widthMultiplier, y1 * widthMultiplier, size, size);
+    return;
+  }
+
+  socket.emit(
+    'gameErasing',
+    {
+      x0,
+      y0,
+      x1,
+      y1,
+    },
+    player
+  );
 }
 
 /**
@@ -237,21 +276,25 @@ function drawLine(x0, y0, x1, y1, color, emit) {
   const widthMultiplier = gameCanvas.width / rect.width;
 
   context.beginPath();
-  context.moveTo((x0 * widthMultiplier), (y0 * widthMultiplier));
-  context.lineTo((x1 * widthMultiplier), (y1 * widthMultiplier));
+  context.moveTo(x0 * widthMultiplier, y0 * widthMultiplier);
+  context.lineTo(x1 * widthMultiplier, y1 * widthMultiplier);
   context.strokeStyle = color;
   context.lineWidth = 2;
   context.stroke();
   context.closePath();
 
   if (emit) {
-    socket.emit('gameDrawing', {
-      x0,
-      y0,
-      x1,
-      y1,
-      color,
-    }, player);
+    socket.emit(
+      'gameDrawing',
+      {
+        x0,
+        y0,
+        x1,
+        y1,
+        color,
+      },
+      player
+    );
   }
 }
 
@@ -264,7 +307,9 @@ function drawLine(x0, y0, x1, y1, color, emit) {
  */
 function onSubmitBtnClick() {
   const text = wordIpt.value;
-  if (text) { socket.emit('guessWord', player, text); }
+  if (text) {
+    socket.emit('guessWord', player, text);
+  }
 }
 
 /**
@@ -274,12 +319,21 @@ function onResetBtnClick() {
   socket.emit('clearBoard', player);
 }
 
+function onEraseBtnClick() {
+  erasing = true;
+}
+
+function onPenBtnClick() {
+  erasing = false;
+}
+
 /**
  * Updates the canvas input data object with client's selected color.
  *
  * @param {*} event the color input event.
  */
 function changeColor(event) {
+  erasing = false;
   currentPos.color = event.target.value;
 }
 
@@ -312,10 +366,22 @@ function onMouseDown(e) {
  */
 function onMouseUp(e) {
   if (isDrawer) {
-    if (!drawing) { return; }
+    if (!drawing) {
+      return;
+    }
     drawing = false;
     relMouseCoords(e, targetPos);
-    drawLine(currentPos.x, currentPos.y, targetPos.x, targetPos.y, currentPos.color, true);
+    if (erasing)
+      eraseLine(currentPos.x, currentPos.y, targetPos.x, targetPos.y, 25, true);
+    else
+      drawLine(
+        currentPos.x,
+        currentPos.y,
+        targetPos.x,
+        targetPos.y,
+        currentPos.color,
+        true
+      );
   }
 }
 
@@ -327,9 +393,21 @@ function onMouseUp(e) {
  */
 function onMouseMove(e) {
   if (isDrawer) {
-    if (!drawing) { return; }
+    if (!drawing) {
+      return;
+    }
     relMouseCoords(e, targetPos);
-    drawLine(currentPos.x, currentPos.y, targetPos.x, targetPos.y, currentPos.color, true);
+    if (erasing)
+      eraseLine(currentPos.x, currentPos.y, targetPos.x, targetPos.y, 25, true);
+    else
+      drawLine(
+        currentPos.x,
+        currentPos.y,
+        targetPos.x,
+        targetPos.y,
+        currentPos.color,
+        true
+      );
     relMouseCoords(e, currentPos);
   }
 }
@@ -373,7 +451,9 @@ function onJoinComplete(data) {
  */
 function onJoinFailed() {
   gameHeader.innerHTML = 'Room not found!';
-  setTimeout(() => { window.location.href = '/'; }, 2000);
+  setTimeout(() => {
+    window.location.href = '/';
+  }, 2000);
 }
 
 /**
@@ -381,7 +461,9 @@ function onJoinFailed() {
  */
 function onJoinFailedMaxPlayers() {
   gameHeader.innerHTML = 'Room is full!';
-  setTimeout(() => { window.location.href = '/'; }, 2000);
+  setTimeout(() => {
+    window.location.href = '/';
+  }, 2000);
 }
 
 /**
@@ -391,6 +473,15 @@ function onJoinFailedMaxPlayers() {
  */
 function onDrawingEvent(data) {
   drawLine(data.x0, data.y0, data.x1, data.y1, data.color, false);
+}
+
+/**
+ * Erases the lines with the data incoming from the server.
+ *
+ * @param {Object} data the drawing input
+ */
+function onErasingEvent(data) {
+  eraseLine(data.x0, data.y0, data.x1, data.y1, 25, false);
 }
 
 /**
@@ -433,7 +524,9 @@ function onNewGame(data) {
  */
 function onEndGame() {
   gameHeader.innerHTML = 'Game has been ended';
-  setTimeout(() => { window.location.href = '/'; }, 2000);
+  setTimeout(() => {
+    window.location.href = '/';
+  }, 2000);
 }
 
 /**
@@ -486,6 +579,7 @@ function setupSocket() {
 
   socket.on('playersChanged', onPlayersChanged);
   socket.on('playerDrawing', onDrawingEvent);
+  socket.on('playerErasing', onErasingEvent);
 
   socket.on('newGame', onNewGame);
   socket.on('endGame', onEndGame);
@@ -524,6 +618,8 @@ initTimer();
 /* ---------------------------------------------------------------------------*/
 
 resetCanvaBtn.onclick = onResetBtnClick;
+eraseBtn.onclick = onEraseBtnClick;
+penBtn.onclick = onPenBtnClick;
 sendBtn.onclick = onSubmitBtnClick;
 wordIpt.onkeydown = guessEnter;
 
