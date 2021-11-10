@@ -1,83 +1,83 @@
 /*
-  Draw.it
-  Copyright (C) 2021  Various Authors
+ *  Draw.it
+ *  Copyright (C) 2021 Various Authors
+ *
+ *  This program is free software: you can redistribute it and/or modify
+ *  it under the terms of the GNU General Public License as published by
+ *  the Free Software Foundation, either version 3 of the License, or
+ *  (at your option) any later version.
+ *
+ *  This program is distributed in the hope that it will be useful,
+ *  but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ *  GNU General Public License for more details.
+ *
+ *  You should have received a copy of the GNU General Public License
+ *  along with this program. If not, see <https://www.gnu.org/licenses/>.
+ */
 
-  This program is free software: you can redistribute it and/or modify
-  it under the terms of the GNU General Public License as published by
-  the Free Software Foundation, either version 3 of the License, or
-  (at your option) any later version.
-
-  This program is distributed in the hope that it will be useful,
-  but WITHOUT ANY WARRANTY; without even the implied warranty of
-  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-  GNU General Public License for more details.
-
-  You should have received a copy of the GNU General Public License
-  along with this program.  If not, see <https://www.gnu.org/licenses/>.
-*/
-
-body{
-    background-color: #01BEFE;
-    max-height: 100vh;
-    max-width: 100vw;
-    padding: 0;
-    margin: 0;
-    overflow-y: auto;
-    overflow-x: hidden;
-    position: relative;
+body {
+  background-color: #01BEFE;
+  max-height: 100vh;
+  max-width: 100vw;
+  padding: 0;
+  margin: 0;
+  overflow-y: auto;
+  overflow-x: hidden;
+  position: relative;
 }
 
-*{
-    font-family: cursive;
+* {
+  font-family: cursive;
 }
 
-#header{
-    text-align: center;
-    margin: auto;
-    width: 50%;
-    font-size: xx-large;
+#header {
+  text-align: center;
+  margin: auto;
+  width: 50%;
+  font-size: xx-large;
 }
 
-.options{
-    display: flex;
-    justify-content: center;
+.options {
+  display: flex;
+  justify-content: center;
 }
 
-.roomOptions{
-    margin-top: 10vh;
-    max-width: 400px;
-    text-align: center;
+.roomOptions {
+  margin-top: 10vh;
+  max-width: 400px;
+  text-align: center;
 }
 
-.roomBtn{
-    background-color: #FFDD00;
-    width: 300px;
-    font-size: 36px;
-    box-sizing: border-box;
-    margin: 1rem;
-    padding: 1rem;
-    border: 3px solid #000;
-    border-radius: 5px;
+.roomBtn {
+  background-color: #FFDD00;
+  width: 300px;
+  font-size: 36px;
+  box-sizing: border-box;
+  margin: 1rem;
+  padding: 1rem;
+  border: 3px solid #000;
+  border-radius: 5px;
 }
 
-.roomBtn:hover{
-    background-color: #FF7D00;
-    cursor: pointer;
+.roomBtn:hover {
+  background-color: #FF7D00;
+  cursor: pointer;
 }
 
-#copyright{
-    text-align: right;
-    width: 100%;
-    position: fixed;
-    bottom: 8px;
-    right: 10px;
+#copyright {
+  text-align: right;
+  width: 100%;
+  position: fixed;
+  bottom: 8px;
+  right: 10px;
 }
 
 #copyright p {
-    margin: 0;
-    padding: 0;
+  margin: 0;
+  padding: 0;
 }
 
 #copyright a {
-    color: #000;
+  color: #000;
 }
